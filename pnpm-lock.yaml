@@ -15,6 +15,7 @@ specifiers:
   react: ^18.2.0
   react-dom: ^18.2.0
   react-helmet: ^6.1.0
+  react-icons: ^4.9.0
   react-router-dom: ^6.11.2
   sort-by: ^1.2.0
   styled-components: 6.0.0-rc.3
@@ -29,6 +30,7 @@ dependencies:
   react: 18.2.0
   react-dom: 18.2.0_react@18.2.0
   react-helmet: 6.1.0_react@18.2.0
+  react-icons: 4.9.0_react@18.2.0
   react-router-dom: 6.11.2_biqbaboplfbrettd7655fr4n2y
   sort-by: 1.2.0
   styled-components: 6.0.0-rc.3_biqbaboplfbrettd7655fr4n2y
@@ -3030,6 +3032,14 @@ packages:
       react: 18.2.0
       react-fast-compare: 3.2.2
       react-side-effect: 2.1.2_react@18.2.0
+    dev: false
+
+  /react-icons/4.9.0_react@18.2.0:
+    resolution: {integrity: sha512-ijUnFr//ycebOqujtqtV9PFS7JjhWg0QU6ykURVHuL4cbofvRCf3f6GMn9+fBktEFQOIVZnuAYLZdiyadRQRFg==}
+    peerDependencies:
+      react: '*'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-is/16.13.1:

@@ -68,6 +68,7 @@ const AuroraInfo = styled.div`
   font-size: 5rem;
   margin: auto;
   padding-top: 27vh;
+  font-weight: 600;
 `
 
 const AuroraIntro = styled.div`
