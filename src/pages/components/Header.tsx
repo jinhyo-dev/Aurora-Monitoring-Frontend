@@ -13,8 +13,12 @@ const Header = () => {
         </AuroraNavigate>
 
         <LoginNavigator onClick={() => navigate('/sign-up')}>
-          <MdLogin style={{ marginBottom: '-0.2rem', marginRight: '0.3rem' }}/> Sign In
+          <MdLogin style={{ marginBottom: '-0.2rem', marginRight: '0.3rem' }}/> Sign up
         </LoginNavigator>
+
+        <UsageNavigator href={'/sign-in'}>
+          Sign in
+        </UsageNavigator>
 
         <UsageNavigator href={'/install'}>
           Install
@@ -39,10 +43,6 @@ const HeaderTag = styled.header`
   justify-content: space-between;
   align-items: center;
   transition: all 0.2s;
-  
-  &:hover {
-    background-color: rgba(0, 0, 0, 0.4);
-  }
 `
 
 const NavigateContainer = styled.div`
@@ -56,31 +56,43 @@ const AuroraNavigate = styled.a`
   color: #fff;
   font-weight: 500;
   opacity: 1;
+  transition: .2s all;
+  
+  &:hover {
+    opacity: .75;
+  }
 `
 
 const UsageNavigator = styled.a`
-  margin-top: 0.55rem;
+  margin-top: 0.8rem;
   float: right;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: #fff;
   padding-right: 2rem;
+  transition: .2s all;
+
+  &:hover {
+    margin-top: 0.7rem;
+    opacity: .75;
+  }
 `
 
 const LoginNavigator = styled.button`
   margin-top: 0.5rem;
   width: 7rem;
   height: 2.2rem;
-  background-color: #fff;
+  background: none;
   float: right;
   border-radius: 7px;
   font-size: 1.1rem;
-  border: none;
+  color: #fff;
+  border: 1px solid #fff;
   cursor: pointer;
-  font-weight: 500;
   transition: all 0.2s;
-  
+
   &:hover {
-   margin-top: 0.35rem; 
+    margin-top: 0.4rem;
+    opacity: .75;
   }
 `
 
