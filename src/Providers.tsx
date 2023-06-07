@@ -1,6 +1,6 @@
 import { darkTheme } from './styles/theme/defaultTheme'
 import { ThemeProvider } from 'styled-components'
-import { GlobalStyle } from "./styles/GlobalStyle";
+import { GlobalStyle } from "./styles/GlobalStyle"
 
 interface ProvidersProps {
   children: React.ReactNode;

@@ -1,11 +1,37 @@
 import { Helmet } from 'react-helmet';
-import styled from "styled-components";
 import AuroraBackground from "../assets/images/Aurora-Main-Background.jpg";
+import AuroraImage from "../assets/images/Aurora-Auth-image.png";
 import Header from "./components/Header";
-import { AuthenticationContainer } from "../styles/GlobalStyle";
+import { AccountLink, ArrowButton, AuthenticationContainer, AuthenticationForm, MainTag } from "../styles/GlobalStyle";
+import { useNavigate } from "react-router-dom";
+import { Fade } from 'react-slideshow-image';
+import 'react-slideshow-image/dist/styles.css'
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 
 const SignIn = () => {
-  const pageTitle = 'Aurora - Sign in';
+  const pageTitle = 'Sign in to Aurora · Aurora';
+  const navigate = useNavigate()
+
+  const properties = {
+    prevArrow: <ArrowButton>
+      <IoIosArrowBack/>
+    </ArrowButton>,
+    nextArrow: <ArrowButton>
+      <IoIosArrowForward/>
+    </ArrowButton>
+  }
+
+  const divStyle = {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundSize: 'cover',
+    height: '36rem',
+    width: '100%',
+    borderRadius: '0 5px 5px 0'
+  }
+
+  const images = [AuroraBackground, AuroraImage]
 
   return (
     <MainTag>
@@ -18,38 +44,40 @@ const SignIn = () => {
         <div className={'left-box'}>
           <div className={'title'}>Sign in to Aurora</div>
 
-          <div className="input-container">
-            <input type="input" className="input-field" placeholder="Email" name="email" id='email' required={true}/>
-            <label htmlFor="email" className="input-label">Email</label>
-          </div>
+          <AuthenticationForm>
+            <div className="input-container">
+              <input type="input" className="input-field" placeholder="Email" name="email" id='email' required={true}/>
+              <label htmlFor="email" className="input-label">Email</label>
+            </div>
 
-          <div className="input-container">
-            <input type="password" className="input-field" placeholder="Password" name="password" id='password' required={true}/>
-            <label htmlFor="Password" className="input-label">Password</label>
-          </div>
+            <div className="input-container password-container">
+              <input type="password" className="input-field" placeholder="Password" name="password" id='password'
+                     required={true}/>
+              <label htmlFor="Password" className="input-label">Password</label>
+            </div>
+
+            <button type={'submit'}>
+              Sign in
+            </button>
+          </AuthenticationForm>
+
+          <AccountLink>Don't have an account? <span onClick={() => navigate('/sign-up')}>Sign up</span></AccountLink>
 
         </div>
 
         <div className={'right-box'}>
-
+          <Fade {...properties}>
+            {images.map((slideImage: any, index: number) => (
+              <div key={index} style={{...divStyle}}>
+                <div style={{...divStyle, 'backgroundImage': `url(${slideImage})`}}>
+                </div>
+              </div>
+            ))}
+          </Fade>
         </div>
       </AuthenticationContainer>
     </MainTag>
   )
 }
-
-const MainTag = styled.main`
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-  background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${AuroraBackground});
-  width: 100%;
-  height: 100vh;
-  background-size: cover;
-  font-family: 'Poppins', sans-serif;
-  color: #fff;
-  top: 0;
-  left: 0;
-`
 
 export default SignIn

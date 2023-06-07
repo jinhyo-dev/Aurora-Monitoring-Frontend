@@ -8,6 +8,7 @@ import Main from './pages/Main'
 import SignIn from "./pages/SignIn";
 import './index.css'
 import Providers from "./Providers";
+import SignUp from "./pages/SignUp";
 
 const router = createBrowserRouter([
   {
@@ -19,6 +20,11 @@ const router = createBrowserRouter([
   {
     path: "/sign-in",
     element: <SignIn/>,
+    // loader: taskLoader,
+  },
+  {
+    path: "/sign-up",
+    element: <SignUp/>,
     // loader: taskLoader,
   }
 ]);

@@ -5,10 +5,11 @@ import { useNavigate } from "react-router-dom";
 
 const Header = () => {
   const navigate = useNavigate()
+
   return (
     <HeaderTag>
       <NavigateContainer>
-        <AuroraNavigate href={'/'}>
+        <AuroraNavigate onClick={() => navigate('/')}>
           <AuroraIcon style={{width: '2rem', height: '2rem', marginBottom: '-0.23rem'}}/> Aurora
         </AuroraNavigate>
 
@@ -16,15 +17,15 @@ const Header = () => {
           <MdLogin style={{ marginBottom: '-0.2rem', marginRight: '0.3rem' }}/> Sign up
         </LoginNavigator>
 
-        <UsageNavigator href={'/sign-in'}>
+        <UsageNavigator onClick={() => navigate('/sign-in')}>
           Sign in
         </UsageNavigator>
 
-        <UsageNavigator href={'/install'}>
+        <UsageNavigator onClick={() => navigate('/install')}>
           Install
         </UsageNavigator>
 
-        <UsageNavigator href={'/usage'}>
+        <UsageNavigator onClick={() => navigate('/usage')}>
           Usage
         </UsageNavigator>
 
@@ -51,7 +52,8 @@ const NavigateContainer = styled.div`
   font-weight: 400;
 `
 
-const AuroraNavigate = styled.a`
+const AuroraNavigate = styled.span`
+  cursor: pointer;
   font-size: 2.2rem;
   color: #fff;
   font-weight: 500;
@@ -63,7 +65,8 @@ const AuroraNavigate = styled.a`
   }
 `
 
-const UsageNavigator = styled.a`
+const UsageNavigator = styled.span`
+  cursor: pointer;
   margin-top: 0.8rem;
   float: right;
   font-size: 1.1rem;
