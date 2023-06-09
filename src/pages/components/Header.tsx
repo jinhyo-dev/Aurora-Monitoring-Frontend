@@ -1,7 +1,7 @@
 import styled from "styled-components";
-import { ReactComponent as AuroraIcon } from '../../assets/svg/Aurora.svg'
 import { MdLogin } from 'react-icons/md'
 import { useNavigate } from "react-router-dom";
+import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 
 const Header = () => {
   const navigate = useNavigate()
@@ -10,7 +10,7 @@ const Header = () => {
     <HeaderTag>
       <NavigateContainer>
         <AuroraNavigate onClick={() => navigate('/')}>
-          <AuroraIcon style={{width: '2rem', height: '2rem', marginBottom: '-0.23rem'}}/> Aurora
+          <AuroraLogo style={{ width: '9rem' }}/>
         </AuroraNavigate>
 
         <LoginNavigator onClick={() => navigate('/sign-up')}>

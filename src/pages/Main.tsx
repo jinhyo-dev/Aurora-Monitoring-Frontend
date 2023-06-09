@@ -16,13 +16,12 @@ const Main = () => {
       </AuroraInfo>
 
       <Star />
-      <Star style={{ right: 0, left: 'initial', animationDelay: '0s', animationDuration: '1s' }} />
-      <Star style={{ right: '80px', left: 'initial', animationDelay: '0.3s', animationDuration: '3s' }} />
-      <Star style={{ right: '160px', left: 'initial', animationDelay: '0.6s', animationDuration: '2s' }} />
-      <Star style={{ right: '250px', left: 'initial', animationDelay: '0.9s', animationDuration: '1.5s' }} />
-      <Star style={{ right: '400px', left: 'initial', animationDelay: '1.2s', animationDuration: '2.5s' }} />
-      <Star style={{ right: '600px', left: 'initial', animationDelay: '1.5s', animationDuration: '3s' }} />
-      <Star style={{ right: '0px', left: 'initial', animationDelay: '1.8s', animationDuration: '1.75s' }} />
+      <Star style={{ right: 0, left: 'initial', animationDelay: '1s', animationDuration: '1.5s' }} />
+      <Star style={{ right: '80px', left: 'initial', animationDelay: '1.5s', animationDuration: '3s' }} />
+      <Star style={{ right: '160px', left: 'initial', animationDelay: '2s', animationDuration: '2s' }} />
+      <Star style={{ right: '250px', left: 'initial', animationDelay: '2.5s', animationDuration: '1.5s' }} />
+      <Star style={{ right: '400px', left: 'initial', animationDelay: '3s', animationDuration: '2.5s' }} />
+      <Star style={{ right: '600px', left: 'initial', animationDelay: '3.5', animationDuration: '3s' }} />
 
 
     </MainTag>
@@ -79,11 +78,11 @@ const Star = styled.span`
   z-index: 0;
   position: absolute;
   left: 50%;
-  width: 4px;
-  height: 4px;
+  width: 1px;
+  height: 1px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 4px rgba(255,255,255,0.1),0 0 0 8px rgba(255,255,255,0.1),0 0 20px rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.1),0 0 0 6px rgba(255,255,255,0.1),0 0 14px rgba(255,255,255,0.1);
   animation: ${animate} 3s linear infinite;
   visibility: hidden;
   opacity: 0;
@@ -94,7 +93,7 @@ const Star = styled.span`
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 300px;
+    width: 200px;
     height: 1px;
     background: linear-gradient(90deg, #fff, transparent);
     visibility: visible;

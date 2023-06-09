@@ -44,7 +44,7 @@ const SignIn = () => {
         <div className={'left-box'}>
           <div className={'title'}>Sign in to Aurora</div>
 
-          <AuthenticationForm>
+          <AuthenticationForm style={{ height: '17.5rem' }}>
             <div className="input-container">
               <input type="input" className="input-field" placeholder="Email" name="email" id='email' required={true}/>
               <label htmlFor="email" className="input-label">Email</label>
@@ -53,7 +53,7 @@ const SignIn = () => {
             <div className="input-container password-container">
               <input type="password" className="input-field" placeholder="Password" name="password" id='password'
                      required={true}/>
-              <label htmlFor="Password" className="input-label">Password</label>
+              <label htmlFor="password" className="input-label">Password</label>
             </div>
 
             <button type={'submit'}>

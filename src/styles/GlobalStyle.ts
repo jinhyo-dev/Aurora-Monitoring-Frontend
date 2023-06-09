@@ -75,7 +75,31 @@ export const AuthenticationContainer = styled.div`
     font-size: 1.8rem;
     font-weight: 500;
   }
+`
+
+export const AuthenticationForm = styled.form`
+  width: 70%;
+  margin: 3rem auto 0;
+  position: relative;
   
+  & button {
+    cursor: pointer;
+    width: 100%;
+    position: absolute;
+    height: 3.1rem;
+    font-size: 1.3rem;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    border: none;
+    border-radius: 5px;
+    transition: all .2s;
+  }
+  
+  & button:hover {
+    opacity: .9;
+  }
+
   & .password-container {
     margin-top: 3rem;
   }
@@ -136,30 +160,30 @@ export const AuthenticationContainer = styled.div`
       color: #ccc;
     }
   }
-`
-
-export const AuthenticationForm = styled.form`
-  width: 70%;
-  height: 17.5rem;
-  margin: 3rem auto 0;
-  position: relative;
   
-  & button {
-    cursor: pointer;
-    width: 100%;
-    position: absolute;
-    height: 3.1rem;
-    font-size: 1.3rem;
-    bottom: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    border: none;
-    border-radius: 5px;
-    transition: all .2s;
+  & .name-container {
+    width: 45%;
+    float: left;
+    margin-bottom: 0;
   }
   
-  & button:hover {
-    opacity: .9;
+  & .phone-container {
+    margin-top: 3rem;
+  }
+
+  & .email-container {
+    margin-top: 1rem;
+  }
+  
+  & .password-container-2 {
+    margin-top: 2rem;
+  }
+  
+  & .info-text {
+    font-size: 0.65rem;
+    color: #ccc;
+    padding-top: 0.2rem;
+    padding-left: 0.1rem;
   }
 `
 
