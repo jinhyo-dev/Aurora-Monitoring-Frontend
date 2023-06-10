@@ -8,9 +8,9 @@ import Select from 'react-select'
 const SignUp = () => {
   const pageTitle = 'Sign up to Aurora · Aurora';
   const SelectOption = [
-    { value: 'chocolate', label: '🇰🇷 Korea' },
-    { value: 'strawberry', label: '🇺🇸 United States' },
-    { value: 'vanilla', label: '🇫🇷 France' }
+    {value: 'chocolate', label: '🇰🇷 Korea'},
+    {value: 'strawberry', label: '🇺🇸 United States'},
+    {value: 'vanilla', label: '🇫🇷 France'}
   ]
 
   const selectCustomStyle = {
@@ -20,12 +20,14 @@ const SignUp = () => {
       fontFamily: 'sans-serif',
       color: state.isFocused ? '#fff' : '#000',
       backgroundColor: state.isFocused ? '#474747' : '#fff',
-      transition: 'all .2s'
+      transition: 'all .2s',
+      width: '100%'
     }),
     singleValue: (provided: any) => ({
       ...provided,
       textAlign: 'left',
-      color: '#fff'
+      color: '#fff',
+      width: '100%'
     }),
     control: (provided: any) => ({
       ...provided,
@@ -63,16 +65,17 @@ const SignUp = () => {
           </LeftBox>
           <RightBox>
 
-            <AuthenticationForm style={{ height: '34rem' }}>
+            <SelectContainer>
               <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}/>
-
+            </SelectContainer>
+            <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}}>
               <div className="input-container name-container">
                 <input type={"input"} className="input-field" placeholder="First name" name="first-name" id='first-name'
                        required={true}/>
                 <label htmlFor="first-name" className="input-label">First name</label>
               </div>
 
-              <div className="input-container name-container" style={{ float: 'right'}}>
+              <div className="input-container name-container" style={{float: 'right'}}>
                 <input type={"input"} className="input-field" placeholder="Last name" name="last-name" id='last-name'
                        required={true}/>
                 <label htmlFor="last-name" className="input-label">Last name</label>
@@ -139,6 +142,12 @@ const RightBox = styled.div`
   background-color: rgba(0, 0, 0, .6);
   border: none;
   border-radius: 8px;
+`
+
+const SelectContainer = styled.div`
+  width: 70%;
+  margin: 4rem auto 0;
+  height: 2.6rem;
 `
 
 export default SignUp

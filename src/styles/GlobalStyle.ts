@@ -119,7 +119,7 @@ export const AuthenticationForm = styled.form`
       color: #fff;
       padding: 5px 2px;
       background: transparent;
-      transition: border-color 0.2s;
+      transition: all 0.3s;
 
       &::placeholder {
         color: transparent;
