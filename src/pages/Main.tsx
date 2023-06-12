@@ -1,10 +1,16 @@
 import styled, { keyframes } from "styled-components";
 import AuroraBackground from '../assets/images/Aurora-Main-Background.jpg'
 import Header from "./components/Header";
+import { Helmet } from "react-helmet";
 
 const Main = () => {
+  const pageTitle = 'Aurora'
+
   return (
     <MainTag>
+      <Helmet>
+        <title>{pageTitle}</title>
+      </Helmet>
       <Header/>
       <AuroraInfo>
         Aurora

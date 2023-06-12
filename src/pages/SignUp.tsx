@@ -8,9 +8,9 @@ import Select from 'react-select'
 const SignUp = () => {
   const pageTitle = 'Sign up to Aurora · Aurora';
   const SelectOption = [
-    {value: 'chocolate', label: '🇰🇷 Korea'},
-    {value: 'strawberry', label: '🇺🇸 United States'},
-    {value: 'vanilla', label: '🇫🇷 France'}
+    {value: 'korea', label: '🇰🇷 Korea'},
+    {value: 'united states', label: '🇺🇸 United States'},
+    {value: 'france', label: '🇫🇷 France'}
   ]
 
   const selectCustomStyle = {
@@ -40,10 +40,15 @@ const SignUp = () => {
       textOverflow: 'ellipsis',
       whiteSpace: 'nowrap',
       overflow: 'hidden',
+      color: '#fff',
       placeholder: '#fff',
       marginBottom: '1rem'
     }),
     placeholder: (provided: any) => ({
+      ...provided,
+      color: '#fff',
+    }),
+    input: (provided: any) => ({
       ...provided,
       color: '#fff',
     }),
@@ -61,7 +66,10 @@ const SignUp = () => {
         <CenterBox>
           <LeftBox>
             <AuroraLogo style={{width: '12rem'}}/> <br/>
-            Features Supported by Aurora:
+            Features Supported by Aurora:<br/>
+            asdflkasdjflsajfsldfjlsdkjf asdfjlasf;asdhfkre<br/>
+            asdasd askflsad faiej iasdslfkajsde<br/>
+            sldisfjdlkfwefj wlkfhoaisdfowh fws <br/>
           </LeftBox>
           <RightBox>
 
