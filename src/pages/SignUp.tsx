@@ -4,6 +4,21 @@ import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
+import { useState } from "react";
+
+interface PasswordInputProps {
+  isFocused: boolean;
+}
+
+interface ValidationBoxProps {
+  show: boolean;
+}
+
+interface PasswordValidationProps {
+  hasSpecialChar: boolean,
+  isMinLength: boolean,
+  hasNumber: boolean
+}
 
 const SignUp = () => {
   const pageTitle = 'Sign up to Aurora · Aurora';
@@ -12,6 +27,16 @@ const SignUp = () => {
     {value: 'united states', label: '🇺🇸 United States'},
     {value: 'france', label: '🇫🇷 France'}
   ]
+
+  const [isFocused, setIsFocused] = useState(false)
+  const [password, setPassword] = useState('')
+  const [passwordValidation, setPasswordValidation] = useState<PasswordValidationProps>({
+    hasSpecialChar: false,
+    isMinLength: false,
+    hasNumber: false
+  })
+
+  const showValidationBox = isFocused && password.trim().length > 0;
 
   const selectCustomStyle = {
     option: (provided: any, state: any) => ({
@@ -54,6 +79,19 @@ const SignUp = () => {
     }),
   };
 
+  const validatePassword = (password: string) => {
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+    const isMinLength = password.length >= 8;
+    const hasNumber = /\d/.test(password);
+
+    setPasswordValidation({hasSpecialChar: hasSpecialChar, isMinLength: isMinLength, hasNumber: hasNumber})
+  }
+
+  const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const password = event.target.value
+    validatePassword(password)
+    setPassword(event.target.value)
+  }
   // const navigate = useNavigate()
 
   return (
@@ -104,11 +142,29 @@ const SignUp = () => {
                 <label htmlFor="email" className="input-label">Email</label>
               </div>
 
-              <div className="input-container password-container-2">
-                <input type={"password"} className="input-field" placeholder="Password" name="password" id='password'
-                       required={true}/>
-                <label htmlFor="password" className="input-label">Password</label>
-              </div>
+              <PasswordContainer>
+                <PasswordInput isFocused={isFocused} className={'input-container password-container2'}>
+                  <input type={"password"} className="input-field" placeholder="Password" name="password" id='password'
+                         required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)}
+                         onBlur={() => setIsFocused(false)}/>
+                  <label htmlFor="password" className="input-label">Password</label>
+                </PasswordInput>
+
+                <ValidationBox show={showValidationBox}>
+                  <div>Your password must have:</div>
+                  <div>
+                    <p style={{color: passwordValidation.isMinLength ? '#22c248' : '#888'}}>
+                      8 or more characters</p>
+                    <p style={{color: passwordValidation.hasNumber ? '#22c248' : '#888'}}>
+                      At least one number</p>
+                    <p style={{
+                      color: passwordValidation.hasSpecialChar ? '#22c248' : '#888',
+                      paddingBottom: '0.5rem'
+                    }}>Including special characters</p>
+                  </div>
+                </ValidationBox>
+              </PasswordContainer>
+
 
               <button type={'submit'}>
                 Sign in
@@ -157,5 +213,117 @@ const SelectContainer = styled.div`
   margin: 4rem auto 0;
   height: 2.6rem;
 `
+
+const PasswordContainer = styled.div`
+  position: relative;
+  width: 100%;
+  display: inline-block;
+`;
+
+const PasswordInput = styled.div<PasswordInputProps>`
+  position: relative;
+  padding: 15px 0 0;
+  width: 100%;
+  margin-top: 2rem;
+
+  & input {
+    position: relative;
+    padding: 15px 0 0;
+    width: 100%;
+
+    & input {
+      font-family: inherit;
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid #fff;
+      outline: 0;
+      font-size: 1rem;
+      color: #fff;
+      padding: 5px 2px;
+      background: transparent;
+      transition: all 0.3s;
+
+      &::placeholder {
+        color: transparent;
+      }
+
+      &:placeholder-shown ~ .input-label {
+        font-size: 1.2rem;
+        cursor: text;
+        top: 20px;
+      }
+    }
+
+    & .input-field:focus {
+      ~ .input-label {
+        position: absolute;
+        top: 0;
+        display: block;
+        transition: 0.2s;
+        font-size: 0.75rem;
+        color: #fff;
+      }
+
+      padding-bottom: 6px;
+      border-width: 3px;
+    }
+
+    .input-field {
+      &:required, &:invalid {
+        box-shadow: none;
+      }
+    }
+
+    & .input-label {
+      position: absolute;
+      top: 0;
+      display: block;
+      font-size: 0.8rem;
+      transition: 0.2s;
+      color: #ccc;
+    }
+  }
+`;
+
+const ValidationBox = styled.div<ValidationBoxProps>`
+  position: absolute;
+  width: 70%;
+  top: calc(100% + 1.3rem);
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px;
+  background-color: #222;
+  border: 1px solid #2E2E2E;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  display: ${({show}) => (show ? 'block' : 'none')};
+  z-index: 1;
+
+  &::after {
+    border-top: 0 solid transparent;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 12px solid #222;
+    content: '';
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  & div {
+    font-size: 0.9rem;
+    padding-top: 0.2rem;
+    padding-left: 0.2rem;
+  }
+
+  & div p {
+    color: #888;
+    font-size: 0.85rem;
+    padding-top: 0.4rem;
+    padding-left: 0.4rem;
+  }
+`;
 
 export default SignUp
