@@ -28,8 +28,8 @@ const SignUp = () => {
     {value: 'france', label: '🇫🇷 France'}
   ]
 
-  const [isFocused, setIsFocused] = useState(false)
-  const [password, setPassword] = useState('')
+  const [isFocused, setIsFocused] = useState<boolean>(false)
+  const [password, setPassword] = useState<string>('')
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationProps>({
     hasSpecialChar: false,
     isMinLength: false,
@@ -143,11 +143,22 @@ const SignUp = () => {
               </div>
 
               <PasswordContainer>
-                <PasswordInput isFocused={isFocused} className={'input-container password-container2'}>
+                <PasswordInput isFocused={isFocused}
+                               className={'input-container password-container2'}>
                   <input type={"password"} className="input-field" placeholder="Password" name="password" id='password'
-                         required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)}
+                         required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)} value={password}
+                         style={{
+                           borderBottom: passwordValidation.isMinLength && passwordValidation.hasNumber &&
+                           passwordValidation.hasSpecialChar || !password.length ? '1px solid #fff' : '1px solid #e84e4e',
+                           color: passwordValidation.isMinLength && passwordValidation.hasNumber &&
+                           passwordValidation.hasSpecialChar || !password.length ? '#fff' : '#e84e4e'
+                         }}
                          onBlur={() => setIsFocused(false)}/>
-                  <label htmlFor="password" className="input-label">Password</label>
+                  <label htmlFor="password" className="input-label"
+                         style={{
+                           color: passwordValidation.isMinLength && passwordValidation.hasNumber &&
+                           passwordValidation.hasSpecialChar || !password.length ? '#fff' : '#e84e4e'
+                         }}>Password</label>
                 </PasswordInput>
 
                 <ValidationBox show={showValidationBox}>
@@ -235,10 +246,8 @@ const PasswordInput = styled.div<PasswordInputProps>`
       font-family: inherit;
       width: 100%;
       border: 0;
-      border-bottom: 1px solid #fff;
       outline: 0;
       font-size: 1rem;
-      color: #fff;
       padding: 5px 2px;
       background: transparent;
       transition: all 0.3s;
@@ -261,7 +270,6 @@ const PasswordInput = styled.div<PasswordInputProps>`
         display: block;
         transition: 0.2s;
         font-size: 0.75rem;
-        color: #fff;
       }
 
       padding-bottom: 6px;
@@ -280,7 +288,6 @@ const PasswordInput = styled.div<PasswordInputProps>`
       display: block;
       font-size: 0.8rem;
       transition: 0.2s;
-      color: #ccc;
     }
   }
 `;
