@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { Fade } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
+import { FormEvent, useState } from "react";
 
 const SignIn = () => {
   const pageTitle = 'Sign in to Aurora · Aurora';
@@ -32,6 +33,18 @@ const SignIn = () => {
   }
 
   const images = [AuroraBackground, AuroraImage]
+  const [signInResponse, setSignInResponse] = useState<{ message: string, success: boolean }>({
+    message: '',
+    success: false
+  })
+
+  const handleSignIn = (e: FormEvent) => {
+    e.preventDefault()
+    setSignInResponse({message: 'Verifying credential...', success: false})
+    setTimeout(() => {
+      setSignInResponse({message: 'User information is not valid', success: false})
+    }, 200)
+  }
 
   return (
     <MainTag>
@@ -44,7 +57,7 @@ const SignIn = () => {
         <div className={'left-box'}>
           <div className={'title'}>Sign in to Aurora</div>
 
-          <AuthenticationForm style={{ height: '17.5rem' }}>
+          <AuthenticationForm style={{height: '17.5rem'}} onSubmit={handleSignIn}>
             <div className="input-container">
               <input type="input" className="input-field" placeholder="Email" name="email" id='email' required={true}/>
               <label htmlFor="email" className="input-label">Email</label>
@@ -55,6 +68,8 @@ const SignIn = () => {
                      required={true}/>
               <label htmlFor="password" className="input-label">Password</label>
             </div>
+
+            {!signInResponse.success && <div>{signInResponse.message}</div>}
 
             <button type={'submit'}>
               Sign in

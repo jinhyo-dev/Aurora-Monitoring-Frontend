@@ -4,7 +4,8 @@ import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
-import { useState } from "react";
+import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { phoneNumberAutoFormat } from "../utils/Formatter";
 
 interface PasswordInputProps {
   isFocused: boolean;
@@ -30,13 +31,24 @@ const SignUp = () => {
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const [password, setPassword] = useState<string>('')
+  const [email, setEmail] = useState<string>('')
+  const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [submitValidation, setSubmitValidation] = useState<{ emailValidate: boolean, passwordValidate: boolean }>({
+    emailValidate: true,
+    passwordValidate: true
+  })
   const [passwordValidation, setPasswordValidation] = useState<PasswordValidationProps>({
     hasSpecialChar: false,
     isMinLength: false,
     hasNumber: false
   })
-
+  const emailInputRef = useRef<HTMLInputElement>(null);
+  const passwordInputRef = useRef<HTMLInputElement>(null);
   const showValidationBox = isFocused && password.trim().length > 0;
+
+  const isValidPassword = passwordValidation.isMinLength && passwordValidation.hasNumber && passwordValidation.hasSpecialChar;
+  const borderColor = isValidPassword || !password.length ? '#fff' : '#e84e4e';
+  const textColor = isValidPassword || !password.length ? '#fff' : '#e84e4e';
 
   const selectCustomStyle = {
     option: (provided: any, state: any) => ({
@@ -87,11 +99,48 @@ const SignUp = () => {
     setPasswordValidation({hasSpecialChar: hasSpecialChar, isMinLength: isMinLength, hasNumber: hasNumber})
   }
 
+  const checkPasswordValidate = (): boolean => {
+    const validationValue = passwordValidation;
+
+    for (const key in validationValue) {
+      if (!validationValue[key as keyof typeof validationValue]) {
+        return false;
+      }
+    }
+
+    return true;
+  };
+
+
   const handlePassword = (event: React.ChangeEvent<HTMLInputElement>) => {
     const password = event.target.value
     validatePassword(password)
     setPassword(event.target.value)
+    setSubmitValidation({emailValidate: submitValidation.emailValidate, passwordValidate: true})
   }
+
+  const isValidEmail = (email: string): boolean => {
+    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+    return emailRegex.test(email);
+  }
+
+  const handleEmail = (event: ChangeEvent<HTMLInputElement>) => {
+    const email = event.target.value;
+    setSubmitValidation({emailValidate: true, passwordValidate: submitValidation.passwordValidate})
+    setEmail(email)
+  }
+
+  const handleLogin = (e: FormEvent) => {
+    e.preventDefault()
+    setSubmitValidation({emailValidate: isValidEmail(email), passwordValidate: checkPasswordValidate()})
+
+    if (emailInputRef.current && !isValidEmail(email)) {
+      emailInputRef.current.focus();
+    } else if (passwordInputRef.current && !checkPasswordValidate()) {
+      passwordInputRef.current.focus();
+    }
+  }
+
   // const navigate = useNavigate()
 
   return (
@@ -114,7 +163,7 @@ const SignUp = () => {
             <SelectContainer>
               <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}/>
             </SelectContainer>
-            <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}}>
+            <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}} onSubmit={handleLogin}>
               <div className="input-container name-container">
                 <input type={"input"} className="input-field" placeholder="First name" name="first-name" id='first-name'
                        required={true}/>
@@ -131,35 +180,43 @@ const SignUp = () => {
 
               <div className="input-container phone-container">
                 <input type={"input"} className="input-field" placeholder="Phone" name="phone" id='phone'
-                       required={true}/>
+                       value={phoneNumber}
+                       required={true} onChange={(e) => setPhoneNumber(phoneNumberAutoFormat(e.target.value))}/>
                 <label htmlFor="phone" className="input-label">Phone</label>
                 <div className={'info-text'}>* Select country first</div>
               </div>
 
               <div className="input-container email-container">
                 <input type={"input"} className="input-field" placeholder="Email" name="email" id='email'
-                       required={true}/>
-                <label htmlFor="email" className="input-label">Email</label>
+                       ref={emailInputRef}
+                       style={{
+                         color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
+                         borderBottom: isValidEmail(email) || !email.length ? '1px solid #fff' : '1px solid #e84e4e'
+                       }}
+                       required={true} onChange={handleEmail} value={email}/>
+                <label htmlFor="email" className="input-label" style={{
+                  color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
+                }}>Email</label>
               </div>
+
+              {!submitValidation.emailValidate && <InvalidText>Invalid email format</InvalidText>}
 
               <PasswordContainer>
                 <PasswordInput isFocused={isFocused}
                                className={'input-container password-container2'}>
                   <input type={"password"} className="input-field" placeholder="Password" name="password" id='password'
+                         ref={passwordInputRef}
                          required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)} value={password}
                          style={{
-                           borderBottom: passwordValidation.isMinLength && passwordValidation.hasNumber &&
-                           passwordValidation.hasSpecialChar || !password.length ? '1px solid #fff' : '1px solid #e84e4e',
-                           color: passwordValidation.isMinLength && passwordValidation.hasNumber &&
-                           passwordValidation.hasSpecialChar || !password.length ? '#fff' : '#e84e4e'
+                           borderBottom: `1px solid ${borderColor}`,
+                           color: textColor
                          }}
                          onBlur={() => setIsFocused(false)}/>
                   <label htmlFor="password" className="input-label"
-                         style={{
-                           color: passwordValidation.isMinLength && passwordValidation.hasNumber &&
-                           passwordValidation.hasSpecialChar || !password.length ? '#fff' : '#e84e4e'
-                         }}>Password</label>
+                         style={{color: textColor}}>Password</label>
                 </PasswordInput>
+
+                {!submitValidation.passwordValidate && <InvalidText>Invalid password format</InvalidText>}
 
                 <ValidationBox show={showValidationBox}>
                   <div>Your password must have:</div>
@@ -332,5 +389,12 @@ const ValidationBox = styled.div<ValidationBoxProps>`
     padding-left: 0.4rem;
   }
 `;
+
+const InvalidText = styled.p`
+  padding-top: 0.3rem;
+  padding-left: 0.1rem;
+  font-size: 0.7rem;
+  color: #e84e4e;
+`
 
 export default SignUp
