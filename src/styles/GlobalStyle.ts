@@ -7,6 +7,8 @@ interface GlobalStyleProps {
 }
 
 export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
+  @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+  
   * {
     font-family: 'Poppins', sans-serif;
     margin: 0;
@@ -36,17 +38,23 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
 `
 
 export const MainTag = styled.main`
-  margin: 0;
   padding: 0;
   box-sizing: border-box;
   background-image: linear-gradient(rgba(0, 0, 0, 0.65), rgba(0, 0, 0, 0.65)), url(${AuroraBackground});
   width: 100%;
   height: 100vh;
   background-size: cover;
-  font-family: 'Poppins', sans-serif;
   color: #fff;
   top: 0;
   left: 0;
+`
+
+export const DashboardMain = styled.main`
+  width: 100%;
+  height: 100vh;
+  background-color: #242424;
+  display: flex;
+  align-items: center;
 `
 
 export const AuthenticationContainer = styled.div`
