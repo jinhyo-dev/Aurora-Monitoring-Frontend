@@ -4,7 +4,7 @@ import NavigationBar from "./NavigationBar";
 const Dashboard = () => {
   return (
     <DashboardMain>
-      <NavigationBar/>
+      <NavigationBar active={0}/>
     </DashboardMain>
   )
 }
