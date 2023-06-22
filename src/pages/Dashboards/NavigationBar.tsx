@@ -15,6 +15,7 @@ import { FaUserCircle } from 'react-icons/fa'
 import { MdAccessTimeFilled } from 'react-icons/md'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
+import { FiRefreshCw } from "react-icons/fi";
 
 interface NavigationProps {
   active: number;
@@ -25,7 +26,6 @@ interface ButtonStatusProps {
 }
 
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
-  const [status, setStatus] = useState<boolean>(false)
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
   const [cookies, setCookie] = useCookies()
 
@@ -37,10 +37,18 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     })
   };
 
+  const toggleSideBar = () => {
+    const status: string = cookies.sidebarStatus
+    setCookie('sidebarStatus', status === 'open' ? 'closed' : 'open', {
+      sameSite: 'none',
+      secure: true
+    })
+  }
+
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
-    if (status) {
+    if (cookies.sidebarStatus === 'open') {
       timeout = setTimeout(() => {
         setShowBackIcon(true);
       }, 300);
@@ -51,10 +59,10 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     }
 
     return () => clearTimeout(timeout);
-  }, [status]);
+  }, [cookies.sidebarStatus]);
 
   return (
-    <Nav status={status}>
+    <Nav status={cookies.sidebarStatus === 'open'}>
       <div className={'logo-container'}>
         {showBackIcon ? (cookies.theme === 'dark' ? <AuroraLogo className={'logo'}/> :
           <AuroraLogoDark className={'logo'}/>) : (cookies.theme === 'dark' ? <AuroraSimpleLogo className={'logo'}/> :
@@ -117,9 +125,14 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           <FaUserCircle/>
           {showBackIcon && <span>Jinhyo Kim</span>}
         </button>
-        <button onClick={() => setStatus(!status)} className={'close-button'}>
-          {status ? <IoIosArrowBack className={'logo'}/> : <IoIosArrowForward className={'logo'}/>}
-        </button>
+
+        <div className={'bottom-box'}>
+          {showBackIcon && <div><FiRefreshCw/> <span>Last Update: 1s</span></div>}
+          <button onClick={toggleSideBar} className={'close-button'}>
+            {cookies.sidebarStatus === 'open' ? <IoIosArrowBack className={'logo'}/> :
+              <IoIosArrowForward className={'logo'}/>}
+          </button>
+        </div>
       </div>
     </Nav>
   )
@@ -142,9 +155,9 @@ const Nav = styled.nav<{ status: boolean }>`
   border-radius: 5px;
   transition: all .3s;
   display: flex;
-  transition: all .3s;
   flex-direction: column;
   min-height: 800px;
+  min-width: ${({status}) => (status ? "240px" : "2rem")};
 
   & .logo {
     animation: ${fadeIn} 0.35s ease-in-out;
@@ -236,6 +249,27 @@ const Nav = styled.nav<{ status: boolean }>`
     & span {
       animation: ${fadeIn} 0.35s ease-in-out;
     }
+
+    & .bottom-box {
+      margin: auto auto 0.5rem 0;
+      width: 100%;
+      text-align: center;
+      height: 2.5rem;
+
+      div {
+        display: ${({status}) => (status ? "flex" : "none")};
+        align-items: center;
+        height: 100%;
+        float: left;
+        margin-left: 0.8rem;
+        font-size: 0.8rem;
+        color: ${({theme}) => theme.fontColor};
+
+        & > span {
+          margin-left: 0.5rem;
+        }
+      }
+    }
   }
 
   & .close-button {
@@ -245,8 +279,8 @@ const Nav = styled.nav<{ status: boolean }>`
     cursor: pointer;
     color: ${({theme}) => theme.fontColor};
     background-color: ${({theme}) => theme.NavigationBarControlButtonColor};
-    margin: ${({status}) => (status ? "auto 0.5rem 0.5rem auto" : "auto auto 0.5rem auto")};
-    float: right;
+    margin: ${({status}) => (status ? "auto 0.5rem 0.5rem auto" : "auto")};
+    float: ${({status}) => (status ? "right" : "")};
 
     & svg {
       font-size: 1.3rem;

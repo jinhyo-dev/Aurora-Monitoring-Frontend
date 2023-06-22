@@ -6,6 +6,12 @@ interface GlobalStyleProps {
   theme: CustomTheme;
 }
 
+interface RealTimeBoxWidthProps {
+  width: string;
+  leftGap: boolean;
+  rightGap: boolean;
+}
+
 const fadeIn = keyframes`
   from {
     opacity: 0;
@@ -22,7 +28,7 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   }
 
   body {
-    overflow: hidden;
+    overflow: auto;
   }
 
   a {
@@ -59,9 +65,10 @@ export const MainTag = styled.main`
 export const DashboardMain = styled.main`
   width: 100%;
   height: 100vh;
+  min-height: 800px;
   background-color: ${({theme}) => theme.backgroundColor};
-  animation: ${fadeIn} 0.3s ease forwards;
-  transition: background-color 0.3s ease;
+  animation: ${fadeIn} 0.3s ease-out backwards;
+  transition: background-color 0.3s ease-out;
   display: flex;
   align-items: center;
 `
@@ -227,4 +234,30 @@ export const ArrowButton = styled.button`
   &:hover {
     opacity: 1;
   }
+`
+
+export const BoardSection = styled.section`
+  width: 98%;
+  height: 98%;
+  min-height: 785px;
+`
+
+export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
+  margin-left: ${({ leftGap }) => leftGap ? '1%' : '0'};
+  margin-right: ${({ rightGap }) => rightGap ? '1%' : '0'};
+  height: 100%;
+  background-color: ${({theme}) => theme.primaryColor};
+  box-shadow: rgba(50, 50, 105, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  animation: ${fadeIn} 0.3s ease-out backwards;
+  transition: background-color 0.3s ease-out;
+  border-radius: 5px;
+  width: ${({ width }) => width};
+`
+
+export const BoardRowSection = styled.div`
+  height: calc(31.3% - 0.933rem);
+  margin-top: 1%;
+  width: 100%;
+  justify-content: space-between;
+  display: flex;
 `

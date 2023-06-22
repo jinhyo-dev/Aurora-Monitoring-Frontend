@@ -2,9 +2,37 @@ import styled, { keyframes } from "styled-components";
 import AuroraBackground from '../assets/images/Aurora-Main-Background.jpg'
 import Header from "./components/Header";
 import { Helmet } from "react-helmet";
+import { useEffect } from "react";
 
 const Main = () => {
+  useEffect(() => {
+    const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
+    stars.forEach(setRandomStyles);
+  },[])
+
   const pageTitle = 'Aurora'
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  }
+
+  const setRandomStyles = (element: HTMLElement): void => {
+    const minRight = 0;
+    const maxRight = 1200;
+    const minDelay = 1;
+    const maxDelay = 8;
+    const minDuration = 1.5;
+    const maxDuration = 5;
+
+    const right: number = getRandomInt(minRight, maxRight);
+    const delay: number = getRandomInt(minDelay, maxDelay);
+    const duration: number = getRandomInt(minDuration, maxDuration);
+
+    element.style.right = right + 'px';
+    element.style.left = 'initial';
+    element.style.animationDelay = delay + 's';
+    element.style.animationDuration = duration + 's';
+  }
 
   return (
     <MainTag>
@@ -21,14 +49,9 @@ const Main = () => {
         </AuroraIntro>
       </AuroraInfo>
 
-      <Star />
-      <Star style={{ right: 0, left: 'initial', animationDelay: '1s', animationDuration: '1.5s' }} />
-      <Star style={{ right: '80px', left: 'initial', animationDelay: '1.5s', animationDuration: '3s' }} />
-      <Star style={{ right: '160px', left: 'initial', animationDelay: '2s', animationDuration: '2s' }} />
-      <Star style={{ right: '250px', left: 'initial', animationDelay: '2.5s', animationDuration: '1.5s' }} />
-      <Star style={{ right: '400px', left: 'initial', animationDelay: '3s', animationDuration: '2.5s' }} />
-      <Star style={{ right: '600px', left: 'initial', animationDelay: '3.5', animationDuration: '3s' }} />
-
+      {[1, 2, 3, 4, 5, 6, 7, 8].map((index: number) => (
+        <Star key={`star-${index}`} className="star" />
+      ))}
 
     </MainTag>
   )
