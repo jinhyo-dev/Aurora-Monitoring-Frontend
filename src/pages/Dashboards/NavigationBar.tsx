@@ -1,16 +1,20 @@
 import styled, { keyframes } from "styled-components";
 import { useEffect, useState } from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
+import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
 import { ReactComponent as AuroraSimpleLogo } from '../../assets/svg/AuroraSimpleLogo.svg'
-import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
+import { ReactComponent as AuroraSimpleLogoDark } from '../../assets/svg/AuroraSimpleLogoDark.svg'
+import { IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle } from 'react-icons/io'
 import { HiServer } from 'react-icons/hi'
 import { BsGraphUp, BsStack } from 'react-icons/bs'
 import * as React from "react";
 import { IoNotifications } from "react-icons/io5";
 import { AiFillDashboard } from "react-icons/ai";
 import { RiBug2Fill } from "react-icons/ri";
+import { FaUserCircle } from 'react-icons/fa'
 import { MdAccessTimeFilled } from 'react-icons/md'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
+import { useCookies } from "react-cookie";
 
 interface NavigationProps {
   active: number;
@@ -23,6 +27,15 @@ interface ButtonStatusProps {
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   const [status, setStatus] = useState<boolean>(false)
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
+  const [cookies, setCookie] = useCookies()
+
+  const toggleDarkMode = () => {
+    const checked: string = cookies.theme
+    setCookie('theme', checked === 'dark' ? 'light' : 'dark', {
+      sameSite: 'none',
+      secure: true
+    })
+  };
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -43,7 +56,9 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   return (
     <Nav status={status}>
       <div className={'logo-container'}>
-        {showBackIcon ? <AuroraLogo className={'logo'}/> : <AuroraSimpleLogo className={'logo'}/>}
+        {showBackIcon ? (cookies.theme === 'dark' ? <AuroraLogo className={'logo'}/> :
+          <AuroraLogoDark className={'logo'}/>) : (cookies.theme === 'dark' ? <AuroraSimpleLogo className={'logo'}/> :
+          <AuroraSimpleLogoDark className={'logo'}/>)}
       </div>
 
       <div className={'server-name'}>Jinhyo-Server</div>
@@ -84,18 +99,22 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
       </NavigationButton>
 
       <div className={'bottom-navigation-container'}>
-        <button className={'navigation-container'}>
-          <DarkModeSwitch/>
-          {showBackIcon && <span>Light</span>}
+        <button className={'navigation-container'} onClick={toggleDarkMode}>
+          <DarkModeSwitch
+            checked={cookies.theme === 'dark'}
+            onChange={toggleDarkMode}
+            size={'1.3rem'}
+          />
+          {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </button>
 
         <button className={'navigation-container'}>
-          <MdAccessTimeFilled/>
+          <IoIosHelpCircle/>
           {showBackIcon && <span>Help</span>}
         </button>
 
         <button className={'navigation-container'}>
-          <MdAccessTimeFilled/>
+          <FaUserCircle/>
           {showBackIcon && <span>Jinhyo Kim</span>}
         </button>
         <button onClick={() => setStatus(!status)} className={'close-button'}>
@@ -118,23 +137,21 @@ const fadeIn = keyframes`
 const Nav = styled.nav<{ status: boolean }>`
   height: 98%;
   margin-left: 0.5%;
-  width: ${({status}) => (status ? "20%" : "3.5rem")};
-  background-color: #2E2E2E;
+  width: ${({status}) => (status ? "18%" : "3.5rem")};
+  background-color: ${({theme}) => theme.primaryColor};
   border-radius: 5px;
   transition: all .3s;
   display: flex;
+  transition: all .3s;
   flex-direction: column;
   min-height: 800px;
-
-  & * {
-    transition: all .3s;
-  }
 
   & .logo {
     animation: ${fadeIn} 0.35s ease-in-out;
   }
 
   & button {
+    transition: all .3s;
     border-radius: 5px;
     border: none;
   }
@@ -145,17 +162,18 @@ const Nav = styled.nav<{ status: boolean }>`
     text-align: center;
 
     & svg {
-      width: ${({status}) => (status ? "55%" : "2rem")};
+      width: ${({status}) => (status ? "60%" : "2rem")};
       margin-top: ${({status}) => (status ? "0" : "0.3rem")};
     }
   }
 
   & .server-name {
+    transition: all .3s;
     background: none;
     margin: 5% auto 2%;
     max-width: 95%;
-    font-size: ${({status}) => (status ? "1.25rem" : "0.4rem")};
-    color: #fff;
+    font-size: ${({status}) => (status ? "1.2rem" : "0.4rem")};
+    color: ${({theme}) => theme.fontColor};
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -163,19 +181,20 @@ const Nav = styled.nav<{ status: boolean }>`
   }
 
   & .navigation-container {
+    transition: all .3s;
     width: 90%;
     height: 3rem;
     border-radius: ${({status}) => (status ? "5px" : "8px")};
-    color: #fff;
+    color: ${({theme}) => theme.fontColor};
     margin: ${({status}) => (status ? "5% auto 0" : "1rem auto 0")};
     cursor: pointer;
 
     &:hover {
-      background-color: #484848;
+      background-color: ${({theme}) => theme.NavigationFocusButtonColor};
     }
 
     & span {
-      font-size: 1.1rem;
+      font-size: 0.9rem;
       float: left;
       margin-left: 1rem;
       display: ${({status}) => (status ? "" : "none")};
@@ -184,38 +203,48 @@ const Nav = styled.nav<{ status: boolean }>`
 
     & svg {
       ${({status}) => (status ? `
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         float: left;
         margin-left: 1rem;
-        margin-top: 0.1rem;
+        margin-top: 0.05rem;
       ` : `
-        font-size: 1.5rem;
+        font-size: 1.3rem;
         text-align: center;
-        margin-top: 0.25rem;
+        margin-top: 0.4rem;
       `)};
     }
   }
-  
+
   & .bottom-navigation-container {
+    transition: all .3s;
     width: 95%;
     height: 18rem;
     margin: 5% auto;
-    background-color: #292929;
+    background-color: ${({theme}) => theme.BottomNavigationContainerColor};
     display: flex;
     flex-direction: column;
     border-radius: ${({status}) => (status ? "5px" : "8px")};
-    
+
     & .navigation-container {
-      background-color: #292929;
+      background-color: ${({theme}) => theme.BottomNavigationContainerColor};
+    }
+
+    & .navigation-container:hover {
+      background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+    }
+
+    & span {
+      animation: ${fadeIn} 0.35s ease-in-out;
     }
   }
 
   & .close-button {
+    transition: all .3s;
     width: 2.5rem;
     height: 2.5rem;
     cursor: pointer;
-    color: #fff;
-    background-color: #2E2E2E;
+    color: ${({theme}) => theme.fontColor};
+    background-color: ${({theme}) => theme.NavigationBarControlButtonColor};
     margin: ${({status}) => (status ? "auto 0.5rem 0.5rem auto" : "auto auto 0.5rem auto")};
     float: right;
 
@@ -225,12 +254,12 @@ const Nav = styled.nav<{ status: boolean }>`
     }
 
     &:hover {
-      background-color: #484848;
+      background-color: ${({theme}) => theme.NavigationFocusButtonColor};
     }
   }
 `
 const NavigationButton = styled.button<ButtonStatusProps>`
-  background-color: ${({active}) => (active ? "#484848" : "#2E2E2E")};
+  background-color: ${({active}) => (active ? ({theme}) => theme.NavigationFocusButtonColor : ({theme}) => theme.primaryColor)};
 `;
 
 export default NavigationBar

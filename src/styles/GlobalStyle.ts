@@ -1,10 +1,19 @@
-import styled, { createGlobalStyle } from 'styled-components'
+import styled, { createGlobalStyle, keyframes } from 'styled-components'
 import { CustomTheme } from "./theme/defaultTheme";
 import AuroraBackground from "../assets/images/Aurora-Main-Background.jpg";
 
 interface GlobalStyleProps {
   theme: CustomTheme;
 }
+
+const fadeIn = keyframes`
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+`;
 
 export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   * {
@@ -50,7 +59,9 @@ export const MainTag = styled.main`
 export const DashboardMain = styled.main`
   width: 100%;
   height: 100vh;
-  background-color: #242424;
+  background-color: ${({theme}) => theme.backgroundColor};
+  animation: ${fadeIn} 0.3s ease forwards;
+  transition: background-color 0.3s ease;
   display: flex;
   align-items: center;
 `
