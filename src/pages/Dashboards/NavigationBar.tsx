@@ -16,6 +16,7 @@ import { MdAccessTimeFilled } from 'react-icons/md'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
 import { FiRefreshCw } from "react-icons/fi";
+import { useNavigate } from "react-router-dom";
 
 interface NavigationProps {
   active: number;
@@ -28,6 +29,7 @@ interface ButtonStatusProps {
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
   const [cookies, setCookie] = useCookies()
+  const navigate = useNavigate()
 
   const toggleDarkMode = () => {
     const checked: string = cookies.theme
@@ -71,7 +73,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
       <div className={'server-name'}>Jinhyo-Server</div>
 
-      <NavigationButton active={active === 0} className={'navigation-container'}>
+      <NavigationButton active={active === 0} className={'navigation-container'} onClick={() => navigate('/dashboard')}>
         <HiServer/>
         {showBackIcon && <span>Process Overview</span>}
       </NavigationButton>
@@ -107,24 +109,25 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
       </NavigationButton>
 
       <div className={'bottom-navigation-container'}>
-        <button className={'navigation-container'} onClick={toggleDarkMode}>
+        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode}>
           <DarkModeSwitch
             checked={cookies.theme === 'dark'}
             onChange={toggleDarkMode}
             size={'1.3rem'}
           />
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
-        </button>
+        </NavigationBottomButton>
 
-        <button className={'navigation-container'}>
+        <NavigationBottomButton active={active === 7} className={'navigation-container'}>
           <IoIosHelpCircle/>
           {showBackIcon && <span>Help</span>}
-        </button>
+        </NavigationBottomButton>
 
-        <button className={'navigation-container'}>
+        <NavigationBottomButton active={active === 8} className={'navigation-container'}
+                          onClick={() => navigate('/user-preference')}>
           <FaUserCircle/>
           {showBackIcon && <span>Jinhyo Kim</span>}
-        </button>
+        </NavigationBottomButton>
 
         <div className={'bottom-box'}>
           {showBackIcon && <div><FiRefreshCw/> <span>Last Update: 1s</span></div>}
@@ -238,10 +241,6 @@ const Nav = styled.nav<{ status: boolean }>`
     flex-direction: column;
     border-radius: ${({status}) => (status ? "5px" : "8px")};
 
-    & .navigation-container {
-      background-color: ${({theme}) => theme.BottomNavigationContainerColor};
-    }
-
     & .navigation-container:hover {
       background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
     }
@@ -292,8 +291,13 @@ const Nav = styled.nav<{ status: boolean }>`
     }
   }
 `
+
 const NavigationButton = styled.button<ButtonStatusProps>`
   background-color: ${({active}) => (active ? ({theme}) => theme.NavigationFocusButtonColor : ({theme}) => theme.primaryColor)};
+`;
+
+const NavigationBottomButton = styled.button<ButtonStatusProps>`
+  background-color: ${({active}) => (active ? ({theme}) => theme.BottomNavigationFocusButtonColor : ({theme}) => theme.BottomNavigationContainerColor)};
 `;
 
 export default NavigationBar

@@ -28,6 +28,9 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   }
 
   body {
+    background-color: ${({theme}) => theme.backgroundColor};
+    animation: ${fadeIn} 0.3s ease-out backwards;
+    transition: background-color 0.3s ease-out;
     overflow: auto;
   }
 
@@ -57,18 +60,19 @@ export const MainTag = styled.main`
   width: 100%;
   height: 100vh;
   background-size: cover;
+  overflow: hidden;
   color: #fff;
   top: 0;
   left: 0;
 `
 
 export const DashboardMain = styled.main`
+  min-height: 800px;
+  max-height: 1700px;
+  min-width: 900px;
+  max-width: 1800px;
   width: 100%;
   height: 100vh;
-  min-height: 800px;
-  background-color: ${({theme}) => theme.backgroundColor};
-  animation: ${fadeIn} 0.3s ease-out backwards;
-  transition: background-color 0.3s ease-out;
   display: flex;
   align-items: center;
 `
@@ -209,6 +213,12 @@ export const AuthenticationForm = styled.form`
     padding-top: 0.2rem;
     padding-left: 0.1rem;
   }
+  
+  & .status-message {
+    text-align: left;
+    padding-top: 0.4rem;
+    font-size: 0.75rem;
+  }
 `
 
 export const AccountLink = styled.div`
@@ -255,7 +265,7 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
 `
 
 export const BoardRowSection = styled.div`
-  height: calc(31.3% - 0.933rem);
+  height: calc(29.9% - 0.339rem);
   margin-top: 1%;
   width: 100%;
   justify-content: space-between;

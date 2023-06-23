@@ -43,6 +43,7 @@ const SignIn = () => {
     setSignInResponse({message: 'Verifying credential...', success: false})
     setTimeout(() => {
       setSignInResponse({message: 'User information is not valid', success: false})
+      // navigate('/dashboard')
     }, 200)
   }
 
@@ -69,7 +70,7 @@ const SignIn = () => {
               <label htmlFor="password" className="input-label">Password</label>
             </div>
 
-            {!signInResponse.success && <div>{signInResponse.message}</div>}
+            {!signInResponse.success && <div className={'status-message'} >{signInResponse.message}</div>}
 
             <button type={'submit'}>
               Sign in

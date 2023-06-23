@@ -9,6 +9,7 @@ import SignIn from "./pages/SignIn";
 import Providers from "./Providers";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboards/Dashboard";
+import UserPreferences from "./pages/Dashboards/UserPreferences";
 
 const router = createBrowserRouter([
   {
@@ -30,6 +31,10 @@ const router = createBrowserRouter([
   {
     path: '/dashboard',
     element: <Dashboard/>
+  },
+  {
+    path: '/user-preference',
+    element: <UserPreferences/>
   }
 ]);
 
