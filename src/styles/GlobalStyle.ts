@@ -247,9 +247,12 @@ export const ArrowButton = styled.button`
 `
 
 export const BoardSection = styled.section`
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   width: 98%;
   height: 98%;
-  min-height: 785px;
+  min-height: 785px
 `
 
 export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
@@ -265,9 +268,8 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
 `
 
 export const BoardRowSection = styled.div`
-  height: calc(29.9% - 0.339rem);
+  height: 33.333%;
   margin-top: 1%;
   width: 100%;
-  justify-content: space-between;
   display: flex;
 `

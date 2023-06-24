@@ -109,7 +109,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
       </NavigationButton>
 
       <div className={'bottom-navigation-container'}>
-        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode}>
+        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} active={false}>
           <DarkModeSwitch
             checked={cookies.theme === 'dark'}
             onChange={toggleDarkMode}
