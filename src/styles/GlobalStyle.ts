@@ -263,8 +263,30 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
   box-shadow: rgba(50, 50, 105, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
   animation: ${fadeIn} 0.3s ease-out backwards;
   transition: background-color 0.3s ease-out;
+  color: ${({theme}) => theme.fontColor};
   border-radius: 5px;
   width: ${({ width }) => width};
+  
+  & .box-name {
+    font-size: 1.1rem;
+    padding-left: 1rem;
+    padding-top: 0.5rem;
+  }
+  
+  & .chart-container {
+    width: 100%;
+    height: 90%;
+    background: #aaa;
+    
+    & .chart {
+      width: 95%;
+      margin-left: auto;
+      margin-right: auto;
+      height: 100%;
+    }  
+  }
+  
+  
 `
 
 export const BoardRowSection = styled.div`
