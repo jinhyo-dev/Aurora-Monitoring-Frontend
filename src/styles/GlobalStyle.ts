@@ -274,19 +274,14 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
   }
   
   & .chart-container {
-    width: 100%;
-    height: 90%;
-    background: #aaa;
+    width: 95%;
+    margin-left: auto;
+    margin-right: auto;
     
     & .chart {
-      width: 95%;
-      margin-left: auto;
-      margin-right: auto;
-      height: 100%;
+      width: 100%;
     }  
   }
-  
-  
 `
 
 export const BoardRowSection = styled.div`
