@@ -268,15 +268,18 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
   width: ${({ width }) => width};
   
   & .box-name {
-    font-size: 1.1rem;
     padding-left: 1rem;
     padding-top: 0.5rem;
+    transition: all .25s;
   }
   
   & .chart-container {
     width: 95%;
+    height: 80%;
     margin-left: auto;
     margin-right: auto;
+    display: flex;
+    align-items: center;
     
     & .chart {
       width: 100%;

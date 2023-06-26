@@ -14,6 +14,7 @@ import {
 
 import { Line } from 'react-chartjs-2';
 import faker from 'faker';
+import { useCookies } from "react-cookie";
 
 ChartJS.register(
   CategoryScale,
@@ -26,6 +27,12 @@ ChartJS.register(
 )
 
 const Dashboard = () => {
+  const [cookies] = useCookies()
+
+  const boxNameStyle = {
+    fontSize: cookies.sidebarStatus === 'closed' ? '1.2rem' : '0.9rem',
+  };
+
   const options = {
     maintainAspectRatio: false,
     responsive: true,
@@ -46,9 +53,40 @@ const Dashboard = () => {
         },
       },
     },
+    scales: {
+      y: {
+        beginAtZero: false,
+        border: {dash: [4, 4]},
+        ticks: {
+          color: cookies.theme === 'dark' ? '#aaa' : '#888',
+          font: {
+            size: 10,
+          },
+        },
+        grid: {
+          tickBorderDash: [2, 3],
+          tickLength: 10,
+          color: cookies.theme === 'dark' ? '#383838' : '#eee',
+        },
+      },
+      x: {
+        beginAtZero: false,
+        ticks: {
+          color: cookies.theme === 'dark' ? '#aaa' : '#888',
+          font: {
+            size: 8,
+          },
+        },
+        grid: {
+          display: false,
+        },
+      },
+    },
+    bezierCurve: true,
   };
 
-  const labels = ['10:40', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52'];
+
+  const labels = ['1s', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52', '10:40', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52'];
 
   const data = {
     labels,
@@ -59,7 +97,6 @@ const Dashboard = () => {
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         pointStyle: false,
-        pointRadius: 5,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
         fill: false,
@@ -71,7 +108,6 @@ const Dashboard = () => {
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         pointStyle: false,
-        pointRadius: 5,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
         fill: false,
@@ -88,34 +124,57 @@ const Dashboard = () => {
 
         <BoardRowSection>
           <RealTimeBox width={'58%'} leftGap={true} rightGap={true}>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
 
           <RealTimeBox width={'39%'} leftGap={false} rightGap={true}>
-
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
         </BoardRowSection>
 
         <BoardRowSection>
           <RealTimeBox width={'32%'} leftGap={true} rightGap={true}>
-            <div className={'box-name'}>Recent Deployments</div>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
             </div>
           </RealTimeBox>
 
           <RealTimeBox width={'32%'} leftGap={false} rightGap={true}>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
 
           <RealTimeBox width={'32%'} leftGap={false} rightGap={true}>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
 
         </BoardRowSection>
 
         <BoardRowSection>
           <RealTimeBox width={'58%'} leftGap={true} rightGap={true}>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
 
           <RealTimeBox width={'39%'} leftGap={false} rightGap={true}>
+            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+            <div className={'chart-container'}>
+              <Line options={options} data={data} className={'chart'}/>
+            </div>
           </RealTimeBox>
         </BoardRowSection>
 
