@@ -9,6 +9,7 @@ export interface CustomTheme extends DefaultTheme {
   BottomNavigationContainerColor: string;
   BottomNavigationFocusButtonColor: string;
   NavigationBarControlButtonColor: string;
+  boxShadow: string;
 }
 
 export const lightTheme: CustomTheme = {
@@ -19,7 +20,8 @@ export const lightTheme: CustomTheme = {
   NavigationFocusButtonColor: '#f0f0f0',
   BottomNavigationContainerColor: '#F5F5F5',
   BottomNavigationFocusButtonColor: '#e3e3e3',
-  NavigationBarControlButtonColor: '#E8E8E8'
+  NavigationBarControlButtonColor: '#E8E8E8',
+  boxShadow: 'rgba(50, 50, 105, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px'
 };
 
 export const darkTheme: CustomTheme = {
@@ -30,5 +32,6 @@ export const darkTheme: CustomTheme = {
   NavigationFocusButtonColor: '#484848',
   BottomNavigationContainerColor: '#292929',
   BottomNavigationFocusButtonColor: '#383838',
-  NavigationBarControlButtonColor: '#2E2E2E'
+  NavigationBarControlButtonColor: '#2E2E2E',
+  boxShadow: '0px 2px 2px 0px hsla(0, 0%, 0%, 0.14), 0px 3px 1px -2px hsla(0, 0%, 0%, 0.12), 0px 1px 5px 0px hsla(0, 0%, 0%, 0.2)'
 };

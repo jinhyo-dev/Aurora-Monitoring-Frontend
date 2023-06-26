@@ -12,7 +12,7 @@ interface RealTimeBoxWidthProps {
   rightGap: boolean;
 }
 
-const fadeIn = keyframes`
+export const fadeIn = keyframes`
   from {
     opacity: 0;
   }
@@ -260,7 +260,7 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
   margin-right: ${({ rightGap }) => rightGap ? '1%' : '0'};
   height: 100%;
   background-color: ${({theme}) => theme.primaryColor};
-  box-shadow: rgba(50, 50, 105, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  box-shadow: ${({theme}) => theme.boxShadow};
   animation: ${fadeIn} 0.3s ease-out backwards;
   transition: background-color 0.3s ease-out;
   color: ${({theme}) => theme.fontColor};

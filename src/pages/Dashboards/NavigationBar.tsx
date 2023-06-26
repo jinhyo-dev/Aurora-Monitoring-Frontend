@@ -8,7 +8,7 @@ import { IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle } from 'react-icons/
 import { HiServer } from 'react-icons/hi'
 import { BsGraphUp, BsStack } from 'react-icons/bs'
 import * as React from "react";
-import { IoNotifications } from "react-icons/io5";
+import { BsServer } from "react-icons/bs";
 import { AiFillDashboard } from "react-icons/ai";
 import { RiBug2Fill } from "react-icons/ri";
 import { FaUserCircle } from 'react-icons/fa'
@@ -89,21 +89,16 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
       </NavigationButton>
 
       <NavigationButton active={active === 3} className={'navigation-container'}>
-        <IoNotifications/>
-        {showBackIcon && <span>Notification</span>}
-      </NavigationButton>
-
-      <NavigationButton active={active === 4} className={'navigation-container'}>
         <AiFillDashboard/>
         {showBackIcon && <span>App Dashboard</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 5} className={'navigation-container'}>
+      <NavigationButton active={active === 4} className={'navigation-container'}>
         <RiBug2Fill/>
         {showBackIcon && <span>Historical Issue</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 6} className={'navigation-container'}>
+      <NavigationButton active={active === 5} className={'navigation-container'}>
         <MdAccessTimeFilled/>
         {showBackIcon && <span>Realtime Logs</span>}
       </NavigationButton>
@@ -118,9 +113,15 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton active={active === 7} className={'navigation-container'}>
+        <NavigationBottomButton active={active === 6} className={'navigation-container'}>
           <IoIosHelpCircle/>
           {showBackIcon && <span>Help</span>}
+        </NavigationBottomButton>
+
+        <NavigationBottomButton active={active === 7} className={'navigation-container'}
+                                onClick={() => navigate('/buckets')}>
+          <BsServer/>
+          {showBackIcon && <span>Buckets</span>}
         </NavigationBottomButton>
 
         <NavigationBottomButton active={active === 8} className={'navigation-container'}
@@ -234,7 +235,7 @@ const Nav = styled.nav<{ status: boolean }>`
   & .bottom-navigation-container {
     transition: all .3s;
     width: 95%;
-    height: 18rem;
+    height: 22rem;
     margin: 5% auto;
     background-color: ${({theme}) => theme.BottomNavigationContainerColor};
     display: flex;

@@ -10,6 +10,8 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartType,
+  ChartData,
 } from 'chart.js';
 
 import { Line } from 'react-chartjs-2';
@@ -25,6 +27,19 @@ ChartJS.register(
   Tooltip,
   Legend
 )
+
+interface ExtendedChartData extends ChartData<ChartType, number[], string> {
+  datasets: {
+    label: string;
+    data: number[];
+    borderColor: string;
+    backgroundColor: string;
+    pointStyle: false;
+    pointBorderColor: string;
+    borderWidth: number;
+    tension: number;
+  }[];
+}
 
 const Dashboard = () => {
   const [cookies] = useCookies()
@@ -88,7 +103,7 @@ const Dashboard = () => {
 
   const labels = ['1s', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52', '10:40', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52'];
 
-  const data = {
+  const data: ExtendedChartData = {
     labels,
     datasets: [
       {
@@ -99,7 +114,6 @@ const Dashboard = () => {
         pointStyle: false,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
-        fill: false,
         tension: 0.15
       },
       {
@@ -110,7 +124,6 @@ const Dashboard = () => {
         pointStyle: false,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
-        fill: false,
         tension: 0.15
       },
     ],
