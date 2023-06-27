@@ -1,11 +1,11 @@
 import { AuthenticationForm, MainTag } from "../styles/GlobalStyle";
-import { Helmet } from "react-helmet";
 import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { phoneNumberAutoFormat } from "../utils/Formatter";
+import Title from "./components/Title";
 
 interface PasswordInputProps {
   isFocused: boolean;
@@ -27,7 +27,6 @@ interface OptionType {
 }
 
 const SignUp = () => {
-  const pageTitle = 'Sign up to Aurora · Aurora';
   const SelectOption = [
     {value: 'argentina/+54', label: '🇦🇷 Argentina'},
     {value: 'australia/+61', label: '🇦🇺 Australia'},
@@ -195,9 +194,8 @@ const SignUp = () => {
 
   return (
     <MainTag>
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
+      <Title title={'Sign in to Aurora'}/>
+
       <Header/>
       <SignUpContainer>
         <CenterBox>

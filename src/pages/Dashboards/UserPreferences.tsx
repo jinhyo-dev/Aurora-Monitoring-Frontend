@@ -7,7 +7,7 @@ import { FaUserAlt } from "react-icons/fa";
 import { AiTwotoneSetting } from 'react-icons/ai'
 
 interface ButtonStatusProps {
-  active: boolean;
+  $active: boolean;
 }
 
 const UserPreferences = () => {
@@ -31,12 +31,12 @@ const UserPreferences = () => {
               <UserPermission>Owner</UserPermission>
 
               <NavigationButtonContainer>
-                <NavigationButton active={preferencesState === 0} onClick={() => handlePreferencesState(0)}>
+                <NavigationButton $active={preferencesState === 0} onClick={() => handlePreferencesState(0)}>
                   <FaUserAlt/>
                   {<span>My Profile</span>}
                 </NavigationButton>
 
-                <NavigationButton active={preferencesState === 1} onClick={() => handlePreferencesState(1)}>
+                <NavigationButton $active={preferencesState === 1} onClick={() => handlePreferencesState(1)}>
                   <AiTwotoneSetting/>
                   {<span>User management</span>}
                 </NavigationButton>
@@ -137,7 +137,7 @@ const NavigationButtonContainer = styled.div`
 `
 
 const NavigationButton = styled.button<ButtonStatusProps>`
-  background-color: ${({active}) => (active ? ({theme}) => theme.NavigationFocusButtonColor : ({theme}) => theme.primaryColor)};
+  background-color: ${({$active}) => ($active ? ({theme}) => theme.NavigationFocusButtonColor : ({theme}) => theme.primaryColor)};
   border: none;
   border-radius: 5px;
   font-size: 1.1rem;

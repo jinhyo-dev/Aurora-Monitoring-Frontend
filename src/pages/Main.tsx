@@ -1,16 +1,14 @@
 import styled, { keyframes } from "styled-components";
 import AuroraBackground from '../assets/images/Aurora-Main-Background.jpg'
 import Header from "./components/Header";
-import { Helmet } from "react-helmet";
 import { useEffect } from "react";
+import Title from "./components/Title";
 
 const Main = () => {
   useEffect(() => {
     const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
     stars.forEach(setRandomStyles);
   },[])
-
-  const pageTitle = 'Aurora'
 
   const getRandomInt = (min: number, max: number) => {
     return Math.floor(Math.random() * (max - min + 1) + min);
@@ -36,9 +34,7 @@ const Main = () => {
 
   return (
     <MainTag>
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
+      <Title title={'Aurora Monitoring'}/>
       <Header/>
       <AuroraInfo>
         Aurora

@@ -1,4 +1,3 @@
-import { Helmet } from 'react-helmet';
 import AuroraBackground from "../assets/images/Aurora-Main-Background.jpg";
 import AuroraImage from "../assets/images/Aurora-Auth-image.png";
 import Header from "./components/Header";
@@ -8,9 +7,9 @@ import { Fade } from 'react-slideshow-image';
 import 'react-slideshow-image/dist/styles.css'
 import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io'
 import { FormEvent, useState } from "react";
+import Title from "./components/Title";
 
 const SignIn = () => {
-  const pageTitle = 'Sign in to Aurora · Aurora';
   const navigate = useNavigate()
 
   const properties = {
@@ -49,9 +48,7 @@ const SignIn = () => {
 
   return (
     <MainTag>
-      <Helmet>
-        <title>{pageTitle}</title>
-      </Helmet>
+      <Title title={'Sign in to Aurora'}/>
       <Header/>
 
       <AuthenticationContainer>
