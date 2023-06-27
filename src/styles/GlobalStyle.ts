@@ -64,13 +64,17 @@ export const MainTag = styled.main`
   color: #fff;
   top: 0;
   left: 0;
+  min-height: 800px;
+  max-height: 1700px;
+  min-width: 1100px;
+  max-width: 1800px;
 `
 
 export const DashboardMain = styled.main`
   min-height: 800px;
   max-height: 1700px;
   min-width: 900px;
-  max-width: 1800px;
+  max-width: 2300px;
   width: 100%;
   height: 100vh;
   display: flex;

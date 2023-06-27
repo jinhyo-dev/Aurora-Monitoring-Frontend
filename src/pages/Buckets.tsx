@@ -6,50 +6,69 @@ import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../assets/svg/AuroraDark.svg'
 import { useCookies } from "react-cookie";
 import { FaUsers } from 'react-icons/fa'
+import * as React from "react";
 
-const Buckets = () => {
+interface PageStatus {
+  firstRender: boolean;
+}
+
+const BucketComponents = () => {
   const [cookies] = useCookies()
+
   return (
-    <DashboardMain>
-      <NavigationBar active={7}/>
-      <BoardSection>
-        <PageName name={'Buckets'}/>
-        <BucketsContainer>
-          {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
-            <AuroraLogoDark className={'aurora-logo'}/>}
-          <div className={'title'}>
-            <div>Buckets</div>
-            <button>
-              Create new bucket
-            </button>
+    <BucketsContainer>
+      {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
+        <AuroraLogoDark className={'aurora-logo'}/>}
+      <div className={'title'}>
+        <div>Buckets</div>
+        <button>
+          Create new bucket
+        </button>
+      </div>
+
+      <div className={'buckets-list'}>
+        <div className={'bucket'}>
+          <div className={'server-name'}>
+            Jinhyo-Vultr-Server
+            <span>Free</span>
+          </div>
+          <div className={'server-info'}>
+            <FaUsers/> <span>1 Team members</span>
+          </div>
+        </div>
+        <div className={'bucket'}>
+          <div className={'server-name'}>
+            Jinhyo-Home-Server
+            <span>Enterprise</span>
           </div>
 
-          <div className={'buckets-list'}>
-            <div className={'bucket'}>
-              <div className={'server-name'}>
-                Jinhyo-Vultr-Server
-                <span>Free</span>
-              </div>
-              <div className={'server-info'}>
-                <FaUsers/> <span>1 Team members</span>
-              </div>
-            </div>
-            <div className={'bucket'}>
-              <div className={'server-name'}>
-                Jinhyo-Home-Server
-                <span>Enterprise</span>
-              </div>
-
-              <div className={'server-info'}>
-                <FaUsers/> <span>5 Team members</span>
-              </div>
-            </div>
+          <div className={'server-info'}>
+            <FaUsers/> <span>5 Team members</span>
           </div>
-
-        </BucketsContainer>
-      </BoardSection>
-    </DashboardMain>
+        </div>
+      </div>
+    </BucketsContainer>
   )
+}
+
+const Buckets: React.FC<PageStatus> = ({firstRender}) => {
+  if (firstRender) {
+    return (
+      <DashboardMain>
+        <NavigationBar active={7}/>
+        <BoardSection>
+          <PageName name={'Buckets'}/>
+          <BucketComponents/>
+        </BoardSection>
+      </DashboardMain>
+    )
+  } else {
+    return (
+      <DashboardMain>
+        <BucketComponents/>
+      </DashboardMain>
+    )
+  }
 }
 
 const BucketsContainer = styled.div`
@@ -59,7 +78,7 @@ const BucketsContainer = styled.div`
   margin: auto;
   background-color: ${({theme}) => theme.primaryColor};
   border-radius: 5px;
-  box-shadow: rgba(50, 50, 105, 0.1) 0px 1px 1px 0px, rgba(0, 0, 0, 0.05) 0px 1px 1px 0px;
+  box-shadow: ${({theme}) => theme.boxShadow};
   animation: ${fadeIn} 0.3s ease-out backwards;
   transition: background-color 0.3s ease-out;
   text-align: center;

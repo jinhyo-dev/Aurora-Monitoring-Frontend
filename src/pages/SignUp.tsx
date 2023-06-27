@@ -21,18 +21,52 @@ interface PasswordValidationProps {
   hasNumber: boolean
 }
 
+interface OptionType {
+  value: string,
+  label: string
+}
+
 const SignUp = () => {
   const pageTitle = 'Sign up to Aurora · Aurora';
   const SelectOption = [
-    {value: 'korea', label: '🇰🇷 Korea'},
-    {value: 'united states', label: '🇺🇸 United States'},
-    {value: 'france', label: '🇫🇷 France'}
-  ]
+    {value: 'argentina/+54', label: '🇦🇷 Argentina'},
+    {value: 'australia/+61', label: '🇦🇺 Australia'},
+    {value: 'belgium/+32', label: '🇧🇪 Belgium'},
+    {value: 'brazil/+55', label: '🇧🇷 Brazil'},
+    {value: 'canada/+1', label: '🇨🇦 Canada'},
+    {value: 'china/+86', label: '🇨🇳 China'},
+    {value: 'denmark/+45', label: '🇩🇰 Denmark'},
+    {value: 'finland/+358', label: '🇫🇮 Finland'},
+    {value: 'france/+33', label: '🇫🇷 France'},
+    {value: 'germany/+49', label: '🇩🇪 Germany'},
+    {value: 'india/+91', label: '🇮🇳 India'},
+    {value: 'indonesia/+62', label: '🇮🇩 Indonesia'},
+    {value: 'israel/+972', label: '🇮🇱 Israel'},
+    {value: 'italy/+39', label: '🇮🇹 Italy'},
+    {value: 'japan/+81', label: '🇯🇵 Japan'},
+    {value: 'south-korea/+82', label: '🇰🇷 South Korea'},
+    {value: 'mexico/+52', label: '🇲🇽 Mexico'},
+    {value: 'netherlands/+31', label: '🇳🇱 Netherlands'},
+    {value: 'norway/+47', label: '🇳🇴 Norway'},
+    {value: 'portugal/+351', label: '🇵🇹 Portugal'},
+    {value: 'russia/+7', label: '🇷🇺 Russia'},
+    {value: 'saudi-arabia/+966', label: '🇸🇦 Saudi Arabia'},
+    {value: 'singapore/+65', label: '🇸🇬 Singapore'},
+    {value: 'south-africa/+27', label: '🇿🇦 South Africa'},
+    {value: 'spain/+34', label: '🇪🇸 Spain'},
+    {value: 'sweden/+46', label: '🇸🇪 Sweden'},
+    {value: 'switzerland/+41', label: '🇨🇭 Switzerland'},
+    {value: 'turkey/+90', label: '🇹🇷 Turkey'},
+    {value: 'united-kingdom/+44', label: '🇬🇧 United Kingdom'},
+    {value: 'united-states/+1', label: '🇺🇸 United States'}
+  ];
 
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const [password, setPassword] = useState<string>('')
   const [email, setEmail] = useState<string>('')
   const [phoneNumber, setPhoneNumber] = useState<string>('')
+  const [country, setCountry] = useState<OptionType | null>(null)
+  const [countryCode, setCountryCode] = useState<string>('')
   const [submitValidation, setSubmitValidation] = useState<{ emailValidate: boolean, passwordValidate: boolean }>({
     emailValidate: true,
     passwordValidate: true
@@ -141,6 +175,22 @@ const SignUp = () => {
     }
   }
 
+  const handleCountryCode = (e: OptionType | null) => {
+    if (e?.value) {
+      const splitValues = e.value.split('/');
+      setCountry(e)
+      setCountryCode(splitValues[1])
+    }
+  }
+
+  const handlePhoneNumber = (e: ChangeEvent<HTMLInputElement>) => {
+    if (countryCode === '') {
+      alert('Select country first!')
+    }
+    const splitValues = e.target.value.split(' ')
+    setPhoneNumber(phoneNumberAutoFormat(String(splitValues[1])))
+  }
+
   // const navigate = useNavigate()
 
   return (
@@ -161,7 +211,8 @@ const SignUp = () => {
           <RightBox>
 
             <SelectContainer>
-              <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}/>
+              <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
+                      onChange={handleCountryCode} value={country} id={'country-select'}/>
             </SelectContainer>
             <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}} onSubmit={handleLogin}>
               <div className="input-container name-container">
@@ -180,8 +231,8 @@ const SignUp = () => {
 
               <div className="input-container phone-container">
                 <input type={"input"} className="input-field" placeholder="Phone" name="phone" id='phone'
-                       value={phoneNumber}
-                       required={true} onChange={(e) => setPhoneNumber(phoneNumberAutoFormat(e.target.value))}/>
+                       value={countryCode + (countryCode.length > 0 ? ' ' + phoneNumber : '')} required={true}
+                       onChange={handlePhoneNumber}/>
                 <label htmlFor="phone" className="input-label">Phone</label>
                 <div className={'info-text'}>* Select country first</div>
               </div>
