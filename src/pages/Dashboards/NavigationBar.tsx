@@ -23,7 +23,7 @@ interface NavigationProps {
 }
 
 interface ButtonStatusProps {
-  active: boolean;
+  $active: boolean;
 }
 
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
@@ -64,7 +64,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   }, [cookies.sidebarStatus]);
 
   return (
-    <Nav status={cookies.sidebarStatus === 'open'}>
+    <Nav $status={cookies.sidebarStatus === 'open'}>
       <div className={'logo-container'}>
         {showBackIcon ? (cookies.theme === 'dark' ? <AuroraLogo className={'logo'}/> :
           <AuroraLogoDark className={'logo'}/>) : (cookies.theme === 'dark' ? <AuroraSimpleLogo className={'logo'}/> :
@@ -73,38 +73,38 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
       <div className={'server-name'}>Jinhyo-Server</div>
 
-      <NavigationButton active={active === 0} className={'navigation-container'} onClick={() => navigate('/dashboard')}>
+      <NavigationButton $active={active === 0} className={'navigation-container'} onClick={() => navigate('/bucket/AURORA633/dashboard')}>
         <HiServer/>
         {showBackIcon && <span>Process Overview</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 1} className={'navigation-container'}>
+      <NavigationButton $active={active === 1} className={'navigation-container'}>
         <BsGraphUp/>
         {showBackIcon && <span>Realtime Metrics</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 2} className={'navigation-container'}>
+      <NavigationButton $active={active === 2} className={'navigation-container'}>
         <BsStack/>
         {showBackIcon && <span>Apps Overview</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 3} className={'navigation-container'}>
+      <NavigationButton $active={active === 3} className={'navigation-container'}>
         <AiFillDashboard/>
         {showBackIcon && <span>App Dashboard</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 4} className={'navigation-container'}>
+      <NavigationButton $active={active === 4} className={'navigation-container'}>
         <RiBug2Fill/>
         {showBackIcon && <span>Historical Issue</span>}
       </NavigationButton>
 
-      <NavigationButton active={active === 5} className={'navigation-container'}>
+      <NavigationButton $active={active === 5} className={'navigation-container'}>
         <MdAccessTimeFilled/>
         {showBackIcon && <span>Realtime Logs</span>}
       </NavigationButton>
 
       <div className={'bottom-navigation-container'}>
-        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} active={false}>
+        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} $active={false}>
           <DarkModeSwitch
             checked={cookies.theme === 'dark'}
             onChange={toggleDarkMode}
@@ -113,19 +113,19 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton active={active === 6} className={'navigation-container'}>
+        <NavigationBottomButton $active={active === 6} className={'navigation-container'}>
           <IoIosHelpCircle/>
           {showBackIcon && <span>Help</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton active={active === 7} className={'navigation-container'}
-                                onClick={() => navigate('/buckets')}>
+        <NavigationBottomButton $active={active === 7} className={'navigation-container'}
+                                onClick={() => navigate('/bucket/AURORA633/buckets')}>
           <BsServer/>
           {showBackIcon && <span>Buckets</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton active={active === 8} className={'navigation-container'}
-                          onClick={() => navigate('/user-preference')}>
+        <NavigationBottomButton $active={active === 8} className={'navigation-container'}
+                                onClick={() => navigate('/bucket/AURORA633/user-preference')}>
           <FaUserCircle/>
           {showBackIcon && <span>Jinhyo Kim</span>}
         </NavigationBottomButton>
@@ -151,17 +151,17 @@ const fadeIn = keyframes`
   }
 `;
 
-const Nav = styled.nav<{ status: boolean }>`
+const Nav = styled.nav<{ $status: boolean }>`
   height: 98%;
   margin-left: 0.5%;
-  width: ${({status}) => (status ? "18%" : "3.5rem")};
+  width: ${({$status}) => ($status ? "18%" : "3.5rem")};
   background-color: ${({theme}) => theme.primaryColor};
   border-radius: 5px;
   transition: all .3s;
   display: flex;
   flex-direction: column;
   min-height: 800px;
-  min-width: ${({status}) => (status ? "240px" : "2rem")};
+  min-width: ${({$status}) => ($status ? "240px" : "2rem")};
 
   & .logo {
     animation: ${fadeIn} 0.35s ease-in-out;
@@ -179,8 +179,8 @@ const Nav = styled.nav<{ status: boolean }>`
     text-align: center;
 
     & svg {
-      width: ${({status}) => (status ? "60%" : "2rem")};
-      margin-top: ${({status}) => (status ? "0" : "0.3rem")};
+      width: ${({$status}) => ($status ? "60%" : "2rem")};
+      margin-top: ${({$status}) => ($status ? "0" : "0.3rem")};
     }
   }
 
@@ -189,7 +189,7 @@ const Nav = styled.nav<{ status: boolean }>`
     background: none;
     margin: 5% auto 2%;
     max-width: 95%;
-    font-size: ${({status}) => (status ? "1.2rem" : "0.4rem")};
+    font-size: ${({$status}) => ($status ? "1.2rem" : "0.4rem")};
     color: ${({theme}) => theme.fontColor};
     white-space: nowrap;
     overflow: hidden;
@@ -201,9 +201,9 @@ const Nav = styled.nav<{ status: boolean }>`
     transition: all .3s;
     width: 90%;
     height: 3rem;
-    border-radius: ${({status}) => (status ? "5px" : "8px")};
+    border-radius: ${({$status}) => ($status ? "5px" : "8px")};
     color: ${({theme}) => theme.fontColor};
-    margin: ${({status}) => (status ? "5% auto 0" : "1rem auto 0")};
+    margin: ${({$status}) => ($status ? "5% auto 0" : "1rem auto 0")};
     cursor: pointer;
 
     &:hover {
@@ -214,12 +214,12 @@ const Nav = styled.nav<{ status: boolean }>`
       font-size: 0.9rem;
       float: left;
       margin-left: 1rem;
-      display: ${({status}) => (status ? "" : "none")};
+      display: ${({$status}) => ($status ? "" : "none")};
       animation: ${fadeIn} 0.35s ease-in-out;
     }
 
     & svg {
-      ${({status}) => (status ? `
+      ${({$status}) => ($status ? `
         font-size: 1.3rem;
         float: left;
         margin-left: 1rem;
@@ -240,7 +240,7 @@ const Nav = styled.nav<{ status: boolean }>`
     background-color: ${({theme}) => theme.BottomNavigationContainerColor};
     display: flex;
     flex-direction: column;
-    border-radius: ${({status}) => (status ? "5px" : "8px")};
+    border-radius: ${({$status}) => ($status ? "5px" : "8px")};
 
     & .navigation-container:hover {
       background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
@@ -257,7 +257,7 @@ const Nav = styled.nav<{ status: boolean }>`
       height: 2.5rem;
 
       div {
-        display: ${({status}) => (status ? "flex" : "none")};
+        display: ${({$status}) => ($status ? "flex" : "none")};
         align-items: center;
         height: 100%;
         float: left;
@@ -279,8 +279,8 @@ const Nav = styled.nav<{ status: boolean }>`
     cursor: pointer;
     color: ${({theme}) => theme.fontColor};
     background-color: ${({theme}) => theme.NavigationBarControlButtonColor};
-    margin: ${({status}) => (status ? "auto 0.5rem 0.5rem auto" : "auto")};
-    float: ${({status}) => (status ? "right" : "")};
+    margin: ${({$status}) => ($status ? "auto 0.5rem 0.5rem auto" : "auto")};
+    float: ${({$status}) => ($status ? "right" : "")};
 
     & svg {
       font-size: 1.3rem;
@@ -290,15 +290,20 @@ const Nav = styled.nav<{ status: boolean }>`
     &:hover {
       background-color: ${({theme}) => theme.NavigationFocusButtonColor};
     }
+
+    & svg {
+      font-size: 1.3rem;
+      margin-top: 0.3rem;
+    }
   }
-`
+`;
 
 const NavigationButton = styled.button<ButtonStatusProps>`
-  background-color: ${({active}) => (active ? ({theme}) => theme.NavigationFocusButtonColor : ({theme}) => theme.primaryColor)};
+  background-color: ${({$active, theme}) => ($active ? theme.NavigationFocusButtonColor : "transparent")};
 `;
 
 const NavigationBottomButton = styled.button<ButtonStatusProps>`
-  background-color: ${({active}) => (active ? ({theme}) => theme.BottomNavigationFocusButtonColor : ({theme}) => theme.BottomNavigationContainerColor)};
+  background-color: ${({$active, theme}) => ($active ? theme.BottomNavigationFocusButtonColor : "transparent")};
 `;
 
-export default NavigationBar
+export default NavigationBar;

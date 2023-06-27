@@ -136,14 +136,14 @@ const Dashboard = () => {
         <PageName name={'Dashboard'}/>
 
         <BoardRowSection>
-          <RealTimeBox width={'58%'} leftGap={true} rightGap={true}>
+          <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
             </div>
           </RealTimeBox>
 
-          <RealTimeBox width={'39%'} leftGap={false} rightGap={true}>
+          <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
@@ -152,21 +152,21 @@ const Dashboard = () => {
         </BoardRowSection>
 
         <BoardRowSection>
-          <RealTimeBox width={'32%'} leftGap={true} rightGap={true}>
+          <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
             </div>
           </RealTimeBox>
 
-          <RealTimeBox width={'32%'} leftGap={false} rightGap={true}>
+          <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
             </div>
           </RealTimeBox>
 
-          <RealTimeBox width={'32%'} leftGap={false} rightGap={true}>
+          <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
@@ -176,14 +176,14 @@ const Dashboard = () => {
         </BoardRowSection>
 
         <BoardRowSection>
-          <RealTimeBox width={'58%'} leftGap={true} rightGap={true}>
+          <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>
             </div>
           </RealTimeBox>
 
-          <RealTimeBox width={'39%'} leftGap={false} rightGap={true}>
+          <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
             <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
             <div className={'chart-container'}>
               <Line options={options} data={data} className={'chart'}/>

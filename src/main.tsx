@@ -1,7 +1,7 @@
 import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import {
-  createBrowserRouter,
+  createBrowserRouter, Navigate,
   RouterProvider,
 } from "react-router-dom";
 import Main from './pages/Main'
@@ -15,32 +15,46 @@ import Buckets from "./pages/Buckets";
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Main/>,
-    // action: rootAction,
-    // loader: rootLoader,
+    children: [
+      {
+        path: '',
+        element: <Main/>,
+      },
+      {
+        path: "/sign-in",
+        element: <SignIn/>,
+      },
+      {
+        path: "/sign-up",
+        element: <SignUp/>,
+      },
+      {
+        path: '/buckets',
+        element: <Buckets firstRender={true}/>
+      },
+      {
+        path: "/bucket/:serverId/",
+        children: [
+          {
+            path: '',
+            element: <Navigate to={'/bucket/AURORA633/dashboard'}/>
+          },
+          {
+            path: '/bucket/:serverId/dashboard',
+            element: <Dashboard/>
+          },
+          {
+            path: '/bucket/:serverId/user-preference',
+            element: <UserPreferences/>
+          },
+          {
+            path: '/bucket/:serverId/buckets',
+            element: <Buckets firstRender={false}/>
+          }
+        ]
+      }
+    ]
   },
-  {
-    path: "/sign-in",
-    element: <SignIn/>,
-    // loader: taskLoader,
-  },
-  {
-    path: "/sign-up",
-    element: <SignUp/>,
-    // loader: taskLoader,
-  },
-  {
-    path: '/dashboard',
-    element: <Dashboard/>
-  },
-  {
-    path: '/user-preference',
-    element: <UserPreferences/>
-  },
-  {
-    path: '/buckets',
-    element: <Buckets/>
-  }
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(

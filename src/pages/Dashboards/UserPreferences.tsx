@@ -23,7 +23,7 @@ const UserPreferences = () => {
       <BoardSection>
         <PageName name={'User Preferences'}/>
         <BoardRowSection style={{height: '91%'}}>
-          <RealTimeBox width={'35%'} leftGap={true} rightGap={true} style={{display: 'flex', alignItems: 'center'}}>
+          <RealTimeBox width={'35%'} $leftGap={true} $rightGap={true} style={{display: 'flex', alignItems: 'center'}}>
 
             <UserInformationContainer>
               <UserProfileImage/>
@@ -44,7 +44,7 @@ const UserPreferences = () => {
             </UserInformationContainer>
 
           </RealTimeBox>
-          <RealTimeBox width={'65%'} leftGap={false} rightGap={true}>
+          <RealTimeBox width={'65%'} $leftGap={false} $rightGap={true}>
             {
               preferencesState === 0 ?
                 (<ProfileContainer>

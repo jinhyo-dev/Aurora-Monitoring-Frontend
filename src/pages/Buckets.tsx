@@ -1,12 +1,13 @@
-import { BoardSection, DashboardMain, fadeIn } from "../styles/GlobalStyle";
-import styled from "styled-components";
-import NavigationBar from "./Dashboards/NavigationBar";
-import PageName from "./components/PageName";
+import { BoardSection, DashboardMain, fadeIn } from "../styles/GlobalStyle"
+import styled from "styled-components"
+import NavigationBar from "./Dashboards/NavigationBar"
+import PageName from "./components/PageName"
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../assets/svg/AuroraDark.svg'
-import { useCookies } from "react-cookie";
+import { useCookies } from "react-cookie"
 import { FaUsers } from 'react-icons/fa'
-import * as React from "react";
+import * as React from "react"
+import { useNavigate } from "react-router-dom";
 
 interface PageStatus {
   firstRender: boolean;
@@ -14,6 +15,7 @@ interface PageStatus {
 
 const BucketComponents = () => {
   const [cookies] = useCookies()
+  const navigate = useNavigate()
 
   return (
     <BucketsContainer>
@@ -27,7 +29,7 @@ const BucketComponents = () => {
       </div>
 
       <div className={'buckets-list'}>
-        <div className={'bucket'}>
+        <div className={'bucket'} onClick={() => navigate('/bucket/AURORA633/dashboard')}>
           <div className={'server-name'}>
             Jinhyo-Vultr-Server
             <span>Free</span>
@@ -49,26 +51,6 @@ const BucketComponents = () => {
       </div>
     </BucketsContainer>
   )
-}
-
-const Buckets: React.FC<PageStatus> = ({firstRender}) => {
-  if (firstRender) {
-    return (
-      <DashboardMain>
-        <NavigationBar active={7}/>
-        <BoardSection>
-          <PageName name={'Buckets'}/>
-          <BucketComponents/>
-        </BoardSection>
-      </DashboardMain>
-    )
-  } else {
-    return (
-      <DashboardMain>
-        <BucketComponents/>
-      </DashboardMain>
-    )
-  }
 }
 
 const BucketsContainer = styled.div`
@@ -176,5 +158,25 @@ const BucketsContainer = styled.div`
     }
   }
 `
+
+const Buckets: React.FC<PageStatus> = ({firstRender}) => {
+  if (firstRender) {
+    return (
+      <DashboardMain>
+        <BucketComponents/>
+      </DashboardMain>
+    )
+  } else {
+    return (
+      <DashboardMain>
+        <NavigationBar active={7}/>
+        <BoardSection>
+          <PageName name={'Buckets'}/>
+          <BucketComponents/>
+        </BoardSection>
+      </DashboardMain>
+    )
+  }
+}
 
 export default Buckets

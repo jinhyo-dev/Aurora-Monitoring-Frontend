@@ -8,8 +8,8 @@ interface GlobalStyleProps {
 
 interface RealTimeBoxWidthProps {
   width: string;
-  leftGap: boolean;
-  rightGap: boolean;
+  $leftGap: boolean;
+  $rightGap: boolean;
 }
 
 export const fadeIn = keyframes`
@@ -260,8 +260,8 @@ export const BoardSection = styled.section`
 `
 
 export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
-  margin-left: ${({ leftGap }) => leftGap ? '1%' : '0'};
-  margin-right: ${({ rightGap }) => rightGap ? '1%' : '0'};
+  margin-left: ${({ $leftGap }) => $leftGap ? '1%' : '0'};
+  margin-right: ${({ $rightGap }) => $rightGap ? '1%' : '0'};
   height: 100%;
   background-color: ${({theme}) => theme.primaryColor};
   box-shadow: ${({theme}) => theme.boxShadow};
