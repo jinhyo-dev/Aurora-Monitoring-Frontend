@@ -108,7 +108,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           <DarkModeSwitch
             checked={cookies.theme === 'dark'}
             onChange={toggleDarkMode}
-            size={'1.3rem'}
+            size={'22px'}
           />
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </NavigationBottomButton>
