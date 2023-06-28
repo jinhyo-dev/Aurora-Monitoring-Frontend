@@ -8,6 +8,7 @@ import { useCookies } from "react-cookie"
 import { FaUsers } from 'react-icons/fa'
 import * as React from "react"
 import { useNavigate } from "react-router-dom";
+import { confirmAlert } from "react-confirm-alert";
 
 interface PageStatus {
   firstRender: boolean;
@@ -17,13 +18,46 @@ const BucketComponents = () => {
   const [cookies] = useCookies()
   const navigate = useNavigate()
 
+  const createNewBucketHandler = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <p>Create new bucket</p>
+
+              <form className={'bucket-form'}>
+                <input type="input" placeholder="Bucket name"/>
+              </form>
+
+              <div className={'button-container'}>
+                <button onClick={onClose} className={'close-btn'}>Cancel</button>
+                <button
+                  onClick={onClose}
+                  className={'create-btn'}
+                >
+                  Create
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
   return (
     <BucketsContainer>
       {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
         <AuroraLogoDark className={'aurora-logo'}/>}
       <div className={'title'}>
         <div>Buckets</div>
-        <button>
+        <button onClick={createNewBucketHandler}>
           Create new bucket
         </button>
       </div>

@@ -11,6 +11,7 @@ import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboards/Dashboard";
 import UserPreferences from "./pages/Dashboards/UserPreferences";
 import Buckets from "./pages/Buckets";
+import 'react-confirm-alert/src/react-confirm-alert.css';
 
 const router = createBrowserRouter([
   {

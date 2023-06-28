@@ -51,6 +51,108 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     overflow: hidden;
     object-position: center center;
   }
+
+  .custom-alert-ui {
+    background-color: ${({theme}) => theme.backgroundColor};
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    padding: 20px;
+    position: relative;
+    width: 400px;
+    color: ${({theme}) => theme.fontColor};
+
+    & .logo-container {
+      color: ${({theme}) => theme.fontColor};
+      width: 7rem;
+      text-align: center;
+      margin: auto;
+
+      & svg {
+        width: 7rem;
+      }
+    }
+    
+    & .bucket-form {
+      width: 85%;
+      height: 2.5rem;
+      margin: 0.3rem auto 1rem;
+
+      & input {
+        width: 100%;
+        border: ${({theme}) => `1px solid ${theme.fontColor}`};
+        color: ${({theme}) => theme.fontColor};
+        border-radius: 5px;
+        height: 100%;
+        background: none;
+        padding-left: 1rem;
+        padding-right: 1rem;
+        font-size: 1rem;
+        box-sizing: border-box;
+      }
+    }
+
+    & p {
+      margin-top: 1rem;
+      color: ${({theme}) => theme.fontColor};
+      text-align: left;
+      font-size: 0.9rem;
+      padding-left: 7.5%;
+      font-weight: 400;
+    }
+
+    & .button-container {
+      width: 9rem;
+      margin: 2.2rem auto 0.7rem;
+
+      & button {
+        cursor: pointer;
+        width: 4rem;
+        height: 2rem;
+        border: none;
+        border-radius: 3px;
+        transition: all 0.2s;
+        font-size: 0.8rem;
+      }
+
+      & .close-btn {
+        background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+        color: ${({theme}) => theme.fontColor};
+
+        &:hover {
+          background-color: ${({theme}) => theme.BottomNavigationContainerColor};
+        }
+      }
+
+      & .create-btn {
+        float: right;
+        color: #fff;
+        background: #07a4ff;
+
+        &:hover {
+          background: #0a88d2;
+        }
+      }
+    }
+  }
+
+  .react-confirm-alert-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+    z-index: 99999;
+  }
+
+  .react-confirm-alert-body {
+    align-items: center;
+    display: flex;
+    height: 100%;
+    justify-content: center;
+    position: relative;
+    z-index: 100000;
+  }
 `
 
 export const MainTag = styled.main`
@@ -113,7 +215,7 @@ export const AuthenticationForm = styled.form`
   width: 70%;
   margin: 3rem auto 0;
   position: relative;
-  
+
   & button {
     cursor: pointer;
     width: 100%;
@@ -127,7 +229,7 @@ export const AuthenticationForm = styled.form`
     border-radius: 5px;
     transition: all .2s;
   }
-  
+
   & button:hover {
     opacity: .9;
   }
@@ -142,7 +244,6 @@ export const AuthenticationForm = styled.form`
     width: 100%;
 
     & input {
-      font-family: inherit;
       width: 100%;
       border: 0;
       border-bottom: 1px solid #fff;
@@ -150,7 +251,7 @@ export const AuthenticationForm = styled.form`
       font-size: 1rem;
       color: #fff;
       padding: 5px 2px;
-      background: transparent;
+      background: none;
       transition: all 0.3s;
 
       &::placeholder {
@@ -173,6 +274,7 @@ export const AuthenticationForm = styled.form`
         font-size: 0.75rem;
         color: #fff;
       }
+
       padding-bottom: 6px;
       border-width: 3px;
     }
@@ -192,13 +294,13 @@ export const AuthenticationForm = styled.form`
       color: #ccc;
     }
   }
-  
+
   & .name-container {
     width: 45%;
     float: left;
     margin-bottom: 0;
   }
-  
+
   & .phone-container {
     margin-top: 3rem;
   }
@@ -206,18 +308,18 @@ export const AuthenticationForm = styled.form`
   & .email-container {
     margin-top: 1rem;
   }
-  
+
   & .password-container-2 {
     margin-top: 2rem;
   }
-  
+
   & .info-text {
     font-size: 0.65rem;
     color: #ccc;
     padding-top: 0.2rem;
     padding-left: 0.1rem;
   }
-  
+
   & .status-message {
     text-align: left;
     padding-top: 0.4rem;
