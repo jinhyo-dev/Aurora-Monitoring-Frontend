@@ -18,7 +18,7 @@ export const lightTheme: CustomTheme = {
   primaryColor: '#fff',
   fontColor: '#000',
   fontSecondColor: '#888',
-  NavigationFocusButtonColor: '#f0f0f0',
+  NavigationFocusButtonColor: '#e1e1e1',
   BottomNavigationContainerColor: '#F5F5F5',
   BottomNavigationFocusButtonColor: '#e3e3e3',
   NavigationBarControlButtonColor: '#E8E8E8',

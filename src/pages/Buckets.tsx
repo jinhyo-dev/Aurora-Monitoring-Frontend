@@ -9,6 +9,7 @@ import { FaUsers } from 'react-icons/fa'
 import * as React from "react"
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
+import { FiEdit } from 'react-icons/fi'
 
 interface PageStatus {
   firstRender: boolean;
@@ -51,6 +52,10 @@ const BucketComponents = () => {
     )
   }
 
+  const bucketEditHandler = () => {
+    console.log('aaa')
+  }
+
   return (
     <BucketsContainer>
       {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
@@ -64,23 +69,42 @@ const BucketComponents = () => {
 
       <div className={'buckets-list'}>
         <div className={'bucket'} onClick={() => navigate('/bucket/AURORA633/dashboard')}>
-          <div className={'server-name'}>
-            Jinhyo-Vultr-Server
-            <span>Free</span>
-          </div>
-          <div className={'server-info'}>
-            <FaUsers/> <span>1 Team members</span>
-          </div>
-        </div>
-        <div className={'bucket'}>
-          <div className={'server-name'}>
-            Jinhyo-Home-Server
-            <span>Enterprise</span>
+          <div>
+            <div className={'server-name'}>
+              Jinhyo-Vultr-Server
+              <span>Free</span>
+            </div>
+            <div className={'server-info'}>
+              <FaUsers/> <span>1 Team members</span>
+            </div>
           </div>
 
-          <div className={'server-info'}>
-            <FaUsers/> <span>5 Team members</span>
+          <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            bucketEditHandler();
+          }}>
+            <FiEdit/> Edit
+          </EditButton>
+
+        </div>
+        <div className={'bucket'}>
+          <div>
+            <div className={'server-name'}>
+              Jinhyo-Home-Server
+              <span>Enterprise</span>
+            </div>
+
+            <div className={'server-info'}>
+              <FaUsers/> <span>5 Team members</span>
+            </div>
           </div>
+
+          <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+            event.stopPropagation();
+            bucketEditHandler();
+          }}>
+            <FiEdit/> Edit
+          </EditButton>
         </div>
       </div>
     </BucketsContainer>
@@ -149,6 +173,8 @@ const BucketsContainer = styled.div`
       margin-top: 1rem;
       font-weight: 300;
       transition: all .25s;
+      display: flex;
+      align-items: center;
       cursor: pointer;
       box-shadow: ${({theme}) => theme.boxShadow};
 
@@ -168,7 +194,6 @@ const BucketsContainer = styled.div`
         text-align: left;
         font-size: 1.2rem;
         padding-left: 1rem;
-        padding-top: 0.7rem;
 
         & span {
           padding-left: 0.4rem;
@@ -177,7 +202,7 @@ const BucketsContainer = styled.div`
       }
 
       & .server-info {
-        padding-top: 0.2rem;
+        padding-top: 0.4rem;
         padding-left: 1rem;
         float: left;
 
@@ -191,6 +216,29 @@ const BucketsContainer = styled.div`
       }
     }
   }
+`
+
+const EditButton = styled.button`
+  width: 4rem;
+  height: 2rem;
+  border: none;
+  margin-left: auto;
+  margin-right: 1rem;
+  border-radius: 3px;
+  background: ${({theme}) => theme.NavigationFocusButtonColor};
+  color: ${({theme}) => theme.fontColor};
+  cursor: pointer;
+  transition: all .25s;
+  
+  & svg {
+    margin-bottom: -0.1rem;
+  }
+  
+  &:hover {
+    background: ${({theme}) => theme.BottomNavigationContainerColor};
+  }
+  
+  &
 `
 
 const Buckets: React.FC<PageStatus> = ({firstRender}) => {
