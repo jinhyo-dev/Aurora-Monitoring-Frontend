@@ -5,6 +5,7 @@ import styled from "styled-components";
 import { useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
 import { AiTwotoneSetting } from 'react-icons/ai'
+import { BsPersonFillAdd } from 'react-icons/bs'
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -40,6 +41,11 @@ const UserPreferences = () => {
                   <AiTwotoneSetting/>
                   {<span>User management</span>}
                 </NavigationButton>
+
+                <NavigationButton $active={preferencesState === 2} onClick={() => handlePreferencesState(2)}>
+                  <BsPersonFillAdd/>
+                  {<span>Invite members</span>}
+                </NavigationButton>
               </NavigationButtonContainer>
             </UserInformationContainer>
 
@@ -52,7 +58,7 @@ const UserPreferences = () => {
                   <div className={'container-information'}>Edit personal information and password</div>
                   <div className={'container-subtitle'}>Personal Information</div>
 
-                  <div className={'input-container'} style={{ marginTop: '5%' }}>
+                  <div className={'input-container'} style={{marginTop: '5%'}}>
                     <div className={'left-input'}>
                       <div>First Name</div>
                       <input type={'text'}/>
@@ -93,7 +99,13 @@ const UserPreferences = () => {
                     <button className={'cancel-button'}>Cancel</button>
                   </div>
                 </ProfileContainer>) :
-                (<div></div>)
+                preferencesState === 1 ?
+                  (<ProfileContainer>
+                  </ProfileContainer>) :
+                  (<ProfileContainer>
+                    <div className={'container-name'}>Invite member to your team</div>
+                    <div className={'container-information'}>Invite by code or email address</div>
+                  </ProfileContainer>)
             }
           </RealTimeBox>
         </BoardRowSection>
@@ -200,7 +212,7 @@ const ProfileContainer = styled.div`
     height: 4rem;
     width: 100%;
     color: ${({theme}) => theme.fontSecondColor};
-    
+
     & .left-input {
       width: 40%;
       float: left;
@@ -212,7 +224,7 @@ const ProfileContainer = styled.div`
       float: right;
       padding-right: 2rem;
     }
-    
+
     & input {
       margin-top: 0.5rem;
       width: 100%;
@@ -233,12 +245,12 @@ const ProfileContainer = styled.div`
       }
     }
   }
-  
+
   & .button-container {
     width: 50%;
     height: 3rem;
     margin: auto 2rem 1rem auto;
-    
+
     & button {
       width: 20%;
       height: 80%;
@@ -248,13 +260,13 @@ const ProfileContainer = styled.div`
       border-radius: 5px;
       cursor: pointer;
       transition: all .2s;
-      
+
       &:hover {
         width: 21%;
         height: 82%;
       }
     }
-    
+
     & .save-button {
       background: ${({theme}) => theme.fontColor};
       color: ${({theme}) => theme.backgroundColor};
