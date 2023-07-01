@@ -2,20 +2,65 @@ import NavigationBar from "./NavigationBar";
 import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox } from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
 import styled from "styled-components";
-import { useState } from "react";
+import { FormEvent, useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
 import { AiTwotoneSetting } from 'react-icons/ai'
 import { BsPersonFillAdd } from 'react-icons/bs'
+import { TbCopy } from 'react-icons/tb'
+import { CopyToClipboard } from 'react-copy-to-clipboard';
+import toast from "react-hot-toast";
+import { useCookies } from "react-cookie";
+import { isValidEmail } from "../../utils/Formatter";
 
 interface ButtonStatusProps {
   $active: boolean;
 }
 
+interface EmailListProps {
+  email: string;
+}
+
 const UserPreferences = () => {
   const [preferencesState, setPreferencesState] = useState<number>(0)
+  const [email, setEmail] = useState<string>('')
+  const [isEmailFormValid, setIsEmailFormValid] = useState<boolean>(true)
+  const [emailList, setEmailList] = useState<EmailListProps[]>([])
+  const [cookies] = useCookies()
 
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
+  }
+
+  const CopiedAlert = () => {
+    toast('Copied !',
+      {
+        style: {
+          borderRadius: '5px',
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+        },
+        duration: 1000
+      }
+    )
+  }
+
+  const addEmailToList = (e: FormEvent) => {
+    e.preventDefault()
+
+    if (isValidEmail(email)) {
+      setEmailList(prevState => ([
+        ...prevState,
+        {
+          email: email
+        }
+      ]))
+
+      setIsEmailFormValid(true)
+    } else {
+      setIsEmailFormValid(false)
+    }
+
+    console.log(emailList)
   }
 
   return (
@@ -105,6 +150,30 @@ const UserPreferences = () => {
                   (<ProfileContainer>
                     <div className={'container-name'}>Invite member to your team</div>
                     <div className={'container-information'}>Invite by code or email address</div>
+                    <div className={'container-subtitle'}>Your team code
+                      <div>
+                        @kimsunghyun-cute
+                        <CopyToClipboard text={'@kimsunghyun-cute'}>
+                          <button onClick={CopiedAlert}><TbCopy/> Copy</button>
+                        </CopyToClipboard>
+                      </div>
+                    </div>
+
+                    <div className={'add-form-container'}>
+                      <form onSubmit={addEmailToList}>
+                        <label>
+                          <input placeholder={'Add user by email'} required={true} value={email}
+                                 onChange={(e) => setEmail(e.target.value)}/>
+                          <button type="submit">Add</button>
+                        </label>
+
+                        {!isEmailFormValid && <div>Invalid email format</div>}
+                      </form>
+                    </div>
+
+                    <div>
+
+                    </div>
                   </ProfileContainer>)
             }
           </RealTimeBox>
@@ -204,6 +273,87 @@ const ProfileContainer = styled.div`
     padding-top: 1.5rem;
     color: ${({theme}) => theme.fontColor};
     font-size: 1.45rem;
+    display: flex;
+
+    & div {
+      margin-left: 1rem;
+      width: auto;
+      padding-left: 1rem;
+      padding-right: 1rem;
+      height: 2.3rem;
+      display: flex;
+      align-items: center;
+      font-size: 1rem;
+      border-radius: 5px;
+      background-color: ${({theme}) => theme.backgroundColor};
+
+      & button {
+        margin-left: 1rem;
+        font-size: 0.7rem;
+        background-color: ${({theme}) => theme.fontColor};
+        border: none;
+        color: ${({theme}) => theme.backgroundColor};
+        border-radius: 5px;
+        height: 1.5rem;
+        width: 3.5rem;
+        cursor: pointer;
+        transition: all .25s;
+
+        &:hover {
+          transform: translateY(-2px);
+        }
+
+        & svg {
+          margin-bottom: -0.2rem;
+          font-size: 0.9rem;
+        }
+      }
+    }
+  }
+
+  & .add-form-container {
+    margin-top: 3vh;
+    width: 90%;
+    height: 3.5rem;
+
+    & form {
+      width: 100%;
+      height: 100%;
+
+      & label {
+        position: relative;
+        width: 100%;
+        height: 100%;
+
+        & input {
+          width: 100%;
+          height: 100%;
+          border-radius: 5px;
+          border: none;
+          padding: 0 6rem 0 1.5rem;
+          background-color: ${({theme}) => theme.backgroundColor};
+          color: ${({theme}) => theme.fontColor};
+          box-sizing: border-box;
+          font-size: 1.2rem;
+
+          &:focus {
+            outline: 1px solid ${({theme}) => theme.AlertOverlayColor};
+          }
+        }
+
+        & button {
+          background-color: ${({theme}) => theme.NavigationFocusButtonColor};
+          position: absolute;
+          border: none;
+          top: -0.3rem;
+          color: ${({theme}) => theme.fontColor};
+          right: 1.5rem;
+          width: 3rem;
+          height: 2rem;
+          border-radius: 5px;
+        }
+      }
+    }
   }
 
   & .input-container {
@@ -262,8 +412,7 @@ const ProfileContainer = styled.div`
       transition: all .2s;
 
       &:hover {
-        width: 21%;
-        height: 82%;
+        transform: translateY(-3px);
       }
     }
 

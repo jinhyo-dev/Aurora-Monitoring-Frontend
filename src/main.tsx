@@ -12,6 +12,7 @@ import Dashboard from "./pages/Dashboards/Dashboard";
 import UserPreferences from "./pages/Dashboards/UserPreferences";
 import Buckets from "./pages/Buckets";
 import 'react-confirm-alert/src/react-confirm-alert.css';
+import { Toaster } from "react-hot-toast";
 
 const router = createBrowserRouter([
   {
@@ -62,6 +63,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <React.StrictMode>
     <Providers>
       <RouterProvider router={router}/>
+      <Toaster gutter={50000}/>
     </Providers>
   </React.StrictMode>
 );

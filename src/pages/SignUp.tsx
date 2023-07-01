@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
-import { phoneNumberAutoFormat } from "../utils/Formatter";
+import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
 
 interface PasswordInputProps {
@@ -150,11 +150,6 @@ const SignUp = () => {
     validatePassword(password)
     setPassword(event.target.value)
     setSubmitValidation({emailValidate: submitValidation.emailValidate, passwordValidate: true})
-  }
-
-  const isValidEmail = (email: string): boolean => {
-    const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-    return emailRegex.test(email);
   }
 
   const handleEmail = (event: ChangeEvent<HTMLInputElement>) => {

@@ -6,3 +6,8 @@ export const phoneNumberAutoFormat = (phoneNumber: string): string => {
   if (number.length < 11) return number.replace(/(\d{3})(\d{3})(\d{1})/, "$1-$2-$3");
   return number.replace(/(\d{3})(\d{4})(\d{4})/, "$1-$2-$3");
 };
+
+export const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
+  return emailRegex.test(email);
+}
