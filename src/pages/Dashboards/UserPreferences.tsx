@@ -1,16 +1,19 @@
 import NavigationBar from "./NavigationBar";
 import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox } from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 import { FormEvent, useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
-import { AiTwotoneSetting } from 'react-icons/ai'
+import { AiTwotoneSetting, AiFillDelete } from 'react-icons/ai'
 import { BsPersonFillAdd } from 'react-icons/bs'
 import { TbCopy } from 'react-icons/tb'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from "react-hot-toast";
 import { useCookies } from "react-cookie";
 import { isValidEmail } from "../../utils/Formatter";
+import { FiEdit } from 'react-icons/fi'
+import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
+
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -18,13 +21,21 @@ interface ButtonStatusProps {
 
 interface EmailListProps {
   email: string;
+  removing: boolean;
+  editing: boolean;
+}
+
+interface EmailListErrorProps {
+  status: boolean;
+  message: string;
 }
 
 const UserPreferences = () => {
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
-  const [isEmailFormValid, setIsEmailFormValid] = useState<boolean>(true)
+  const [isEmailFormValid, setIsEmailFormValid] = useState<EmailListErrorProps>({status: true, message: ''})
   const [emailList, setEmailList] = useState<EmailListProps[]>([])
+  const [editNewEmail, setEditNewEmail] = useState<string>('')
   const [cookies] = useCookies()
 
   const handlePreferencesState = (value: number) => {
@@ -44,24 +55,93 @@ const UserPreferences = () => {
     )
   }
 
+  const checkExistEmail = (email: string) => {
+    return emailList.some((item: EmailListProps) => item.email === email)
+  }
+
   const addEmailToList = (e: FormEvent) => {
     e.preventDefault()
 
     if (isValidEmail(email)) {
-      setEmailList(prevState => ([
-        ...prevState,
-        {
-          email: email
-        }
-      ]))
+      if (checkExistEmail(email)) {
+        setIsEmailFormValid({status: false, message: 'This email address is already exist in list.'})
+      } else {
+        setEmailList(prevState => ([
+          ...prevState,
+          {
+            email: email,
+            removing: false,
+            editing: false
+          }
+        ]))
 
-      setIsEmailFormValid(true)
+        setIsEmailFormValid({status: true, message: ''})
+      }
     } else {
-      setIsEmailFormValid(false)
+      setIsEmailFormValid({status: false, message: 'Invalid email format'})
     }
 
     console.log(emailList)
   }
+
+  const deleteEmail = (email: string) => {
+    setEmailList(prevList =>
+      prevList.map(item => ({
+        ...item,
+        removing: item.email === email
+      }))
+    );
+
+    setTimeout(() => {
+      setEmailList(prevList => prevList.filter(item => item.email !== email));
+    }, 350);
+  }
+
+
+  const editEmail = (email: string) => {
+    setEditNewEmail(email)
+    setEmailList(prevList =>
+      prevList.map(item => ({
+        ...item,
+        editing: item.email === email
+      }))
+    );
+  }
+
+  const handleEditBlur = (email: string) => {
+    setEmailList(prevList =>
+      prevList.map(item => ({
+        ...item,
+        editing: item.email === email ? false : item.editing
+      }))
+    );
+  }
+
+  const handleEmailChange = (e: FormEvent, email: string, update: boolean) => {
+    e.preventDefault()
+
+    if (update && checkExistEmail(editNewEmail)) {
+      toast('This email address is already exist in list.',
+        {
+          style: {
+            borderRadius: '5px',
+            background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+            color: cookies.theme === 'dark' ? '#fff' : '#000',
+          },
+          duration: 1000
+        }
+      )
+    } else {
+      setEmailList(prevList =>
+        prevList.map(item => ({
+          ...item,
+          email: item.email === email ? update ? editNewEmail : item.email : item.email
+        }))
+      );
+      handleEditBlur(update ? editNewEmail : email)
+    }
+  };
+
 
   return (
     <DashboardMain>
@@ -167,12 +247,51 @@ const UserPreferences = () => {
                           <button type="submit">Add</button>
                         </label>
 
-                        {!isEmailFormValid && <div>Invalid email format</div>}
+                        {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
                       </form>
                     </div>
 
-                    <div>
+                    <div className={'email-list-container'}>
+                      <div>
+                        {Object.values(emailList).map((value: EmailListProps, index: number) => (
+                          <div key={index} className={`email-box ${value.removing ? 'removing' : ''}`}>
+                            <form onSubmit={e => handleEmailChange(e, value.email, true)}>
+                              <label>
+                                <input value={value.editing ? editNewEmail : value.email}
+                                       className={`email-name ${value.editing ? 'editing' : ''}`}
+                                       readOnly={!value.editing}
+                                       id={value.email}
+                                       onChange={e => setEditNewEmail(e.target.value)}
+                                       ref={inputRef => {
+                                         if (value.editing) {
+                                           inputRef && inputRef.focus();
+                                         }
+                                       }}
+                                />
+                                {
+                                  value.editing &&
+                                  (
+                                    <div className={'button-container'}>
+                                      <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}><IoClose/></button>
+                                      <button type={'submit'}><IoCheckmarkSharp/>
+                                      </button>
+                                    </div>
+                                  )
+                                }
+                              </label>
+                            </form>
+                            <div className={'button-container'}>
+                              <button onClick={() => editEmail(value.email)}><FiEdit/></button>
+                              <button onClick={() => deleteEmail(value.email)}><AiFillDelete/></button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
 
+                    <div className={'button-container'}>
+                      <button className={'save-button'}>Invite User</button>
+                      <button className={'cancel-button'} onClick={() => setEmailList([])}>Cancel</button>
                     </div>
                   </ProfileContainer>)
             }
@@ -182,6 +301,16 @@ const UserPreferences = () => {
     </DashboardMain>
   )
 }
+
+const SwipeAnimation = keyframes`
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-100%);
+    opacity: 0;
+  }
+`;
 
 const UserInformationContainer = styled.div`
   height: 28rem;
@@ -350,7 +479,137 @@ const ProfileContainer = styled.div`
           right: 1.5rem;
           width: 3rem;
           height: 2rem;
+          cursor: pointer;
           border-radius: 5px;
+          transition: all .25s;
+
+          &:hover {
+            transform: translateY(-2px);
+          }
+        }
+      }
+
+      & p {
+        padding-left: 0.3rem;
+        padding-top: 0.2rem;
+        color: ${({theme}) => theme.InvalidTextColor};
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  & .email-list-container {
+    margin-top: 4vh;
+    width: 90%;
+    height: 50%;
+    overflow: auto;
+    transition: all .25s;
+
+    & form {
+      width: 60%;
+      & label {
+        display: flex;
+        position: relative;
+        width: 100%;
+        height: 2.5rem;
+
+        & > .button-container {
+          right: 1rem;
+          top: 0.2rem;
+          background: none;
+          position: absolute;
+
+          & button {
+            font-size: 1.2rem;
+            color: ${({theme}) => theme.fontColor};
+            background: none;
+            border: none;
+            cursor: pointer;
+
+            &:last-child {
+              margin-left: 0.3rem;
+            }
+
+            & svg {
+              margin-bottom: -0.3rem;
+            }
+          }
+        }
+      }
+    }
+
+    & .removing {
+      animation: ${SwipeAnimation} 0.3s forwards;
+    }
+
+    & .email-box {
+      margin-top: 1rem;
+      width: 100%;
+      height: 4rem;
+      background: ${({theme}) => theme.BottomNavigationContainerColor};
+      box-shadow: ${({theme}) => theme.boxShadow};
+      border-radius: 5px;
+      font-weight: 300;
+      transition: all .25s;
+      display: flex;
+      align-items: center;
+      font-size: 1.2rem;
+
+      &:first-child {
+        margin-top: 0;
+      }
+
+      & .email-name {
+        background: none;
+        margin-left: 1.5rem;
+        color: ${({theme}) => theme.fontColor};
+        border: none;
+        font-size: 1.2rem;
+        height: 2.5rem;
+        width: 100%;
+        transition: all .25s;
+        border-radius: 5px;
+
+        &:focus {
+          outline: none;
+        }
+      }
+
+      & .editing {
+        margin-left: 0.75rem;
+        padding-left: 0.75rem;
+        padding-right: 5rem;
+
+        &:focus {
+          outline: 1px solid ${({theme}) => theme.fontColor};
+        }
+      }
+
+      & > .button-container {
+        margin-left: auto;
+        padding-right: 1.5rem;
+        width: 4.5rem;
+
+        & button {
+          width: 2rem;
+          color: ${({theme}) => theme.fontSecondColor};
+          font-size: 1.5rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          transition: all .25s;
+
+          &:hover {
+            color: ${({theme}) => theme.fontColor};
+          }
+
+          & svg {
+            margin-bottom: -0.2rem;
+          }
+
+          &:last-child {
+            margin-left: 0.5rem;
+          }
         }
       }
     }
@@ -396,13 +655,14 @@ const ProfileContainer = styled.div`
     }
   }
 
-  & .button-container {
+  & > .button-container {
     width: 50%;
     height: 3rem;
     margin: auto 2rem 1rem auto;
 
     & button {
-      width: 20%;
+      padding-left: 1rem;
+      padding-right: 1rem;
       height: 80%;
       float: right;
       font-size: 0.9rem;

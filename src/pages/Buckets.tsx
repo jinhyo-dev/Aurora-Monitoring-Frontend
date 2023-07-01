@@ -237,8 +237,6 @@ const EditButton = styled.button`
   &:hover {
     background: ${({theme}) => theme.BottomNavigationContainerColor};
   }
-  
-  &
 `
 
 const Buckets: React.FC<PageStatus> = ({firstRender}) => {
