@@ -170,6 +170,16 @@ export const MainTag = styled.main`
   max-height: 1700px;
   min-width: 1100px;
   max-width: 1800px;
+
+  & .page-transition {
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  & .page-transition-active {
+    opacity: 1;
+  }
+
 `
 
 export const DashboardMain = styled.main`

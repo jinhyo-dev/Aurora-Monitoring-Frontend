@@ -1,4 +1,3 @@
-import * as React from "react";
 import * as ReactDOM from "react-dom/client";
 import {
   createBrowserRouter, Navigate,
@@ -60,10 +59,8 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-  <React.StrictMode>
-    <Providers>
-      <RouterProvider router={router}/>
-      <Toaster gutter={50000}/>
-    </Providers>
-  </React.StrictMode>
+  <Providers>
+    <RouterProvider router={router}/>
+    <Toaster gutter={50000}/>
+  </Providers>
 );

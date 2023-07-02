@@ -13,7 +13,10 @@
     "@types/faker": "5.5.9",
     "@types/react-copy-to-clipboard": "^5.0.4",
     "@types/react-image-gallery": "^1.2.0",
+    "@types/react-transition-group": "^4.4.6",
+    "axios": "^1.4.0",
     "chart.js": "^4.3.0",
+    "dotenv": "^16.3.1",
     "faker": "5.5.3",
     "localforage": "^1.10.0",
     "match-sorter": "^6.3.1",
@@ -30,6 +33,7 @@
     "react-select": "^5.7.3",
     "react-slideshow-image": "^4.2.1",
     "react-toggle-dark-mode": "^1.1.1",
+    "react-transition-group": "^4.4.5",
     "sort-by": "^1.2.0",
     "styled-components": "6.0.0-rc.3",
     "vite-plugin-svgr": "^3.2.0"

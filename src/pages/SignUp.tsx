@@ -6,13 +6,17 @@ import Select from 'react-select'
 import { ChangeEvent, FormEvent, useRef, useState } from "react";
 import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
+import { Transition } from 'react-transition-group';
+import { AxiosInstance } from "../utils/AxiosInstance";
+import { StatusProps } from "../interfaces/interface";
+import { useNavigate } from "react-router-dom";
 
 interface PasswordInputProps {
-  isFocused: boolean;
+  $isFocused: boolean;
 }
 
 interface ValidationBoxProps {
-  show: boolean;
+  $show: boolean;
 }
 
 interface PasswordValidationProps {
@@ -60,6 +64,11 @@ const SignUp = () => {
     {value: 'united-states/+1', label: '🇺🇸 United States'}
   ];
 
+  const [pageNumber, setPageNumber] = useState<number>(0)
+  const [plan, setPlan] = useState<string>('')
+  const [groupName, setGroupName] = useState<string>('')
+  const [firstName, setFirstName] = useState<string>('')
+  const [lastName, setLastName] = useState<string>('')
   const [isFocused, setIsFocused] = useState<boolean>(false)
   const [password, setPassword] = useState<string>('')
   const [email, setEmail] = useState<string>('')
@@ -75,6 +84,7 @@ const SignUp = () => {
     isMinLength: false,
     hasNumber: false
   })
+  const [responseStatus, setResponseStatus] = useState<StatusProps>({loading: false, message: '', error: false})
   const emailInputRef = useRef<HTMLInputElement>(null);
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const showValidationBox = isFocused && password.trim().length > 0;
@@ -82,6 +92,14 @@ const SignUp = () => {
   const isValidPassword = passwordValidation.isMinLength && passwordValidation.hasNumber && passwordValidation.hasSpecialChar;
   const borderColor = isValidPassword || !password.length ? '#fff' : '#e84e4e';
   const textColor = isValidPassword || !password.length ? '#fff' : '#e84e4e';
+  const transitionDuration = 400;
+  const navigate = useNavigate()
+  const transitionStyles: { [key: string]: React.CSSProperties } = {
+    entering: {opacity: 0, transform: 'translateY(20px)'},
+    entered: {opacity: 1, transform: 'translateY(0)'},
+    exiting: {opacity: 0, transform: 'translateY(-20px)'},
+    exited: {opacity: 0, transform: 'translateY(-20px)', display: 'none'},
+  };
 
   const selectCustomStyle = {
     option: (provided: any, state: any) => ({
@@ -166,6 +184,32 @@ const SignUp = () => {
       emailInputRef.current.focus();
     } else if (passwordInputRef.current && !checkPasswordValidate()) {
       passwordInputRef.current.focus();
+    } else {
+
+      const data = {
+        "email": email,
+        "password": password,
+        "phone": phoneNumber,
+        "firstName": firstName,
+        "lastName": lastName,
+        "country": country?.value.split('/')[0],
+        "group": groupName,
+        "plan": plan
+      }
+
+      setResponseStatus({...responseStatus, loading: true});
+
+      AxiosInstance().post('/sign/sign_up', JSON.stringify(data))
+        .then(res => {
+          if (res.data.data.statusCode === 201) {
+            setPageNumber(2)
+          } else {
+            setResponseStatus({message: res.data.data.message, loading: false, error: true});
+          }
+        })
+        .catch(err => {
+          setResponseStatus({message: err.data.data.message, loading: false, error: true});
+        })
     }
   }
 
@@ -185,110 +229,283 @@ const SignUp = () => {
     setPhoneNumber(phoneNumberAutoFormat(String(splitValues[1])))
   }
 
-  // const navigate = useNavigate()
+  const handlePlan = (value: string) => {
+    setPlan(value)
+    setPageNumber(1)
+  }
+
+  const handleStateValue = (name: string, value: string) => {
+    const stateFunctions: { [key: string]: React.Dispatch<React.SetStateAction<string>> } = {
+      setGroupName,
+      setFirstName,
+      setLastName,
+    };
+
+    const stateFunction = stateFunctions[name];
+    if (stateFunction) {
+      stateFunction(value);
+    }
+  }
 
   return (
     <MainTag>
       <Title title={'Sign in to Aurora'}/>
 
       <Header/>
-      <SignUpContainer>
-        <CenterBox>
-          <LeftBox>
-            <AuroraLogo style={{width: '12rem'}}/> <br/>
-            Features Supported by Aurora:<br/>
-            asdflkasdjflsajfsldfjlsdkjf asdfjlasf;asdhfkre<br/>
-            asdasd askflsad faiej iasdslfkajsde<br/>
-            sldisfjdlkfwefj wlkfhoaisdfowh fws <br/>
-          </LeftBox>
-          <RightBox>
+      <Transition in={pageNumber === 0} timeout={transitionDuration}>
+        {(state) => (
+          <SelectPlanContainer style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
+            <div className={'page-header'}>
+              <div>Choose a plan</div>
+              <div>Pick a plan for your team</div>
+            </div>
 
-            <SelectContainer>
-              <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
-                      onChange={handleCountryCode} value={country} id={'country-select'}/>
-            </SelectContainer>
-            <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}} onSubmit={handleLogin}>
-              <div className="input-container name-container">
-                <input type={"input"} className="input-field" placeholder="First name" name="first-name" id='first-name'
-                       required={true}/>
-                <label htmlFor="first-name" className="input-label">First name</label>
+            <div className={'plan-container'}>
+              <div className={'plan-box'} onClick={() => handlePlan('free')}>
+                <div className={'plan-name'}>Free</div>
               </div>
 
-              <div className="input-container name-container" style={{float: 'right'}}>
-                <input type={"input"} className="input-field" placeholder="Last name" name="last-name" id='last-name'
-                       required={true}/>
-                <label htmlFor="last-name" className="input-label">Last name</label>
+              <div className={'plan-box'} onClick={() => handlePlan('standard')}>
+                <div className={'plan-name'}>Standard</div>
               </div>
 
-              <br/>
-
-              <div className="input-container phone-container">
-                <input type={"input"} className="input-field" placeholder="Phone" name="phone" id='phone'
-                       value={countryCode + (countryCode.length > 0 ? ' ' + phoneNumber : '')} required={true}
-                       onChange={handlePhoneNumber}/>
-                <label htmlFor="phone" className="input-label">Phone</label>
-                <div className={'info-text'}>* Select country first</div>
+              <div className={'plan-box'} onClick={() => handlePlan('enterprise')}>
+                <div className={'plan-name'}>Enterprise</div>
               </div>
+            </div>
+          </SelectPlanContainer>
+        )}
+      </Transition>
 
-              <div className="input-container email-container">
-                <input type={"input"} className="input-field" placeholder="Email" name="email" id='email'
-                       ref={emailInputRef}
-                       style={{
-                         color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
-                         borderBottom: isValidEmail(email) || !email.length ? '1px solid #fff' : '1px solid #e84e4e'
-                       }}
-                       required={true} onChange={handleEmail} value={email}/>
-                <label htmlFor="email" className="input-label" style={{
-                  color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
-                }}>Email</label>
-              </div>
+      <Transition in={pageNumber === 1} timeout={transitionDuration}>
+        {(state) => (
+          <SignUpContainer style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
+            <CenterBox>
+              <LeftBox>
+                <AuroraLogo style={{width: '12rem'}}/> <br/>
+                Features Supported by Aurora:<br/>
+                asdflkasdjflsajfsldfjlsdkjf asdfjlasf;asdhfkre<br/>
+                asdasd askflsad faiej iasdslfkajsde<br/>
+                sldisfjdlkfwefj wlkfhoaisdfowh fws <br/>
+              </LeftBox>
+              <RightBox>
 
-              {!submitValidation.emailValidate && <InvalidText>Invalid email format</InvalidText>}
+                <SelectContainer>
+                  <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
+                          onChange={handleCountryCode} value={country} id={'country-select'}/>
+                </SelectContainer>
 
-              <PasswordContainer>
-                <PasswordInput isFocused={isFocused}
-                               className={'input-container password-container2'}>
-                  <input type={"password"} className="input-field" placeholder="Password" name="password" id='password'
-                         ref={passwordInputRef}
-                         required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)} value={password}
-                         style={{
-                           borderBottom: `1px solid ${borderColor}`,
-                           color: textColor
-                         }}
-                         onBlur={() => setIsFocused(false)}/>
-                  <label htmlFor="password" className="input-label"
-                         style={{color: textColor}}>Password</label>
-                </PasswordInput>
+                <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}} onSubmit={handleLogin}>
 
-                {!submitValidation.passwordValidate && <InvalidText>Invalid password format</InvalidText>}
-
-                <ValidationBox show={showValidationBox}>
-                  <div>Your password must have:</div>
-                  <div>
-                    <p style={{color: passwordValidation.isMinLength ? '#22c248' : '#888'}}>
-                      8 or more characters</p>
-                    <p style={{color: passwordValidation.hasNumber ? '#22c248' : '#888'}}>
-                      At least one number</p>
-                    <p style={{
-                      color: passwordValidation.hasSpecialChar ? '#22c248' : '#888',
-                      paddingBottom: '0.5rem'
-                    }}>Including special characters</p>
+                  <div className="input-container" style={{marginBottom: '1rem'}}>
+                    <input type={"input"} className="input-field" placeholder="Group name" name="group-name"
+                           id='group-name' required={true}
+                           onChange={e => handleStateValue('setGroupName', e.target.value)}/>
+                    <label htmlFor="group-name" className="input-label">Group name</label>
                   </div>
-                </ValidationBox>
-              </PasswordContainer>
+
+                  <div className="input-container name-container">
+                    <input type={"input"} className="input-field" placeholder="First name" name="first-name"
+                           id='first-name' required={true}
+                           onChange={e => handleStateValue('setFirstName', e.target.value)}/>
+                    <label htmlFor="first-name" className="input-label">First name</label>
+                  </div>
+
+                  <div className="input-container name-container" style={{float: 'right'}}>
+                    <input type={"input"} className="input-field" placeholder="Last name" name="last-name"
+                           id='last-name' required={true}
+                           onChange={e => handleStateValue('setLastName', e.target.value)}/>
+                    <label htmlFor="last-name" className="input-label">Last name</label>
+                  </div>
+
+                  <br/>
+
+                  <div className="input-container phone-container">
+                    <input type={"input"} className="input-field" placeholder="Phone" name="phone" id='phone'
+                           value={countryCode + (countryCode.length > 0 ? ' ' + phoneNumber : '')} required={true}
+                           onChange={handlePhoneNumber}/>
+                    <label htmlFor="phone" className="input-label">Phone</label>
+                    <div className={'info-text'}>* Select country first</div>
+                  </div>
+
+                  <div className="input-container email-container">
+                    <input type={"input"} className="input-field" placeholder="Email" name="email" id='email'
+                           ref={emailInputRef}
+                           style={{
+                             color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
+                             borderBottom: isValidEmail(email) || !email.length ? '1px solid #fff' : '1px solid #e84e4e'
+                           }}
+                           required={true} onChange={handleEmail} value={email}/>
+                    <label htmlFor="email" className="input-label" style={{
+                      color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
+                    }}>Email</label>
+                  </div>
+
+                  {!submitValidation.emailValidate && <InvalidText>Invalid email format</InvalidText>}
+
+                  <PasswordContainer>
+                    <PasswordInput $isFocused={isFocused}
+                                   className={'input-container password-container2'}>
+                      <input type={"password"} className="input-field" placeholder="Password" name="password"
+                             id='password'
+                             ref={passwordInputRef}
+                             required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)}
+                             value={password}
+                             style={{
+                               borderBottom: `1px solid ${borderColor}`,
+                               color: textColor
+                             }}
+                             onBlur={() => setIsFocused(false)}/>
+                      <label htmlFor="password" className="input-label"
+                             style={{color: textColor}}>Password</label>
+                    </PasswordInput>
+
+                    {!submitValidation.passwordValidate && <InvalidText>Invalid password format</InvalidText>}
+
+                    <ValidationBox $show={showValidationBox}>
+                      <div>Your password must have:</div>
+                      <div>
+                        <p style={{color: passwordValidation.isMinLength ? '#22c248' : '#888'}}>
+                          8 or more characters</p>
+                        <p style={{color: passwordValidation.hasNumber ? '#22c248' : '#888'}}>
+                          At least one number</p>
+                        <p style={{
+                          color: passwordValidation.hasSpecialChar ? '#22c248' : '#888',
+                          paddingBottom: '0.5rem'
+                        }}>Including special characters</p>
+                      </div>
+                    </ValidationBox>
+
+                    {responseStatus.loading && <LoadingText>Verifying credentials...</LoadingText>}
+                    {!responseStatus.loading && responseStatus.error &&
+											<InvalidText>{responseStatus.message}</InvalidText>}
+                  </PasswordContainer>
 
 
-              <button type={'submit'}>
-                Sign in
-              </button>
-            </AuthenticationForm>
+                  <button type={'submit'}>
+                    Sign in
+                  </button>
+                </AuthenticationForm>
 
-          </RightBox>
-        </CenterBox>
-      </SignUpContainer>
+              </RightBox>
+            </CenterBox>
+          </SignUpContainer>
+        )}
+      </Transition>
+
+      <Transition in={pageNumber === 2} timeout={transitionDuration}>
+        {(state) => (
+          <SingUpSuccess style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
+            <div className={'container'}>
+              <AuroraLogo/>
+              <div className={'success-title'}>Success!</div>
+              <div className={'success-text'}>Aurora sign-up completed. You are ready to use an aurora!</div>
+              <button onClick={() => navigate('/sign-in')}>Get Started</button>
+            </div>
+          </SingUpSuccess>
+
+        )}
+      </Transition>
     </MainTag>
   )
 }
+
+const SingUpSuccess = styled.div`
+  height: calc(100vh - 3.3rem);
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  & .container {
+    text-align: center;
+    width: 40rem;
+    height: 20rem;
+    
+    & svg {
+      width: 25rem;
+    }
+
+    & .success-title {
+      margin-top: 3rem;
+      font-size: 2rem;
+      font-weight: 600;
+    }
+
+    & .success-text {
+      margin-top: 0.5rem;
+      font-size: 1.2rem;
+      font-weight: 400;
+    }
+    
+    & button {
+      margin-top: 2rem;
+      height: 2.7rem;
+      width: 8rem;
+      background: #fff;
+      border: none;
+      border-radius: 5px;
+      font-size: 1rem;
+      color: #000;
+      transition: all .25s;
+      cursor: pointer;
+      
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+  }
+`
+
+const SelectPlanContainer = styled.div`
+  height: calc(100vh - 3.3rem);
+  width: 100%;
+
+  & .page-header {
+    text-align: center;
+    margin-top: 2rem;
+
+    & div {
+      &:first-child {
+        font-size: 1rem;
+      }
+
+      &:last-child {
+        font-size: 2rem;
+      }
+    }
+  }
+
+  & .plan-container {
+    width: 88%;
+    margin: 3rem auto;
+    height: auto;
+    display: flex;
+    justify-content: space-between;
+
+    & .plan-box {
+      width: 32%;
+      height: 30rem;
+      background-color: rgba(0, 0, 0, .6);
+      border-radius: 5px;
+      transition: all .25s;
+      border: none;
+      color: #fff;
+
+      &:hover {
+        border: 2px solid #eee;
+        transform: translateY(-10px);
+      }
+
+      & .plan-name {
+        margin-top: 2rem;
+        text-align: center;
+        font-weight: 600;
+        font-size: 2rem;
+      }
+    }
+  }
+`
 
 const SignUpContainer = styled.div`
   height: calc(100vh - 3.3rem);
@@ -405,7 +622,7 @@ const ValidationBox = styled.div<ValidationBoxProps>`
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
   font-size: 14px;
-  display: ${({show}) => (show ? 'block' : 'none')};
+  display: ${({$show}) => ($show ? 'block' : 'none')};
   z-index: 1;
 
   &::after {
@@ -439,6 +656,13 @@ const InvalidText = styled.p`
   padding-left: 0.1rem;
   font-size: 0.7rem;
   color: #e84e4e;
+`
+
+const LoadingText = styled.p`
+  padding-top: 0.3rem;
+  padding-left: 0.1rem;
+  font-size: 0.7rem;
+  color: #316ae5;
 `
 
 export default SignUp
