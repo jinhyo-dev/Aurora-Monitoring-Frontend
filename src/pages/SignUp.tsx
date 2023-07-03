@@ -3,7 +3,7 @@ import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
-import { ChangeEvent, FormEvent, useRef, useState } from "react";
+import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
 import { Transition } from 'react-transition-group';
@@ -64,6 +64,7 @@ const SignUp = () => {
     {value: 'united-states/+1', label: '🇺🇸 United States'}
   ];
 
+  const [title, setTitle] = useState<string>('')
   const [pageNumber, setPageNumber] = useState<number>(0)
   const [plan, setPlan] = useState<string>('')
   const [groupName, setGroupName] = useState<string>('')
@@ -141,6 +142,16 @@ const SignUp = () => {
       color: '#fff',
     }),
   };
+
+  const titles: { [key: number]: string } = {
+    0: 'Choose a plan',
+    1: 'Sign up to Aurora',
+  }
+
+  useEffect(() => {
+    const title = titles[pageNumber] || 'Sign up success';
+    setTitle(title);
+  }, [pageNumber])
 
   const validatePassword = (password: string) => {
     const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
@@ -249,12 +260,13 @@ const SignUp = () => {
 
   return (
     <MainTag>
-      <Title title={'Sign in to Aurora'}/>
+      <Title title={title}/>
 
       <Header/>
       <Transition in={pageNumber === 0} timeout={transitionDuration}>
         {(state) => (
           <SelectPlanContainer style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
+
             <div className={'page-header'}>
               <div>Choose a plan</div>
               <div>Pick a plan for your team</div>
@@ -333,7 +345,7 @@ const SignUp = () => {
                            ref={emailInputRef}
                            style={{
                              color: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e',
-                             borderBottom: isValidEmail(email) || !email.length ? '1px solid #fff' : '1px solid #e84e4e'
+                             borderBottomColor: isValidEmail(email) || !email.length ? '#fff' : '#e84e4e'
                            }}
                            required={true} onChange={handleEmail} value={email}/>
                     <label htmlFor="email" className="input-label" style={{
@@ -352,7 +364,7 @@ const SignUp = () => {
                              required={true} onChange={handlePassword} onFocus={() => setIsFocused(true)}
                              value={password}
                              style={{
-                               borderBottom: `1px solid ${borderColor}`,
+                               borderBottomColor: borderColor,
                                color: textColor
                              }}
                              onBlur={() => setIsFocused(false)}/>
@@ -383,7 +395,7 @@ const SignUp = () => {
 
 
                   <button type={'submit'}>
-                    Sign in
+                    Sign Up
                   </button>
                 </AuthenticationForm>
 
@@ -516,7 +528,7 @@ const SignUpContainer = styled.div`
 `
 
 const CenterBox = styled.div`
-  width: 70%;
+  width: 70rem;
   height: 40rem;
   border: none;
 `

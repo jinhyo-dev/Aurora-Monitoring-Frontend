@@ -200,7 +200,9 @@ const Nav = styled.nav<{ $status: boolean }>`
   & .navigation-container {
     transition: all .3s;
     width: 90%;
-    height: 3rem;
+    height: 6vh;
+    max-height: 4rem;
+    min-height: 2rem;
     border-radius: ${({$status}) => ($status ? "5px" : "8px")};
     color: ${({theme}) => theme.fontColor};
     margin: ${({$status}) => ($status ? "5% auto 0" : "1rem auto 0")};
@@ -235,15 +237,21 @@ const Nav = styled.nav<{ $status: boolean }>`
   & .bottom-navigation-container {
     transition: all .3s;
     width: 95%;
-    height: 22rem;
+    height: 45vh;
+    min-height: 20rem;
     margin: 5% auto;
     background-color: ${({theme}) => theme.BottomNavigationContainerColor};
     display: flex;
     flex-direction: column;
     border-radius: ${({$status}) => ($status ? "5px" : "8px")};
 
-    & .navigation-container:hover {
-      background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+
+    & .navigation-container {
+      height: 5.5vh;
+
+      &:hover {
+        background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+      }
     }
 
     & span {

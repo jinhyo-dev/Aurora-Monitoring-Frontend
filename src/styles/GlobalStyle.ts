@@ -167,9 +167,7 @@ export const MainTag = styled.main`
   top: 0;
   left: 0;
   min-height: 800px;
-  max-height: 1700px;
   min-width: 1100px;
-  max-width: 1800px;
 
   & .page-transition {
     opacity: 0;
@@ -194,10 +192,9 @@ export const DashboardMain = styled.main`
 `
 
 export const AuthenticationContainer = styled.div`
-  width: 72%;
-  height: 36rem;
+  width: 72rem;
+  height: 38rem;
   background: rgba(0, 0, 0, .6);
-  margin: calc(8% - 3.3rem) auto 0;
   border-radius: 10px;
 
   & .left-box, .right-box {
