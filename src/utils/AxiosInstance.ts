@@ -1,13 +1,19 @@
 import axios from "axios";
+import Cookies from "js-cookie";
 
-export const AxiosInstance = () => {
-  console.log(import.meta.env.VITE_API_URL)
-  const request = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
-    headers: {
-      "Content-Type": "application/json",
-    }
-  })
+const axiosInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
 
-  return request
-}
+axiosInstance.interceptors.request.use((config) => {
+  const token = Cookies.get("aurora_token");
+  if (token) {
+    config.headers["Authorization"] = token;
+  }
+  return config;
+});
+
+export default axiosInstance;

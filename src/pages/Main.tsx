@@ -1,46 +1,67 @@
 import styled, { keyframes } from "styled-components";
 import AuroraBackground from '../assets/images/Aurora-Main-Background.jpg'
 import Header from "./components/Header";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Title from "./components/Title";
+import { useNavigate } from "react-router-dom";
+import { tokenValidity } from "../utils/Cookie";
 
+const withTokenValidation = (WrappedComponent: React.ComponentType) => {
+  const TokenValidationComponent = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState<boolean>(true)
+
+    useEffect(() => {
+      const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
+      stars.forEach(setRandomStyles);
+
+      const checkValidity = async () => {
+        const isValid = await tokenValidity();
+        isValid && navigate('/buckets');
+      };
+
+      checkValidity().then(() => setLoading(false))
+    }, []);
+
+    const getRandomInt = (min: number, max: number) => {
+      return Math.floor(Math.random() * (max - min + 1) + min);
+    };
+
+    const setRandomStyles = (element: HTMLElement): void => {
+      const minRight = 0;
+      const maxRight = 1200;
+      const minDelay = 1;
+      const maxDelay = 8;
+      const minDuration = 1.5;
+      const maxDuration = 5;
+
+      const right: number = getRandomInt(minRight, maxRight);
+      const delay: number = getRandomInt(minDelay, maxDelay);
+      const duration: number = getRandomInt(minDuration, maxDuration);
+
+      element.style.right = right + 'px';
+      element.style.left = 'initial';
+      element.style.animationDelay = delay + 's';
+      element.style.animationDuration = duration + 's';
+    };
+
+    return loading ? <></> : <WrappedComponent />;
+  };
+
+  return TokenValidationComponent;
+};
+
+// Main 컴포넌트
 const Main = () => {
-  useEffect(() => {
-    const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
-    stars.forEach(setRandomStyles);
-  },[])
-
-  const getRandomInt = (min: number, max: number) => {
-    return Math.floor(Math.random() * (max - min + 1) + min);
-  }
-
-  const setRandomStyles = (element: HTMLElement): void => {
-    const minRight = 0;
-    const maxRight = 1200;
-    const minDelay = 1;
-    const maxDelay = 8;
-    const minDuration = 1.5;
-    const maxDuration = 5;
-
-    const right: number = getRandomInt(minRight, maxRight);
-    const delay: number = getRandomInt(minDelay, maxDelay);
-    const duration: number = getRandomInt(minDuration, maxDuration);
-
-    element.style.right = right + 'px';
-    element.style.left = 'initial';
-    element.style.animationDelay = delay + 's';
-    element.style.animationDuration = duration + 's';
-  }
-
   return (
     <MainTag>
-      <Title title={'Aurora Monitoring'}/>
-      <Header/>
+      <Title title={'Aurora Monitoring'} />
+      <Header />
       <AuroraInfo>
         Aurora
         <AuroraIntro>
-          Aurora monitoring system,<br/>
-          where modern technology<br/>
+          Aurora monitoring system,<br />
+          where modern technology<br />
           meets sleek design.
         </AuroraIntro>
       </AuroraInfo>
@@ -48,10 +69,14 @@ const Main = () => {
       {[1, 2, 3, 4, 5, 6, 7, 8].map((index: number) => (
         <Star key={`star-${index}`} className="star" />
       ))}
-
     </MainTag>
-  )
-}
+  );
+};
+
+// 고차 컴포넌트 적용
+const EnhancedMain = withTokenValidation(Main);
+
+export default EnhancedMain;
 
 const animate = keyframes`
   0% {
@@ -72,7 +97,7 @@ const animate = keyframes`
 
 const MainTag = styled.main`
   margin: 0;
-  padding:0;
+  padding: 0;
   box-sizing: border-box;
   background-image: url(${AuroraBackground});
   width: 100%;
@@ -107,7 +132,7 @@ const Star = styled.span`
   height: 1px;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255,255,255,0.1),0 0 0 6px rgba(255,255,255,0.1),0 0 14px rgba(255,255,255,0.1);
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 0 0 6px rgba(255, 255, 255, 0.1), 0 0 14px rgba(255, 255, 255, 0.1);
   animation: ${animate} 3s linear infinite;
   visibility: hidden;
   opacity: 0;
@@ -124,5 +149,3 @@ const Star = styled.span`
     visibility: visible;
   }
 `;
-
-export default Main

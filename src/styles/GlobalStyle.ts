@@ -406,3 +406,19 @@ export const BoardRowSection = styled.div`
   width: 100%;
   display: flex;
 `
+
+export const InvalidText = styled.p`
+  text-align: left;
+  padding-top: 0.5rem;
+  padding-left: 0.1rem;
+  font-size: 0.8rem;
+  color: #e84e4e;
+`
+
+export const LoadingText = styled.p`
+  padding-top: 0.5rem;
+  text-align: left;
+  padding-left: 0.1rem;
+  font-size: 0.8rem;
+  color: #316ae5;
+`

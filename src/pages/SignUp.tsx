@@ -1,4 +1,4 @@
-import { AuthenticationForm, MainTag } from "../styles/GlobalStyle";
+import { AuthenticationForm, InvalidText, LoadingText, MainTag } from "../styles/GlobalStyle";
 import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
@@ -7,7 +7,7 @@ import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
 import { Transition } from 'react-transition-group';
-import { AxiosInstance } from "../utils/AxiosInstance";
+import axiosInstance from "../utils/AxiosInstance";
 import { StatusProps } from "../interfaces/interface";
 import { useNavigate } from "react-router-dom";
 
@@ -210,7 +210,7 @@ const SignUp = () => {
 
       setResponseStatus({...responseStatus, loading: true});
 
-      AxiosInstance().post('/sign/sign_up', JSON.stringify(data))
+      axiosInstance.post('/sign/sign_up', JSON.stringify(data))
         .then(res => {
           if (res.data.data.statusCode === 201) {
             setPageNumber(2)
@@ -662,19 +662,5 @@ const ValidationBox = styled.div<ValidationBoxProps>`
     padding-left: 0.4rem;
   }
 `;
-
-const InvalidText = styled.p`
-  padding-top: 0.3rem;
-  padding-left: 0.1rem;
-  font-size: 0.7rem;
-  color: #e84e4e;
-`
-
-const LoadingText = styled.p`
-  padding-top: 0.3rem;
-  padding-left: 0.1rem;
-  font-size: 0.7rem;
-  color: #316ae5;
-`
 
 export default SignUp
