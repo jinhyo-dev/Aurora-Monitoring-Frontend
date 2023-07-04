@@ -15,8 +15,9 @@ import { FaUserCircle } from 'react-icons/fa'
 import { MdAccessTimeFilled } from 'react-icons/md'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
-import { FiRefreshCw } from "react-icons/fi";
+import { FiLogOut, FiRefreshCw } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { fetchUserInfo } from "../../utils/Cookie";
 
 interface NavigationProps {
   active: number;
@@ -28,8 +29,16 @@ interface ButtonStatusProps {
 
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
-  const [cookies, setCookie] = useCookies()
+  const [name, setName] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const [cookies, setCookie, removeCookie] = useCookies()
   const navigate = useNavigate()
+
+  useEffect(() => {
+    fetchUserInfo()
+      .then(res => setName(res.data.name.firstName + ' ' + res.data.name.lastName))
+      .finally(() => setLoading(false))
+  }, [])
 
   const toggleDarkMode = () => {
     const checked: string = cookies.theme
@@ -45,6 +54,10 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
       sameSite: 'none',
       secure: true
     })
+  }
+
+  const Logout = () => {
+    removeCookie('aurora_token')
   }
 
   useEffect(() => {
@@ -127,7 +140,12 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         <NavigationBottomButton $active={active === 8} className={'navigation-container'}
                                 onClick={() => navigate('/bucket/AURORA633/user-preference')}>
           <FaUserCircle/>
-          {showBackIcon && <span>Jinhyo Kim</span>}
+          {showBackIcon && <span>{loading ? 'loading...' : name}</span>}
+        </NavigationBottomButton>
+
+        <NavigationBottomButton className={'navigation-container'} onClick={Logout} $active={false}>
+          <FiLogOut/>
+          {showBackIcon && <span>Logout</span>}
         </NavigationBottomButton>
 
         <div className={'bottom-box'}>

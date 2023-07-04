@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Title from "./components/Title";
 import { useNavigate } from "react-router-dom";
 import { tokenValidity } from "../utils/Cookie";
+import Loaders from "./components/Loaders";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
@@ -12,9 +13,6 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
     const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
-      const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
-      stars.forEach(setRandomStyles);
-
       const checkValidity = async () => {
         const isValid = await tokenValidity();
         isValid && navigate('/buckets');
@@ -23,18 +21,31 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
       checkValidity().then(() => setLoading(false))
     }, []);
 
-    const getRandomInt = (min: number, max: number) => {
-      return Math.floor(Math.random() * (max - min + 1) + min);
-    };
+    return loading ? <Loaders/> : <WrappedComponent />;
+  };
 
-    const setRandomStyles = (element: HTMLElement): void => {
-      const minRight = 0;
-      const maxRight = 1200;
-      const minDelay = 1;
-      const maxDelay = 8;
-      const minDuration = 1.5;
-      const maxDuration = 5;
+  return TokenValidationComponent;
+};
 
+const Main = () => {
+  useEffect(() => {
+    const stars: NodeListOf<HTMLElement> = document.querySelectorAll('.star');
+    stars.forEach(setRandomStyles);
+  }, []);
+
+  const getRandomInt = (min: number, max: number) => {
+    return Math.floor(Math.random() * (max - min + 1) + min);
+  };
+
+  const setRandomStyles = (element: HTMLElement): void => {
+    const minRight = 0;
+    const maxRight = 800;
+    const minDelay = 3;
+    const maxDelay = 7;
+    const minDuration = 2;
+    const maxDuration = 5;
+
+    const applyRandomStyles = () => {
       const right: number = getRandomInt(minRight, maxRight);
       const delay: number = getRandomInt(minDelay, maxDelay);
       const duration: number = getRandomInt(minDuration, maxDuration);
@@ -45,14 +56,10 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
       element.style.animationDuration = duration + 's';
     };
 
-    return loading ? <></> : <WrappedComponent />;
+    applyRandomStyles();
+    element.addEventListener('animationend', applyRandomStyles);
   };
 
-  return TokenValidationComponent;
-};
-
-// Main 컴포넌트
-const Main = () => {
   return (
     <MainTag>
       <Title title={'Aurora Monitoring'} />
@@ -66,7 +73,7 @@ const Main = () => {
         </AuroraIntro>
       </AuroraInfo>
 
-      {[1, 2, 3, 4, 5, 6, 7, 8].map((index: number) => (
+      {[1, 2, 3, 4, 5, 6].map((index: number) => (
         <Star key={`star-${index}`} className="star" />
       ))}
     </MainTag>
@@ -128,11 +135,11 @@ const Star = styled.span`
   z-index: 0;
   position: absolute;
   left: 50%;
-  width: 1px;
-  height: 1px;
+  width: 0.1rem;
+  height: 0.1rem;
   background: #fff;
   border-radius: 50%;
-  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1), 0 0 0 6px rgba(255, 255, 255, 0.1), 0 0 14px rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1), 0 0 0 4px rgba(255, 255, 255, 0.1), 0 0 8px rgba(255, 255, 255, 0.1);
   animation: ${animate} 3s linear infinite;
   visibility: hidden;
   opacity: 0;

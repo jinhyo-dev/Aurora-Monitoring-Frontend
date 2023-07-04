@@ -8,3 +8,13 @@ export const tokenValidity = async (): Promise<boolean> => {
     return false;
   }
 };
+
+
+export const fetchUserInfo = async () => {
+  try {
+    const response = await axiosInstance.get("/user/id");
+    return response.data;
+  } catch (error) {
+    return null;
+  }
+}
