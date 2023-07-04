@@ -17,6 +17,10 @@ import {
 import { Line } from 'react-chartjs-2';
 import faker from 'faker';
 import { useCookies } from "react-cookie";
+import { useEffect, useState } from "react";
+import { tokenValidity } from "../../utils/Cookie";
+import Loaders from "../components/Loaders";
+import Unauthorized from "../components/Error/Unauthorized";
 
 ChartJS.register(
   CategoryScale,
@@ -40,6 +44,26 @@ interface ExtendedChartData extends ChartData<ChartType, number[], string> {
     tension: number;
   }[];
 }
+
+const withTokenValidation = (WrappedComponent: React.ComponentType) => {
+  const TokenValidationComponent = () => {
+    const [loading, setLoading] = useState<boolean>(true)
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+
+    useEffect(() => {
+      const checkValidity = async () => {
+        const isValid = await tokenValidity();
+        setIsAuthorized(isValid)
+      };
+
+      checkValidity().then(() => setLoading(false))
+    }, []);
+
+    return loading ? <Loaders/> : isAuthorized ? <WrappedComponent/> : <Unauthorized/>;
+  };
+
+  return TokenValidationComponent;
+};
 
 const Dashboard = () => {
   const [cookies] = useCookies()
@@ -196,4 +220,6 @@ const Dashboard = () => {
   )
 }
 
-export default Dashboard
+const EnhancedMain = withTokenValidation(Dashboard);
+
+export default EnhancedMain;

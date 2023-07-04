@@ -12,6 +12,7 @@ import UserPreferences from "./pages/Dashboards/UserPreferences";
 import Buckets from "./pages/Buckets";
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { Toaster } from "react-hot-toast";
+import NotFound from "./pages/components/Error/NotFound";
 
 const router = createBrowserRouter([
   {
@@ -54,7 +55,8 @@ const router = createBrowserRouter([
           }
         ]
       }
-    ]
+    ],
+    errorElement: <NotFound/>
   },
 ]);
 

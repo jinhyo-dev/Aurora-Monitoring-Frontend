@@ -10,10 +10,34 @@ import * as React from "react"
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
 import { FiEdit } from 'react-icons/fi'
+import { PropsWithChildren, useEffect, useState } from "react";
+import { tokenValidity } from "../utils/Cookie";
+import Loaders from "./components/Loaders";
+import Unauthorized from "./components/Error/Unauthorized";
 
 interface PageStatus {
   firstRender: boolean;
 }
+
+const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChildren<PageStatus>>) => {
+  const TokenValidationComponent: React.FC<PageStatus> = (props) => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+
+    useEffect(() => {
+      const checkValidity = async () => {
+        const isValid = await tokenValidity();
+        setIsAuthorized(isValid)
+      };
+
+      checkValidity().then(() => setLoading(false));
+    }, [navigate]);
+    return loading ? <Loaders /> : isAuthorized ? <WrappedComponent {...props}/> : <Unauthorized/>;
+  };
+
+  return TokenValidationComponent;
+};
 
 const BucketComponents = () => {
   const [cookies] = useCookies()
@@ -239,7 +263,7 @@ const EditButton = styled.button`
   }
 `
 
-const Buckets: React.FC<PageStatus> = ({firstRender}) => {
+const Buckets: React.FC<PropsWithChildren<PageStatus>> = ({ firstRender }) => {
   if (firstRender) {
     return (
       <DashboardMain>
@@ -259,4 +283,6 @@ const Buckets: React.FC<PageStatus> = ({firstRender}) => {
   }
 }
 
-export default Buckets
+const EnhancedMain = withTokenValidation(Buckets);
+
+export default EnhancedMain;

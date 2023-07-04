@@ -36,7 +36,14 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
   useEffect(() => {
     fetchUserInfo()
-      .then(res => setName(res.data.name.firstName + ' ' + res.data.name.lastName))
+      .then(res => {
+        if (res.data.email) {
+          setName(res.data.name.firstName + ' ' + res.data.name.lastName)
+        } else {
+          Logout()
+        }
+      })
+      .catch(err => console.error(err))
       .finally(() => setLoading(false))
   }, [])
 
@@ -57,7 +64,8 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   }
 
   const Logout = () => {
-    removeCookie('aurora_token')
+    removeCookie('aurora_token', {path: '/'})
+    window.location.replace('/')
   }
 
   useEffect(() => {
