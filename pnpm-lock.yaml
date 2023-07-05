@@ -17,6 +17,9 @@ dependencies:
   '@types/react-image-gallery':
     specifier: ^1.2.0
     version: 1.2.0
+  '@types/react-lazy-load-image-component':
+    specifier: ^1.5.3
+    version: 1.5.3
   '@types/react-transition-group':
     specifier: ^4.4.6
     version: 4.4.6
@@ -68,6 +71,9 @@ dependencies:
   react-icons:
     specifier: ^4.9.0
     version: 4.9.0(react@18.2.0)
+  react-lazy-load-image-component:
+    specifier: ^1.6.0
+    version: 1.6.0(react-dom@18.2.0)(react@18.2.0)
   react-router-dom:
     specifier: ^6.11.2
     version: 6.11.2(react-dom@18.2.0)(react@18.2.0)
@@ -2766,6 +2772,13 @@ packages:
     resolution: {integrity: sha512-y5OEficUWcnGEc6KvflRXgvhtaMSsDH6JGT3/SJs0FV/RgtKuIgrUpGbDw5MdzyUwe/D8sJTo+aw8NOkaX0nIA==}
     dependencies:
       '@types/react': 18.2.8
+    dev: false
+
+  /@types/react-lazy-load-image-component@1.5.3:
+    resolution: {integrity: sha512-hTzsQQ64mmPR6W03DQr6zhzeBGn17ExnVd7sLHqTQZQVd9Oi0Dy7tfSPgK0+AZV5YNC+e8Jw7oq9kzYfDkCDCA==}
+    dependencies:
+      '@types/react': 18.2.8
+      csstype: 3.1.2
     dev: false
 
   /@types/react-reconciler@0.26.7:
@@ -6072,6 +6085,18 @@ packages:
       react-dom: 18.2.0(react@18.2.0)
       react-reconciler: 0.29.0(react@18.2.0)
       scheduler: 0.23.0
+    dev: false
+
+  /react-lazy-load-image-component@1.6.0(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-8KFkDTgjh+0+PVbH+cx0AgxLGbdTsxWMnxXzU5HEUztqewk9ufQAu8cstjZhyvtMIPsdMcPZfA0WAa7HtjQbBQ==}
+    peerDependencies:
+      react: ^15.x.x || ^16.x.x || ^17.x.x || ^18.x.x
+      react-dom: ^15.x.x || ^16.x.x || ^17.x.x || ^18.x.x
+    dependencies:
+      lodash.debounce: 4.0.8
+      lodash.throttle: 4.1.1
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react-native-codegen@0.71.5(@babel/preset-env@7.22.4):

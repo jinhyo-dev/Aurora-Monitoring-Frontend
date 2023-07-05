@@ -9,7 +9,7 @@ import Providers from "./Providers";
 import SignUp from "./pages/SignUp";
 import Dashboard from "./pages/Dashboards/Dashboard";
 import UserPreferences from "./pages/Dashboards/UserPreferences";
-import Buckets from "./pages/Buckets";
+import Teams from "./pages/Teams";
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/components/Error/NotFound";
@@ -31,27 +31,27 @@ const router = createBrowserRouter([
         element: <SignUp/>,
       },
       {
-        path: '/buckets',
-        element: <Buckets firstRender={true}/>
+        path: '/teams',
+        element: <Teams firstRender={true}/>
       },
       {
-        path: "/bucket/:serverId/",
+        path: "/team/:serverId/",
         children: [
           {
             path: '',
-            element: <Navigate to={'/bucket/AURORA633/dashboard'}/>
+            element: <Navigate to={'/team/AURORA633/dashboard'}/>
           },
           {
-            path: '/bucket/:serverId/dashboard',
+            path: '/team/:serverId/dashboard',
             element: <Dashboard/>
           },
           {
-            path: '/bucket/:serverId/user-preference',
+            path: '/team/:serverId/user-preference',
             element: <UserPreferences/>
           },
           {
-            path: '/bucket/:serverId/buckets',
-            element: <Buckets firstRender={false}/>
+            path: '/team/:serverId/teams',
+            element: <Teams firstRender={false}/>
           }
         ]
       }

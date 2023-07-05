@@ -153,6 +153,14 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     position: relative;
     z-index: 100000;
   }
+  
+  .lazy-load-image {
+    width: 8rem;
+    height: 8rem;
+    margin: auto;
+    border-radius: 50%;
+    background-size: cover;
+  } 
 `
 
 export const MainTag = styled.main`

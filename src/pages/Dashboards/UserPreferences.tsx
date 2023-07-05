@@ -2,7 +2,7 @@ import NavigationBar from "./NavigationBar";
 import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox } from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
 import styled, { keyframes } from "styled-components";
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
 import { AiTwotoneSetting, AiFillDelete } from 'react-icons/ai'
 import { BsPersonFillAdd } from 'react-icons/bs'
@@ -13,7 +13,13 @@ import { useCookies } from "react-cookie";
 import { isValidEmail } from "../../utils/Formatter";
 import { FiEdit } from 'react-icons/fi'
 import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
-
+import { LazyLoadImage } from "react-lazy-load-image-component";
+import 'react-lazy-load-image-component/src/effects/blur.css';
+import * as React from "react";
+import { useNavigate } from "react-router-dom";
+import { tokenValidity } from "../../utils/Cookie";
+import Loaders from "../components/Loaders";
+import Unauthorized from "../components/Error/Unauthorized";
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -30,6 +36,26 @@ interface EmailListErrorProps {
   message: string;
 }
 
+  const withTokenValidation = (WrappedComponent: React.ComponentType) => {
+    const TokenValidationComponent = () => {
+      const navigate = useNavigate();
+      const [loading, setLoading] = useState<boolean>(true);
+      const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+
+      useEffect(() => {
+        const checkValidity = async () => {
+          const isValid = await tokenValidity();
+          setIsAuthorized(isValid)
+        };
+
+        checkValidity().then(() => setLoading(false));
+      }, [navigate]);
+      return loading ? <Loaders/> : isAuthorized ? <WrappedComponent/> : <Unauthorized/>;
+    };
+
+    return TokenValidationComponent;
+  };
+
 const UserPreferences = () => {
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
@@ -37,7 +63,6 @@ const UserPreferences = () => {
   const [emailList, setEmailList] = useState<EmailListProps[]>([])
   const [editNewEmail, setEditNewEmail] = useState<string>('')
   const [cookies] = useCookies()
-
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
   }
@@ -80,8 +105,6 @@ const UserPreferences = () => {
     } else {
       setIsEmailFormValid({status: false, message: 'Invalid email format'})
     }
-
-    console.log(emailList)
   }
 
   const deleteEmail = (email: string) => {
@@ -152,7 +175,8 @@ const UserPreferences = () => {
           <RealTimeBox width={'35%'} $leftGap={true} $rightGap={true} style={{display: 'flex', alignItems: 'center'}}>
 
             <UserInformationContainer>
-              <UserProfileImage/>
+              <LazyLoadImage alt={'user-profile'} effect={'blur'} className={'lazy-load-image'}
+                             src={'https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg'}/>
               <Username>Jinhyo Kim</Username>
               <UserPermission>Owner</UserPermission>
 
@@ -272,7 +296,8 @@ const UserPreferences = () => {
                                   value.editing &&
                                   (
                                     <div className={'button-container'}>
-                                      <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}><IoClose/></button>
+                                      <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}>
+                                        <IoClose/></button>
                                       <button type={'submit'}><IoCheckmarkSharp/>
                                       </button>
                                     </div>
@@ -302,6 +327,10 @@ const UserPreferences = () => {
   )
 }
 
+const EnhancedUserPreferences = withTokenValidation(UserPreferences);
+
+export default EnhancedUserPreferences;
+
 const SwipeAnimation = keyframes`
   0% {
     transform: translateX(0);
@@ -313,17 +342,9 @@ const SwipeAnimation = keyframes`
 `;
 
 const UserInformationContainer = styled.div`
+  text-align: center;
   height: 28rem;
   width: 100%;
-`
-
-const UserProfileImage = styled.div`
-  width: 8rem;
-  height: 8rem;
-  margin: auto;
-  border-radius: 50%;
-  background-image: url("https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg");
-  background-size: cover;
 `
 
 const Username = styled.div`
@@ -507,6 +528,7 @@ const ProfileContainer = styled.div`
 
     & form {
       width: 60%;
+
       & label {
         display: flex;
         position: relative;
@@ -688,5 +710,3 @@ const ProfileContainer = styled.div`
     }
   }
 `
-
-export default UserPreferences

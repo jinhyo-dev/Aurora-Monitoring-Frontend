@@ -8,10 +8,9 @@ import { IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle } from 'react-icons/
 import { HiServer } from 'react-icons/hi'
 import { BsGraphUp, BsStack } from 'react-icons/bs'
 import * as React from "react";
-import { BsServer } from "react-icons/bs";
 import { AiFillDashboard } from "react-icons/ai";
 import { RiBug2Fill } from "react-icons/ri";
-import { FaUserCircle } from 'react-icons/fa'
+import { FaUserCircle, FaUsers } from 'react-icons/fa'
 import { MdAccessTimeFilled } from 'react-icons/md'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
@@ -51,7 +50,8 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     const checked: string = cookies.theme
     setCookie('theme', checked === 'dark' ? 'light' : 'dark', {
       sameSite: 'none',
-      secure: true
+      secure: true,
+      path: '/'
     })
   };
 
@@ -59,7 +59,8 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     const status: string = cookies.sidebarStatus
     setCookie('sidebarStatus', status === 'open' ? 'closed' : 'open', {
       sameSite: 'none',
-      secure: true
+      secure: true,
+      path: '/'
     })
   }
 
@@ -94,7 +95,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
       <div className={'server-name'}>Jinhyo-Server</div>
 
-      <NavigationButton $active={active === 0} className={'navigation-container'} onClick={() => navigate('/bucket/AURORA633/dashboard')}>
+      <NavigationButton $active={active === 0} className={'navigation-container'} onClick={() => navigate('/team/AURORA633/dashboard')}>
         <HiServer/>
         {showBackIcon && <span>Process Overview</span>}
       </NavigationButton>
@@ -140,13 +141,13 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         </NavigationBottomButton>
 
         <NavigationBottomButton $active={active === 7} className={'navigation-container'}
-                                onClick={() => navigate('/bucket/AURORA633/buckets')}>
-          <BsServer/>
-          {showBackIcon && <span>Buckets</span>}
+                                onClick={() => navigate('/team/AURORA633/teams')}>
+          <FaUsers/>
+          {showBackIcon && <span>Teams</span>}
         </NavigationBottomButton>
 
         <NavigationBottomButton $active={active === 8} className={'navigation-container'}
-                                onClick={() => navigate('/bucket/AURORA633/user-preference')}>
+                                onClick={() => navigate('/team/AURORA633/user-preference')}>
           <FaUserCircle/>
           {showBackIcon && <span>{loading ? 'loading...' : name}</span>}
         </NavigationBottomButton>

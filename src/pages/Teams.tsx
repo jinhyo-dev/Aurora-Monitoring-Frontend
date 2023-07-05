@@ -9,11 +9,13 @@ import { FaUsers } from 'react-icons/fa'
 import * as React from "react"
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
-import { FiEdit } from 'react-icons/fi'
-import { PropsWithChildren, useEffect, useState } from "react";
+import { FormEvent, PropsWithChildren, useEffect, useState } from "react";
 import { tokenValidity } from "../utils/Cookie";
 import Loaders from "./components/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
+import axiosInstance from "../utils/AxiosInstance";
+import { AiTwotoneSetting } from 'react-icons/ai'
+import toast from "react-hot-toast";
 
 interface PageStatus {
   firstRender: boolean;
@@ -33,17 +35,39 @@ const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChil
 
       checkValidity().then(() => setLoading(false));
     }, [navigate]);
-    return loading ? <Loaders /> : isAuthorized ? <WrappedComponent {...props}/> : <Unauthorized/>;
+    return loading ? <Loaders/> : isAuthorized ? <WrappedComponent {...props}/> : <Unauthorized/>;
   };
 
   return TokenValidationComponent;
 };
 
-const BucketComponents = () => {
+const TeamsComponents = () => {
   const [cookies] = useCookies()
   const navigate = useNavigate()
 
-  const createNewBucketHandler = () => {
+  const createTeamHandler = (e: FormEvent) => {
+    e.preventDefault()
+    const teamName = (document.getElementById('team-name') as HTMLInputElement).value;
+    toast.promise(
+      axiosInstance.post('/team/create', {'name': teamName}), {
+        loading: 'Creating..',
+        success: 'Created !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+  }
+
+  const createNewTeamModal = () => {
     return (
       confirmAlert({
         customUI: ({onClose}) => {
@@ -54,16 +78,19 @@ const BucketComponents = () => {
                   <AuroraLogoDark/>}
               </div>
 
-              <p>Create new bucket</p>
+              <p>Create new team</p>
 
-              <form className={'bucket-form'}>
-                <input type="input" placeholder="Bucket name"/>
+              <form className={'team-form'} onSubmit={e => {
+                createTeamHandler(e)
+                onClose()
+              }}>
+                <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
               </form>
 
               <div className={'button-container'}>
                 <button onClick={onClose} className={'close-btn'}>Cancel</button>
                 <button
-                  onClick={onClose}
+                  onClick={createTeamHandler}
                   className={'create-btn'}
                 >
                   Create
@@ -76,23 +103,55 @@ const BucketComponents = () => {
     )
   }
 
-  const bucketEditHandler = () => {
-    console.log('aaa')
+  const teamEditHandler = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> : <AuroraLogoDark/>}
+              </div>
+
+              <p>Edit Team</p>
+
+              <form className={'team-form'} onSubmit={e => {
+                createTeamHandler(e)
+                onClose()
+              }}>
+                <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
+              </form>
+
+              <div className={'button-container'}>
+                <button onClick={onClose} className={'close-btn'}>Cancel</button>
+                <button
+                  onClick={createTeamHandler}
+                  className={'create-btn'}
+                >
+                  Create
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
   }
 
+
   return (
-    <BucketsContainer>
+    <TeamsContainer>
       {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
         <AuroraLogoDark className={'aurora-logo'}/>}
       <div className={'title'}>
-        <div>Buckets</div>
-        <button onClick={createNewBucketHandler}>
-          Create new bucket
+        <div>Teams</div>
+        <button onClick={createNewTeamModal}>
+          Create new team
         </button>
       </div>
 
-      <div className={'buckets-list'}>
-        <div className={'bucket'} onClick={() => navigate('/bucket/AURORA633/dashboard')}>
+      <div className={'teams-list'}>
+        <div className={'team'} onClick={() => navigate('/team/AURORA633/dashboard')}>
           <div>
             <div className={'server-name'}>
               Jinhyo-Vultr-Server
@@ -105,13 +164,13 @@ const BucketComponents = () => {
 
           <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
-            bucketEditHandler();
+            teamEditHandler();
           }}>
-            <FiEdit/> Edit
+            <AiTwotoneSetting/> Setting
           </EditButton>
 
         </div>
-        <div className={'bucket'}>
+        <div className={'team'}>
           <div>
             <div className={'server-name'}>
               Jinhyo-Home-Server
@@ -125,17 +184,17 @@ const BucketComponents = () => {
 
           <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
             event.stopPropagation();
-            bucketEditHandler();
+            teamEditHandler();
           }}>
-            <FiEdit/> Edit
+            <AiTwotoneSetting/> Setting
           </EditButton>
         </div>
       </div>
-    </BucketsContainer>
+    </TeamsContainer>
   )
 }
 
-const BucketsContainer = styled.div`
+const TeamsContainer = styled.div`
   color: ${({theme}) => theme.fontColor};
   height: 40rem;
   width: 35rem;
@@ -183,13 +242,13 @@ const BucketsContainer = styled.div`
     }
   }
 
-  & .buckets-list {
+  & .teams-list {
     width: 85%;
     margin: 2rem auto 0;
     height: 23.5rem;
     overflow: auto;
 
-    & .bucket {
+    & .team {
       width: 100%;
       height: 5rem;
       background: ${({theme}) => theme.BottomNavigationContainerColor};
@@ -243,7 +302,7 @@ const BucketsContainer = styled.div`
 `
 
 const EditButton = styled.button`
-  width: 4rem;
+  width: 5rem;
   height: 2rem;
   border: none;
   margin-left: auto;
@@ -253,21 +312,21 @@ const EditButton = styled.button`
   color: ${({theme}) => theme.fontColor};
   cursor: pointer;
   transition: all .25s;
-  
+
   & svg {
     margin-bottom: -0.1rem;
   }
-  
+
   &:hover {
     background: ${({theme}) => theme.BottomNavigationContainerColor};
   }
 `
 
-const Buckets: React.FC<PropsWithChildren<PageStatus>> = ({ firstRender }) => {
+const Teams: React.FC<PropsWithChildren<PageStatus>> = ({firstRender}) => {
   if (firstRender) {
     return (
       <DashboardMain>
-        <BucketComponents/>
+        <TeamsComponents/>
       </DashboardMain>
     )
   } else {
@@ -275,14 +334,14 @@ const Buckets: React.FC<PropsWithChildren<PageStatus>> = ({ firstRender }) => {
       <DashboardMain>
         <NavigationBar active={7}/>
         <BoardSection>
-          <PageName name={'Buckets'}/>
-          <BucketComponents/>
+          <PageName name={'Teams'}/>
+          <TeamsComponents/>
         </BoardSection>
       </DashboardMain>
     )
   }
 }
 
-const EnhancedMain = withTokenValidation(Buckets);
+const EnhancedMain = withTokenValidation(Teams);
 
 export default EnhancedMain;

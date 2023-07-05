@@ -61,9 +61,10 @@ const SignIn = () => {
         if (res.data.success) {
           setCookies('aurora_token', res.data.data.access_token, {
             sameSite: 'none',
-            secure: true
+            secure: true,
+            path: '/'
           });
-          navigate('/buckets');
+          navigate('/teams');
         } else {
           setResponseStatus({ message: res.data.data.message, loading: false, error: true });
         }
@@ -134,7 +135,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
     useEffect(() => {
       const checkValidity = async () => {
         const isValid = await tokenValidity();
-        isValid && navigate('/buckets');
+        isValid && navigate('/teams');
       };
 
       checkValidity().then(() => setLoading(false));

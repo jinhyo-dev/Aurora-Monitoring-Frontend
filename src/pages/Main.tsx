@@ -10,22 +10,32 @@ import Loaders from "./components/Loaders";
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
     const navigate = useNavigate();
+    const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(true)
 
     useEffect(() => {
-      const checkValidity = async () => {
-        const isValid = await tokenValidity();
-        isValid && navigate('/buckets');
+      const image = new Image();
+      image.src = "../assets/images/Aurora-Main-Background.jpg";
+      image.onload = () => {
+        setIsImageLoaded(true);
       };
 
-      checkValidity().then(() => setLoading(false))
-    }, []);
+      const checkValidity = async () => {
+        const isValid = await tokenValidity();
+        isValid && navigate('/teams');
+      };
 
-    return loading ? <Loaders/> : <WrappedComponent />;
-  };
+    checkValidity().then(() => setLoading(false))
+  }, []
+)
+  ;
 
-  return TokenValidationComponent;
+  return loading || isImageLoaded ? <Loaders/> : <WrappedComponent/>;
 };
+
+return TokenValidationComponent;
+}
+;
 
 const Main = () => {
   useEffect(() => {
@@ -62,19 +72,19 @@ const Main = () => {
 
   return (
     <MainTag>
-      <Title title={'Aurora Monitoring'} />
-      <Header />
+      <Title title={'Aurora Monitoring'}/>
+      <Header/>
       <AuroraInfo>
         Aurora
         <AuroraIntro>
-          Aurora monitoring system,<br />
-          where modern technology<br />
+          Aurora monitoring system,<br/>
+          where modern technology<br/>
           meets sleek design.
         </AuroraIntro>
       </AuroraInfo>
 
       {[1, 2, 3, 4, 5, 6].map((index: number) => (
-        <Star key={`star-${index}`} className="star" />
+        <Star key={`star-${index}`} className="star"/>
       ))}
     </MainTag>
   );
@@ -101,20 +111,19 @@ const animate = keyframes`
   }
 `;
 
-
 const MainTag = styled.main`
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-image: url(${AuroraBackground});
   width: 100%;
   height: 100vh;
   background-size: cover;
   font-family: 'Poppins', sans-serif;
   color: #fff;
-  position: absolute;
+  background-image: url(${AuroraBackground});
   top: 0;
   left: 0;
+  position: absolute;
   overflow: hidden;
 `
 
