@@ -22,6 +22,7 @@ import {
   LoadingText,
   MainTag
 } from "../styles/GlobalStyle";
+import Loaders from "./components/Loaders";
 
 const SignIn = () => {
   const navigate = useNavigate();
@@ -141,7 +142,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
       checkValidity().then(() => setLoading(false));
     }, []);
 
-    return loading ? <></> : <WrappedComponent />;
+    return loading ? <Loaders/> : <WrappedComponent />;
   };
 
   return TokenValidationComponent;

@@ -8,33 +8,33 @@ import { tokenValidity } from "../utils/Cookie";
 import Loaders from "./components/Loaders";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
-  const TokenValidationComponent = () => {
-    const navigate = useNavigate();
-    const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
-    const [loading, setLoading] = useState<boolean>(true)
+    const TokenValidationComponent = () => {
+      const navigate = useNavigate();
+      const [isImageLoaded, setIsImageLoaded] = useState<boolean>(false);
+      const [loading, setLoading] = useState<boolean>(true)
 
-    useEffect(() => {
-      const image = new Image();
-      image.src = "../assets/images/Aurora-Main-Background.jpg";
-      image.onload = () => {
-        setIsImageLoaded(true);
-      };
+      useEffect(() => {
+          const image = new Image();
+          image.src = "../assets/images/Aurora-Main-Background.jpg";
+          image.onload = () => {
+            setIsImageLoaded(true);
+          };
 
-      const checkValidity = async () => {
-        const isValid = await tokenValidity();
-        isValid && navigate('/teams');
-      };
+          const checkValidity = async () => {
+            const isValid = await tokenValidity();
+            isValid && navigate('/teams');
+          };
 
-    checkValidity().then(() => setLoading(false))
-  }, []
-)
-  ;
+          checkValidity().then(() => setLoading(false))
+        }, []
+      )
+      ;
 
-  return loading || isImageLoaded ? <Loaders/> : <WrappedComponent/>;
-};
+      return loading || isImageLoaded ? <Loaders/> : <WrappedComponent/>;
+    };
 
-return TokenValidationComponent;
-}
+    return TokenValidationComponent;
+  }
 ;
 
 const Main = () => {
@@ -74,18 +74,20 @@ const Main = () => {
     <MainTag>
       <Title title={'Aurora Monitoring'}/>
       <Header/>
-      <AuroraInfo>
-        Aurora
-        <AuroraIntro>
-          Aurora monitoring system,<br/>
-          where modern technology<br/>
-          meets sleek design.
-        </AuroraIntro>
-      </AuroraInfo>
+      <InfoContainer>
+        <AuroraInfo>
+          Aurora
+          <AuroraIntro>
+            Aurora monitoring system,<br/>
+            where modern technology<br/>
+            meets sleek design.
+          </AuroraIntro>
+        </AuroraInfo>
 
-      {[1, 2, 3, 4, 5, 6].map((index: number) => (
-        <Star key={`star-${index}`} className="star"/>
-      ))}
+        {[1, 2, 3, 4, 5, 6].map((index: number) => (
+          <Star key={`star-${index}`} className="star"/>
+        ))}
+      </InfoContainer>
     </MainTag>
   );
 };
@@ -127,12 +129,17 @@ const MainTag = styled.main`
   overflow: hidden;
 `
 
+const InfoContainer = styled.div`
+  width: 100%;
+  height: calc(100vh - 10rem);
+  display: flex;
+  align-items: center;
+`
+
 const AuroraInfo = styled.div`
   width: 85%;
-  height: 20vh;
   font-size: 5rem;
   margin: auto;
-  padding-top: 27vh;
   font-weight: 600;
 `
 

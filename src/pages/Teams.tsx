@@ -23,7 +23,6 @@ interface PageStatus {
 
 const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChildren<PageStatus>>) => {
   const TokenValidationComponent: React.FC<PageStatus> = (props) => {
-    const navigate = useNavigate();
     const [loading, setLoading] = useState<boolean>(true);
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
 
@@ -34,7 +33,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChil
       };
 
       checkValidity().then(() => setLoading(false));
-    }, [navigate]);
+    }, []);
     return loading ? <Loaders/> : isAuthorized ? <WrappedComponent {...props}/> : <Unauthorized/>;
   };
 

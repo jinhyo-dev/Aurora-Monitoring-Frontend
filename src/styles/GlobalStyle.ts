@@ -191,7 +191,7 @@ export const MainTag = styled.main`
 export const DashboardMain = styled.main`
   min-height: 800px;
   max-height: 1700px;
-  min-width: 900px;
+  min-width: 1100px;
   max-width: 2300px;
   width: 100%;
   height: 100vh;
@@ -355,7 +355,7 @@ export const AccountLink = styled.div`
 export const ArrowButton = styled.button`
   width: 30px;
   background: none;
-  border: 0px;
+  border: 0;
   color: #fff;
   font-size: 1.3rem;
   opacity: .5;

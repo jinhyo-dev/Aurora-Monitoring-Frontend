@@ -3,13 +3,15 @@ import Header from "./components/Header";
 import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
-import { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
 import { Transition } from 'react-transition-group';
 import axiosInstance from "../utils/AxiosInstance";
 import { StatusProps } from "../interfaces/interface";
 import { useNavigate } from "react-router-dom";
+import { tokenValidity } from "../utils/Cookie";
+import Loaders from "./components/Loaders";
 
 interface PasswordInputProps {
   $isFocused: boolean;
@@ -29,6 +31,26 @@ interface OptionType {
   value: string,
   label: string
 }
+
+const withTokenValidation = (WrappedComponent: React.ComponentType) => {
+  const TokenValidationComponent = () => {
+    const navigate = useNavigate();
+    const [loading, setLoading] = useState<boolean>(true);
+
+    useEffect(() => {
+      const checkValidity = async () => {
+        const isValid = await tokenValidity();
+        isValid && navigate('/teams');
+      };
+
+      checkValidity().then(() => setLoading(false));
+    }, []);
+
+    return loading ? <Loaders/> : <WrappedComponent />;
+  };
+
+  return TokenValidationComponent;
+};
 
 const SignUp = () => {
   const SelectOption = [
@@ -663,4 +685,6 @@ const ValidationBox = styled.div<ValidationBoxProps>`
   }
 `;
 
-export default SignUp
+const EnhancedSignUp = withTokenValidation(SignUp);
+
+export default EnhancedSignUp;

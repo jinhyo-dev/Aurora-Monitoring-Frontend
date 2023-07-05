@@ -4,7 +4,7 @@ import PageName from "../components/PageName";
 import styled, { keyframes } from "styled-components";
 import { FormEvent, useEffect, useState } from "react";
 import { FaUserAlt } from "react-icons/fa";
-import { AiTwotoneSetting, AiFillDelete } from 'react-icons/ai'
+import { AiTwotoneSetting, AiFillDelete, AiFillInfoCircle } from 'react-icons/ai'
 import { BsPersonFillAdd } from 'react-icons/bs'
 import { TbCopy } from 'react-icons/tb'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
@@ -16,8 +16,7 @@ import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import * as React from "react";
-import { useNavigate } from "react-router-dom";
-import { tokenValidity } from "../../utils/Cookie";
+import { fetchUserInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 
@@ -36,35 +35,87 @@ interface EmailListErrorProps {
   message: string;
 }
 
-  const withTokenValidation = (WrappedComponent: React.ComponentType) => {
-    const TokenValidationComponent = () => {
-      const navigate = useNavigate();
-      const [loading, setLoading] = useState<boolean>(true);
-      const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+interface UserInformationProps {
+  id: string;
+  country: string;
+  plan: string;
+  email: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+  phone: string;
+}
 
-      useEffect(() => {
-        const checkValidity = async () => {
-          const isValid = await tokenValidity();
-          setIsAuthorized(isValid)
-        };
+interface UserInfoType {
+  userInfo: UserInformationProps
+}
 
-        checkValidity().then(() => setLoading(false));
-      }, [navigate]);
-      return loading ? <Loaders/> : isAuthorized ? <WrappedComponent/> : <Unauthorized/>;
-    };
+const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.ComponentType<P>) => {
+  const TokenValidationComponent: React.FC<P> = (props: P) => {
+    const [loading, setLoading] = useState<boolean>(true);
+    const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+    const [userInfo, setUserInfo] = useState<UserInformationProps | null>(null)
 
-    return TokenValidationComponent;
+    useEffect(() => {
+      const checkValidity = async () => {
+        const response = await fetchUserInfo();
+        const userInfo = response.data
+        setIsAuthorized(response.success)
+        setUserInfo({
+          id: userInfo._id,
+          country: userInfo.country,
+          plan: userInfo.plan,
+          email: userInfo.email,
+          name: userInfo.name,
+          phone: userInfo.phone,
+        })
+      }
+
+      checkValidity().then(() => setLoading(false));
+    }, []);
+    return loading ? <Loaders/> : isAuthorized ? <WrappedComponent {...props} userInfo={userInfo}/> : <Unauthorized/>;
   };
 
-const UserPreferences = () => {
+  return TokenValidationComponent;
+};
+
+const UserPreferences: React.FC<UserInfoType> = ({ userInfo }) => {
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
   const [isEmailFormValid, setIsEmailFormValid] = useState<EmailListErrorProps>({status: true, message: ''})
   const [emailList, setEmailList] = useState<EmailListProps[]>([])
   const [editNewEmail, setEditNewEmail] = useState<string>('')
   const [cookies] = useCookies()
+  const [editUserInfo, setEditUserInfo] = useState<UserInformationProps>(userInfo)
+
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
+  }
+
+  const handleEditUserInfo = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target;
+
+    const [objectName, fieldName] = name.split('.');
+
+    setEditUserInfo((prevEditUserInfo: UserInformationProps) => {
+      if (fieldName) {
+        return {
+          ...prevEditUserInfo,
+          [objectName]: {
+            ...(prevEditUserInfo[objectName as keyof UserInformationProps] as {
+              [key: string]: string;
+            }),
+            [fieldName]: value,
+          },
+        };
+      }
+
+      return {
+        ...prevEditUserInfo,
+        [name]: value,
+      };
+    });
   }
 
   const CopiedAlert = () => {
@@ -165,7 +216,6 @@ const UserPreferences = () => {
     }
   };
 
-
   return (
     <DashboardMain>
       <NavigationBar active={8}/>
@@ -177,7 +227,7 @@ const UserPreferences = () => {
             <UserInformationContainer>
               <LazyLoadImage alt={'user-profile'} effect={'blur'} className={'lazy-load-image'}
                              src={'https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg'}/>
-              <Username>Jinhyo Kim</Username>
+              <Username>{userInfo.name.firstName + ' ' + userInfo.name.lastName}</Username>
               <UserPermission>Owner</UserPermission>
 
               <NavigationButtonContainer>
@@ -210,24 +260,26 @@ const UserPreferences = () => {
                   <div className={'input-container'} style={{marginTop: '5%'}}>
                     <div className={'left-input'}>
                       <div>First Name</div>
-                      <input type={'text'}/>
+                      <input type={'text'} name={'name.firstName'} value={editUserInfo.name.firstName}
+                             onChange={handleEditUserInfo}/>
                     </div>
 
                     <div className={'right-input'}>
                       <div>Last Name</div>
-                      <input type={'text'}/>
+                      <input type={'text'} name={'name.lastName'} value={editUserInfo.name.lastName}
+                             onChange={handleEditUserInfo}/>
                     </div>
                   </div>
 
                   <div className={'input-container'}>
                     <div className={'left-input'}>
                       <div>Phone Number</div>
-                      <input type={'text'}/>
+                      <input type={'text'} value={editUserInfo.phone} name={'phone'} onChange={handleEditUserInfo}/>
                     </div>
 
                     <div className={'right-input'}>
-                      <div>Email</div>
-                      <input type={'text'}/>
+                      <div>Email <span className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span></div>
+                      <input type={'text'} value={editUserInfo.email} name={'email'} readOnly={true}/>
                     </div>
                   </div>
 
@@ -654,6 +706,15 @@ const ProfileContainer = styled.div`
       width: 40%;
       float: right;
       padding-right: 2rem;
+      
+      & .warning-text {
+        font-size: 0.6rem;
+        
+        & svg {
+          padding-left: 0.3rem;
+          margin-bottom: -1px;
+        }
+      }
     }
 
     & input {
