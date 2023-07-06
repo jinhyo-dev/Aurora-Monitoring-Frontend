@@ -13,6 +13,7 @@ import Teams from "./pages/Teams";
 import 'react-confirm-alert/src/react-confirm-alert.css';
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/components/Error/NotFound";
+import TeamSetting from "./pages/Dashboards/TeamSetting";
 
 const router = createBrowserRouter([
   {
@@ -47,11 +48,24 @@ const router = createBrowserRouter([
           },
           {
             path: '/team/:serverId/user-preference',
-            element: <UserPreferences/>
+            element: <UserPreferences
+              userInfo={{
+                id: '',
+                name: {firstName: '', lastName: ''},
+                plan: '',
+                phone: '',
+                country: '',
+                email: ''
+              }}
+            />
           },
           {
             path: '/team/:serverId/teams',
             element: <Teams firstRender={false}/>
+          },
+          {
+            path: '/team/:serverId/teams/setting',
+            element: <TeamSetting/>
           }
         ]
       }

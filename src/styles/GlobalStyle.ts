@@ -72,7 +72,7 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       }
     }
     
-    & .bucket-form {
+    & .team-form {
       width: 85%;
       height: 2.5rem;
       margin: 0.3rem auto 1rem;
@@ -98,6 +98,13 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       font-size: 0.9rem;
       padding-left: 7.5%;
       font-weight: 400;
+    }
+    
+    & .sign-out-text {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 1.3rem;
+      color: ${({theme}) => theme.fontColor};
     }
 
     & .button-container {
@@ -428,5 +435,5 @@ export const LoadingText = styled.p`
   text-align: left;
   padding-left: 0.1rem;
   font-size: 0.8rem;
-  color: #316ae5;
+  color: #fff;
 `

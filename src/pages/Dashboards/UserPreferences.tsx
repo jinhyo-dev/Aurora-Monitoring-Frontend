@@ -48,7 +48,7 @@ interface UserInformationProps {
 }
 
 interface UserInfoType {
-  userInfo: UserInformationProps
+  userInfo: UserInformationProps;
 }
 
 const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.ComponentType<P>) => {
@@ -80,7 +80,7 @@ const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.Com
   return TokenValidationComponent;
 };
 
-const UserPreferences: React.FC<UserInfoType> = ({ userInfo }) => {
+const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
   const [isEmailFormValid, setIsEmailFormValid] = useState<EmailListErrorProps>({status: true, message: ''})
@@ -94,7 +94,7 @@ const UserPreferences: React.FC<UserInfoType> = ({ userInfo }) => {
   }
 
   const handleEditUserInfo = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = event.target;
+    const {name, value} = event.target;
 
     const [objectName, fieldName] = name.split('.');
 
@@ -278,7 +278,8 @@ const UserPreferences: React.FC<UserInfoType> = ({ userInfo }) => {
                     </div>
 
                     <div className={'right-input'}>
-                      <div>Email <span className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span></div>
+                      <div>Email <span
+                        className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span></div>
                       <input type={'text'} value={editUserInfo.email} name={'email'} readOnly={true}/>
                     </div>
                   </div>
@@ -706,10 +707,10 @@ const ProfileContainer = styled.div`
       width: 40%;
       float: right;
       padding-right: 2rem;
-      
+
       & .warning-text {
         font-size: 0.6rem;
-        
+
         & svg {
           padding-left: 0.3rem;
           margin-bottom: -1px;

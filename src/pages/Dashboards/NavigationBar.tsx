@@ -17,6 +17,7 @@ import { useCookies } from "react-cookie";
 import { FiLogOut, FiRefreshCw } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import { fetchUserInfo } from "../../utils/Cookie";
+import { confirmAlert } from "react-confirm-alert";
 
 interface NavigationProps {
   active: number;
@@ -39,7 +40,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         if (res.data.email) {
           setName(res.data.name.firstName + ' ' + res.data.name.lastName)
         } else {
-          Logout()
+          SignOut()
         }
       })
       .catch(err => console.error(err))
@@ -64,7 +65,37 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     })
   }
 
-  const Logout = () => {
+  const SignOutModalHandler = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'sign-out-text'}>Are you sure you want to sign out?</div>
+
+              <div className={'button-container'} style={{ width: '10rem' }}>
+                <button onClick={onClose} className={'close-btn'} style={{ width: '4.5rem' }}>Cancel</button>
+                <button
+                  onClick={SignOut}
+                  className={'create-btn'}
+                  style={{ width: '4.5rem' }}
+                >
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
+  const SignOut = () => {
     removeCookie('aurora_token', {path: '/'})
     window.location.replace('/')
   }
@@ -152,9 +183,9 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           {showBackIcon && <span>{loading ? 'loading...' : name}</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton className={'navigation-container'} onClick={Logout} $active={false}>
+        <NavigationBottomButton className={'navigation-container'} onClick={SignOutModalHandler} $active={false}>
           <FiLogOut/>
-          {showBackIcon && <span>Logout</span>}
+          {showBackIcon && <span>Sign Out</span>}
         </NavigationBottomButton>
 
         <div className={'bottom-box'}>

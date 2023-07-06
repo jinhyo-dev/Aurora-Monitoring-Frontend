@@ -103,40 +103,8 @@ const TeamsComponents = () => {
   }
 
   const teamEditHandler = () => {
-    return (
-      confirmAlert({
-        customUI: ({onClose}) => {
-          return (
-            <div className='custom-alert-ui'>
-              <div className={'logo-container'}>
-                {cookies.theme === 'dark' ? <AuroraLogo/> : <AuroraLogoDark/>}
-              </div>
-
-              <p>Edit Team</p>
-
-              <form className={'team-form'} onSubmit={e => {
-                createTeamHandler(e)
-                onClose()
-              }}>
-                <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
-              </form>
-
-              <div className={'button-container'}>
-                <button onClick={onClose} className={'close-btn'}>Cancel</button>
-                <button
-                  onClick={createTeamHandler}
-                  className={'create-btn'}
-                >
-                  Create
-                </button>
-              </div>
-            </div>
-          )
-        }
-      })
-    )
+    navigate('/team/AURORA633/teams/setting')
   }
-
 
   return (
     <TeamsContainer>
