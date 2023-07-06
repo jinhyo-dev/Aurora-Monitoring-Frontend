@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
 import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
-import { isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
+import { getNumericPhoneNumber, isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
 import Title from "./components/Title";
 import { Transition } from 'react-transition-group';
 import axiosInstance from "../utils/AxiosInstance";
@@ -46,7 +46,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
       checkValidity().then(() => setLoading(false));
     }, []);
 
-    return loading ? <Loaders/> : <WrappedComponent />;
+    return loading ? <Loaders/> : <WrappedComponent/>;
   };
 
   return TokenValidationComponent;
@@ -54,36 +54,36 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 
 const SignUp = () => {
   const SelectOption = [
-    {value: 'argentina/+54', label: '🇦🇷 Argentina'},
-    {value: 'australia/+61', label: '🇦🇺 Australia'},
-    {value: 'belgium/+32', label: '🇧🇪 Belgium'},
-    {value: 'brazil/+55', label: '🇧🇷 Brazil'},
-    {value: 'canada/+1', label: '🇨🇦 Canada'},
-    {value: 'china/+86', label: '🇨🇳 China'},
-    {value: 'denmark/+45', label: '🇩🇰 Denmark'},
-    {value: 'finland/+358', label: '🇫🇮 Finland'},
-    {value: 'france/+33', label: '🇫🇷 France'},
-    {value: 'germany/+49', label: '🇩🇪 Germany'},
-    {value: 'india/+91', label: '🇮🇳 India'},
-    {value: 'indonesia/+62', label: '🇮🇩 Indonesia'},
-    {value: 'israel/+972', label: '🇮🇱 Israel'},
-    {value: 'italy/+39', label: '🇮🇹 Italy'},
-    {value: 'japan/+81', label: '🇯🇵 Japan'},
-    {value: 'south-korea/+82', label: '🇰🇷 South Korea'},
-    {value: 'mexico/+52', label: '🇲🇽 Mexico'},
-    {value: 'netherlands/+31', label: '🇳🇱 Netherlands'},
-    {value: 'norway/+47', label: '🇳🇴 Norway'},
-    {value: 'portugal/+351', label: '🇵🇹 Portugal'},
-    {value: 'russia/+7', label: '🇷🇺 Russia'},
-    {value: 'saudi-arabia/+966', label: '🇸🇦 Saudi Arabia'},
-    {value: 'singapore/+65', label: '🇸🇬 Singapore'},
-    {value: 'south-africa/+27', label: '🇿🇦 South Africa'},
-    {value: 'spain/+34', label: '🇪🇸 Spain'},
-    {value: 'sweden/+46', label: '🇸🇪 Sweden'},
-    {value: 'switzerland/+41', label: '🇨🇭 Switzerland'},
-    {value: 'turkey/+90', label: '🇹🇷 Turkey'},
-    {value: 'united-kingdom/+44', label: '🇬🇧 United Kingdom'},
-    {value: 'united-states/+1', label: '🇺🇸 United States'}
+    {value: 'argentina', label: '🇦🇷 Argentina'},
+    {value: 'australia', label: '🇦🇺 Australia'},
+    {value: 'belgium', label: '🇧🇪 Belgium'},
+    {value: 'brazil', label: '🇧🇷 Brazil'},
+    {value: 'canada', label: '🇨🇦 Canada'},
+    {value: 'china', label: '🇨🇳 China'},
+    {value: 'denmark', label: '🇩🇰 Denmark'},
+    {value: 'finland', label: '🇫🇮 Finland'},
+    {value: 'france', label: '🇫🇷 France'},
+    {value: 'germany', label: '🇩🇪 Germany'},
+    {value: 'india', label: '🇮🇳 India'},
+    {value: 'indonesia', label: '🇮🇩 Indonesia'},
+    {value: 'israel', label: '🇮🇱 Israel'},
+    {value: 'italy', label: '🇮🇹 Italy'},
+    {value: 'japan', label: '🇯🇵 Japan'},
+    {value: 'south-korea', label: '🇰🇷 South Korea'},
+    {value: 'mexico', label: '🇲🇽 Mexico'},
+    {value: 'netherlands', label: '🇳🇱 Netherlands'},
+    {value: 'norway', label: '🇳🇴 Norway'},
+    {value: 'portugal', label: '🇵🇹 Portugal'},
+    {value: 'russia', label: '🇷🇺 Russia'},
+    {value: 'saudi-arabia', label: '🇸🇦 Saudi Arabia'},
+    {value: 'singapore', label: '🇸🇬 Singapore'},
+    {value: 'south-africa', label: '🇿🇦 South Africa'},
+    {value: 'spain', label: '🇪🇸 Spain'},
+    {value: 'sweden', label: '🇸🇪 Sweden'},
+    {value: 'switzerland', label: '🇨🇭 Switzerland'},
+    {value: 'turkey', label: '🇹🇷 Turkey'},
+    {value: 'united-kingdom', label: '🇬🇧 United Kingdom'},
+    {value: 'united-states', label: '🇺🇸 United States'}
   ];
 
   const [title, setTitle] = useState<string>('')
@@ -97,7 +97,6 @@ const SignUp = () => {
   const [email, setEmail] = useState<string>('')
   const [phoneNumber, setPhoneNumber] = useState<string>('')
   const [country, setCountry] = useState<OptionType | null>(null)
-  const [countryCode, setCountryCode] = useState<string>('')
   const [submitValidation, setSubmitValidation] = useState<{ emailValidate: boolean, passwordValidate: boolean }>({
     emailValidate: true,
     passwordValidate: true
@@ -222,12 +221,10 @@ const SignUp = () => {
       const data = {
         "email": email,
         "password": password,
-        "phone": phoneNumber,
+        "phone": getNumericPhoneNumber(phoneNumber),
         "firstName": firstName,
         "lastName": lastName,
         "country": country?.value.split('/')[0],
-        "group": groupName,
-        "plan": plan
       }
 
       setResponseStatus({...responseStatus, loading: true});
@@ -246,20 +243,8 @@ const SignUp = () => {
     }
   }
 
-  const handleCountryCode = (e: OptionType | null) => {
-    if (e?.value) {
-      const splitValues = e.value.split('/');
-      setCountry(e)
-      setCountryCode(splitValues[1])
-    }
-  }
-
-  const handlePhoneNumber = (e: ChangeEvent<HTMLInputElement>) => {
-    if (countryCode === '') {
-      alert('Select country first!')
-    }
-    const splitValues = e.target.value.split(' ')
-    setPhoneNumber(phoneNumberAutoFormat(String(splitValues[1])))
+  const handleCountry = (e: OptionType | null) => {
+    setCountry(e)
   }
 
   const handlePlan = (value: string) => {
@@ -326,17 +311,10 @@ const SignUp = () => {
 
                 <SelectContainer>
                   <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
-                          onChange={handleCountryCode} value={country} id={'country-select'}/>
+                          onChange={handleCountry} value={country} id={'country-select'}/>
                 </SelectContainer>
 
                 <AuthenticationForm style={{height: '30rem', marginTop: '1rem'}} onSubmit={handleLogin}>
-
-                  <div className="input-container" style={{marginBottom: '1rem'}}>
-                    <input type={"input"} className="input-field" placeholder="Group name" name="group-name"
-                           id='group-name' required={true}
-                           onChange={e => handleStateValue('setGroupName', e.target.value)}/>
-                    <label htmlFor="group-name" className="input-label">Group name</label>
-                  </div>
 
                   <div className="input-container name-container">
                     <input type={"input"} className="input-field" placeholder="First name" name="first-name"
@@ -356,8 +334,8 @@ const SignUp = () => {
 
                   <div className="input-container phone-container">
                     <input type={"input"} className="input-field" placeholder="Phone" name="phone" id='phone'
-                           value={countryCode + (countryCode.length > 0 ? ' ' + phoneNumber : '')} required={true}
-                           onChange={handlePhoneNumber}/>
+                           value={phoneNumber} required={true}
+                           onChange={e => setPhoneNumber(phoneNumberAutoFormat(e.target.value))}/>
                     <label htmlFor="phone" className="input-label">Phone</label>
                     <div className={'info-text'}>* Select country first</div>
                   </div>
@@ -450,12 +428,12 @@ const SingUpSuccess = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  
+
   & .container {
     text-align: center;
     width: 40rem;
     height: 20rem;
-    
+
     & svg {
       width: 25rem;
     }
@@ -471,7 +449,7 @@ const SingUpSuccess = styled.div`
       font-size: 1.2rem;
       font-weight: 400;
     }
-    
+
     & button {
       margin-top: 2rem;
       height: 2.7rem;
@@ -483,7 +461,7 @@ const SingUpSuccess = styled.div`
       color: #000;
       transition: all .25s;
       cursor: pointer;
-      
+
       &:hover {
         transform: translateY(-3px);
       }

@@ -280,7 +280,7 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
                     <div className={'right-input'}>
                       <div>Email <span
                         className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span></div>
-                      <input type={'text'} value={editUserInfo.email} name={'email'} readOnly={true}/>
+                      <input type={'text'} value={editUserInfo.email} name={'email'} className={'fix-value'} readOnly={true}/>
                     </div>
                   </div>
 
@@ -715,6 +715,13 @@ const ProfileContainer = styled.div`
           padding-left: 0.3rem;
           margin-bottom: -1px;
         }
+      }
+    }
+    
+    & .fix-value {
+      cursor: default;
+      &:focus {
+        border: ${({theme}) => `1px solid ${theme.fontSecondColor}`};
       }
     }
 

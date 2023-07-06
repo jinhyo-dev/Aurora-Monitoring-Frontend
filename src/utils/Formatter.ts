@@ -11,3 +11,6 @@ export const isValidEmail = (email: string): boolean => {
   const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
   return emailRegex.test(email);
 }
+export const getNumericPhoneNumber = (phoneNumber: string): string => {
+  return phoneNumber.replace(/-/g, '');
+}

@@ -76,7 +76,7 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       width: 85%;
       height: 2.5rem;
       margin: 0.3rem auto 1rem;
-
+      
       & input {
         width: 100%;
         border: ${({theme}) => `1px solid ${theme.fontColor}`};
@@ -88,6 +88,12 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
         padding-right: 1rem;
         font-size: 1rem;
         box-sizing: border-box;
+        transition: all 0.25s;
+        
+        &:focus {
+          outline: none;
+          border: ${({theme}) => `2px solid ${theme.fontColor}`};
+        }
       }
     }
 
@@ -105,6 +111,49 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       text-align: center;
       font-size: 1.3rem;
       color: ${({theme}) => theme.fontColor};
+    }
+
+    & .plan-container {
+      width: 85%;
+      height: 6rem;
+      margin: 0.3rem auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      
+      & .plan-box-active {
+        border: none;
+      }
+      
+      & .plan-box {
+        width: 30%;
+        height: 100%;
+        border: ${({theme}) => `1px solid ${theme.fontColor}`};
+        border-radius: 4px;
+        position: relative;
+        
+        & .plan-name {
+          margin-top: 1.7rem;
+          font-weight: 600;
+          text-align: center;
+          font-size: 0.9rem;
+          
+          & svg {
+            font-size: 0.55rem;
+          }
+        }
+        
+        & .plan-price {
+          margin-top: 0.3rem;
+          font-weight: 400;
+          text-align: center;
+          font-size: 0.75rem;
+          
+          & div {
+            font-size: 0.4rem;
+          }
+        }
+      }
     }
 
     & .button-container {
@@ -167,7 +216,55 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     margin: auto;
     border-radius: 50%;
     background-size: cover;
-  } 
+  }
+
+  .tooltip-container {
+    position: relative;
+    display: inline-block;
+  }
+
+  .tooltip-trigger {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
+    color: ${({theme}) => theme.fontColor};
+  }
+
+  .tooltip {
+    visibility: hidden;
+    width: 300px;
+    background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+    color: ${({theme}) => theme.fontColor};
+    text-align: left;
+    font-weight: 300;
+    font-size: 0.8rem;
+    border-radius: 5px;
+    padding: 10px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    opacity: 0;
+    transform: translateX(-50%);
+    transition: all .25s;
+  }
+
+  .tooltip::before {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: ${({theme}) => theme.BottomNavigationFocusButtonColor} transparent transparent transparent;
+  }
+
+  .tooltip-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
+  }
+
 `
 
 export const MainTag = styled.main`

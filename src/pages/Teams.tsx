@@ -9,12 +9,13 @@ import { FaUsers } from 'react-icons/fa'
 import * as React from "react"
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
-import { FormEvent, PropsWithChildren, useEffect, useState } from "react";
+import { FormEvent, PropsWithChildren, useEffect, useRef, useState } from "react";
 import { tokenValidity } from "../utils/Cookie";
 import Loaders from "./components/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
 import axiosInstance from "../utils/AxiosInstance";
 import { AiTwotoneSetting } from 'react-icons/ai'
+import { BsQuestionCircleFill } from 'react-icons/bs'
 import toast from "react-hot-toast";
 
 interface PageStatus {
@@ -43,6 +44,21 @@ const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChil
 const TeamsComponents = () => {
   const [cookies] = useCookies()
   const navigate = useNavigate()
+  const [loading, setLoading] = useState<boolean>(true)
+  const [teamData, setTeamData] = useState<any>([])
+  const [plan, setPlan] = useState<string>('')
+  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsModalOpen(true)
+  }, [plan]);
+
+
+  useEffect(() => {
+    axiosInstance.get('/user/team')
+      .then(res => res.data.success && setTeamData(res.data.data))
+      .catch(err => console.log(err))
+  }, [])
 
   const createTeamHandler = (e: FormEvent) => {
     e.preventDefault()
@@ -67,39 +83,110 @@ const TeamsComponents = () => {
   }
 
   const createNewTeamModal = () => {
-    return (
-      confirmAlert({
-        customUI: ({onClose}) => {
-          return (
-            <div className='custom-alert-ui'>
-              <div className={'logo-container'}>
-                {cookies.theme === 'dark' ? <AuroraLogo/> :
-                  <AuroraLogoDark/>}
+      return (
+        confirmAlert({
+          customUI: ({onClose}) => {
+            return (
+              <div className='custom-alert-ui'>
+                <div className={'logo-container'}>
+                  {cookies.theme === 'dark' ? <AuroraLogo/> :
+                    <AuroraLogoDark/>}
+                </div>
+
+                <p>Create new team</p>
+
+                <form className={'team-form'} onSubmit={e => {
+                  createTeamHandler(e)
+                  onClose()
+                }}>
+                  <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
+                </form>
+
+                <p>Choose plan</p>
+
+                <div className={'plan-container'}>
+
+                  <div className={`plan-box ${plan === 'free' ? 'plan-box-active' : ''}`}
+                       onClick={() => setPlan('free')}
+                       style={{border: plan === 'free' ? 'none' : ''}}
+                  >
+                    <div className={'plan-name'}>
+                      Free
+                      <div className={'tooltip-container'}>
+                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                        <div className="tooltip">
+                          <ul>
+                            <li>Up to 3 Agents with 5 Processes</li>
+                            <li>See your data as real-time</li>
+                            <li>Notify when its down</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={'plan-price'}>0 $</div>
+                  </div>
+
+                  <div className={`plan-box ${plan === 'pro' ? 'plan-box-active' : ''}`} onClick={() => setPlan('pro')}>
+                    <div className={'plan-name'}>
+                      Pro
+                      <div className={'tooltip-container'}>
+                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                        <div className="tooltip">
+                          <ul>
+                            <li>Up to 10 Agents with 30 Processes</li>
+                            <li>See your data as real-time</li>
+                            <li>Notify when its down</li>
+                            <li>Webhook & Integration</li>
+                            <li>Advanced Log Filtering</li>
+                            <li>Save history for 30 days</li>
+                            <li>24/7 Support</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                    <div className={'plan-price'}>15.29 $
+                      <div>(per month)</div>
+                    </div>
+                  </div>
+
+                  <div className={`plan-box ${plan === 'enterprise' ? 'plan-box-active' : ''}`}
+                       onClick={() => setPlan('enterprise')}>
+                    <div className={'plan-name'}>
+                      Enterprise
+                      <div className={'tooltip-container'}>
+                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                        <div className="tooltip">
+                          <ul>
+                            <li>Up to 100 Agents with Over 500 Processes</li>
+                            <li>See your data as real-time</li>
+                            <li>Notify when its down</li>
+                            <li>Webhook & Integration</li>
+                            <li>Advanced Log Filtering</li>
+                            <li>Save history for 180 days</li>
+                            <li>24/7 Support</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className={'plan-price'}>Get in touch</div>
+                  </div>
+                </div>
+
+                <div className={'button-container'}>
+                  <button onClick={onClose} className={'close-btn'}>Cancel</button>
+                  <button
+                    onClick={createTeamHandler}
+                    className={'create-btn'}
+                  >
+                    Create
+                  </button>
+                </div>
               </div>
-
-              <p>Create new team</p>
-
-              <form className={'team-form'} onSubmit={e => {
-                createTeamHandler(e)
-                onClose()
-              }}>
-                <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
-              </form>
-
-              <div className={'button-container'}>
-                <button onClick={onClose} className={'close-btn'}>Cancel</button>
-                <button
-                  onClick={createTeamHandler}
-                  className={'create-btn'}
-                >
-                  Create
-                </button>
-              </div>
-            </div>
-          )
-        }
-      })
-    )
+            )
+          }
+        })
+      )
   }
 
   const teamEditHandler = () => {
@@ -112,50 +199,41 @@ const TeamsComponents = () => {
         <AuroraLogoDark className={'aurora-logo'}/>}
       <div className={'title'}>
         <div>Teams</div>
-        <button onClick={createNewTeamModal}>
+        <button onClick={() => {
+          setIsModalOpen(true)
+          createNewTeamModal()
+        }}>
           Create new team
         </button>
       </div>
 
-      <div className={'teams-list'}>
-        <div className={'team'} onClick={() => navigate('/team/AURORA633/dashboard')}>
-          <div>
-            <div className={'server-name'}>
-              Jinhyo-Vultr-Server
-              <span>Free</span>
-            </div>
-            <div className={'server-info'}>
-              <FaUsers/> <span>1 Team members</span>
-            </div>
-          </div>
+      <div className={teamData.length === 0 ? 'teams-list-none' : 'teams-list'}>
+        {
+          teamData.length === 0 ?
+            (<div>Team does not exist.</div>) :
+            (
+              Object.values(teamData).map((value: any, index: number) => (
+                <div className={'team'} onClick={() => navigate(`/team/${value._id}/dashboard`)} key={index}>
+                  <div>
+                    <div className={'server-name'}>
+                      {value.name}
+                      <span>{value.plan}</span>
+                    </div>
+                    <div className={'server-info'}>
+                      <FaUsers/> <span>1 Team members</span>
+                    </div>
+                  </div>
 
-          <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
-            teamEditHandler();
-          }}>
-            <AiTwotoneSetting/> Setting
-          </EditButton>
-
-        </div>
-        <div className={'team'}>
-          <div>
-            <div className={'server-name'}>
-              Jinhyo-Home-Server
-              <span>Enterprise</span>
-            </div>
-
-            <div className={'server-info'}>
-              <FaUsers/> <span>5 Team members</span>
-            </div>
-          </div>
-
-          <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-            event.stopPropagation();
-            teamEditHandler();
-          }}>
-            <AiTwotoneSetting/> Setting
-          </EditButton>
-        </div>
+                  <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                    event.stopPropagation();
+                    teamEditHandler();
+                  }}>
+                    <AiTwotoneSetting/> Setting
+                  </EditButton>
+                </div>
+              ))
+            )
+        }
       </div>
     </TeamsContainer>
   )
@@ -206,6 +284,19 @@ const TeamsContainer = styled.div`
       &:hover {
         background: #0983cb;
       }
+    }
+  }
+
+  & .teams-list-none {
+    width: 85%;
+    margin: 2rem auto 0;
+    height: 23.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    & div {
+      font-size: 1.4rem;
     }
   }
 
