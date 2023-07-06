@@ -9,7 +9,7 @@ import { FaUsers } from 'react-icons/fa'
 import * as React from "react"
 import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
-import { FormEvent, PropsWithChildren, useEffect, useRef, useState } from "react";
+import { FormEvent, PropsWithChildren, useEffect, useState } from "react";
 import { tokenValidity } from "../utils/Cookie";
 import Loaders from "./components/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
@@ -46,13 +46,6 @@ const TeamsComponents = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState<boolean>(true)
   const [teamData, setTeamData] = useState<any>([])
-  const [plan, setPlan] = useState<string>('')
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-
-  useEffect(() => {
-    setIsModalOpen(true)
-  }, [plan]);
-
 
   useEffect(() => {
     axiosInstance.get('/user/team')
@@ -63,8 +56,16 @@ const TeamsComponents = () => {
   const createTeamHandler = (e: FormEvent) => {
     e.preventDefault()
     const teamName = (document.getElementById('team-name') as HTMLInputElement).value;
+    const activePlanBox = document.querySelector('.plan-box-active');
+    const planId = activePlanBox?.id;
+
+    const payload = {
+      'name': teamName,
+      'plan': planId
+    }
+
     toast.promise(
-      axiosInstance.post('/team/create', {'name': teamName}), {
+      axiosInstance.post('/team/create', payload), {
         loading: 'Creating..',
         success: 'Created !',
         error: 'Error occurred.'
@@ -83,7 +84,21 @@ const TeamsComponents = () => {
   }
 
   const createNewTeamModal = () => {
-      return (
+    const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+      const clickedElement = event.currentTarget
+      const { id } = clickedElement
+
+      const elements = document.getElementsByClassName('plan-box')
+      Array.from(elements).forEach((element) => {
+        if (element.id === id) {
+          element.classList.add('plan-box-active')
+        } else {
+          element.classList.remove('plan-box-active')
+        }
+      })
+    }
+
+    return (
         confirmAlert({
           customUI: ({onClose}) => {
             return (
@@ -95,10 +110,7 @@ const TeamsComponents = () => {
 
                 <p>Create new team</p>
 
-                <form className={'team-form'} onSubmit={e => {
-                  createTeamHandler(e)
-                  onClose()
-                }}>
+                <form className={'team-form'} onSubmit={e => e.preventDefault()}>
                   <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
                 </form>
 
@@ -106,10 +118,7 @@ const TeamsComponents = () => {
 
                 <div className={'plan-container'}>
 
-                  <div className={`plan-box ${plan === 'free' ? 'plan-box-active' : ''}`}
-                       onClick={() => setPlan('free')}
-                       style={{border: plan === 'free' ? 'none' : ''}}
-                  >
+                  <div className={'plan-box'} id={'free'} onClick={handleClick}>
                     <div className={'plan-name'}>
                       Free
                       <div className={'tooltip-container'}>
@@ -126,7 +135,7 @@ const TeamsComponents = () => {
                     <div className={'plan-price'}>0 $</div>
                   </div>
 
-                  <div className={`plan-box ${plan === 'pro' ? 'plan-box-active' : ''}`} onClick={() => setPlan('pro')}>
+                  <div className={'plan-box'} id={'pro'} onClick={handleClick}>
                     <div className={'plan-name'}>
                       Pro
                       <div className={'tooltip-container'}>
@@ -149,8 +158,7 @@ const TeamsComponents = () => {
                     </div>
                   </div>
 
-                  <div className={`plan-box ${plan === 'enterprise' ? 'plan-box-active' : ''}`}
-                       onClick={() => setPlan('enterprise')}>
+                  <div className={'plan-box'} id={'enterprise'} onClick={handleClick}>
                     <div className={'plan-name'}>
                       Enterprise
                       <div className={'tooltip-container'}>
@@ -176,7 +184,10 @@ const TeamsComponents = () => {
                 <div className={'button-container'}>
                   <button onClick={onClose} className={'close-btn'}>Cancel</button>
                   <button
-                    onClick={createTeamHandler}
+                    onClick={e => {
+                      createTeamHandler(e)
+                      onClose()
+                    }}
                     className={'create-btn'}
                   >
                     Create
@@ -199,10 +210,7 @@ const TeamsComponents = () => {
         <AuroraLogoDark className={'aurora-logo'}/>}
       <div className={'title'}>
         <div>Teams</div>
-        <button onClick={() => {
-          setIsModalOpen(true)
-          createNewTeamModal()
-        }}>
+        <button onClick={createNewTeamModal}>
           Create new team
         </button>
       </div>
