@@ -9,6 +9,9 @@ import styled from "styled-components";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
 import { useCookies } from "react-cookie"
+import toast from "react-hot-toast";
+import axiosInstance from "../../utils/AxiosInstance";
+import { useNavigate, useParams } from "react-router-dom";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
@@ -31,6 +34,29 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 
 const TeamSetting = () => {
   const [cookies] = useCookies()
+  const {teamId} = useParams()
+  const navigate = useNavigate()
+
+  const deleteTeam = () => {
+    toast.promise(
+      axiosInstance.delete('/team/delete', {data: {'_id': teamId}}), {
+        loading: 'Deleting..',
+        success: 'Deleted !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => navigate(`/team/${teamId}/teams`))
+  }
 
   return (
     <DashboardMain>
@@ -42,7 +68,7 @@ const TeamSetting = () => {
             <AuroraLogoDark className={'aurora-logo'}/>}
           <div className={'title'}>
             <div>Team Information</div>
-            <button>
+            <button onClick={deleteTeam}>
               Delete this team
             </button>
           </div>

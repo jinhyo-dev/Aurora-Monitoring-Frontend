@@ -1,8 +1,5 @@
 import * as ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter, Navigate,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import Main from './pages/Main'
 import SignIn from "./pages/SignIn";
 import Providers from "./Providers";
@@ -36,18 +33,18 @@ const router = createBrowserRouter([
         element: <Teams firstRender={true}/>
       },
       {
-        path: "/team/:serverId/",
+        path: "/team/:teamId/",
         children: [
           {
             path: '',
-            element: <Navigate to={'/team/AURORA633/dashboard'}/>
+            element: <NotFound/>
           },
           {
-            path: '/team/:serverId/dashboard',
+            path: '/team/:teamId/dashboard',
             element: <Dashboard/>
           },
           {
-            path: '/team/:serverId/user-preference',
+            path: '/team/:teamId/user-preference',
             element: <UserPreferences
               userInfo={{
                 id: '',
@@ -60,11 +57,11 @@ const router = createBrowserRouter([
             />
           },
           {
-            path: '/team/:serverId/teams',
+            path: '/team/:teamId/teams',
             element: <Teams firstRender={false}/>
           },
           {
-            path: '/team/:serverId/teams/setting',
+            path: '/team/:teamId/teams/setting',
             element: <TeamSetting/>
           }
         ]

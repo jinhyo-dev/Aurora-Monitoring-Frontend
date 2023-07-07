@@ -18,3 +18,15 @@ export const fetchUserInfo = async () => {
     return null;
   }
 }
+
+export const fetchTeamInfo = async (teamId: string | undefined) => {
+  console.log(teamId)
+  if (teamId !== undefined) {
+    try {
+      const response = await axiosInstance.post('/team/info', {'teamId': teamId})
+      return response.data
+    } catch (error) {
+      return null
+    }
+  } else return null
+}

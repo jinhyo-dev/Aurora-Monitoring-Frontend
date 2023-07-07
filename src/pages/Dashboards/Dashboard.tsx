@@ -18,9 +18,10 @@ import { Line } from 'react-chartjs-2';
 import faker from 'faker';
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
-import { tokenValidity } from "../../utils/Cookie";
+import { fetchTeamInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
+import { useParams } from "react-router-dom";
 
 ChartJS.register(
   CategoryScale,
@@ -49,11 +50,13 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+    const { teamId } = useParams()
 
     useEffect(() => {
       const checkValidity = async () => {
-        const isValid = await tokenValidity();
-        setIsAuthorized(isValid)
+        const isValid = await fetchTeamInfo(teamId)
+        console.log(isValid)
+        setIsAuthorized(isValid?._id)
       };
 
       checkValidity().then(() => setLoading(false))

@@ -131,6 +131,7 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       }
 
       & .plan-box {
+        user-select: none;
         transition: all .25s;
         cursor: pointer;
         width: 30%;
