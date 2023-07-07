@@ -1,6 +1,6 @@
 import styled, { keyframes } from "styled-components";
-import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
-import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
+import { ReactComponent as AuroraLogo } from '../../../assets/svg/Aurora.svg'
+import { ReactComponent as AuroraLogoDark } from '../../../assets/svg/AuroraDark.svg'
 import Cookies from "js-cookie";
 
 const Loaders = () => {

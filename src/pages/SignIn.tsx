@@ -22,7 +22,7 @@ import {
   LoadingText,
   MainTag
 } from "../styles/GlobalStyle";
-import Loaders from "./components/Loaders";
+import Loaders from "./components/Loaders/Loaders";
 
 const SignIn = () => {
   const navigate = useNavigate();

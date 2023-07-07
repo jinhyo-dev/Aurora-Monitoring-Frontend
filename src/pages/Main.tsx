@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Title from "./components/Title";
 import { useNavigate } from "react-router-dom";
 import { tokenValidity } from "../utils/Cookie";
-import Loaders from "./components/Loaders";
+import Loaders from "./components/Loaders/Loaders";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
     const TokenValidationComponent = () => {

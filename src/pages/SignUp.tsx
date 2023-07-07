@@ -11,7 +11,7 @@ import axiosInstance from "../utils/AxiosInstance";
 import { StatusProps } from "../interfaces/interface";
 import { useNavigate } from "react-router-dom";
 import { tokenValidity } from "../utils/Cookie";
-import Loaders from "./components/Loaders";
+import Loaders from "./components/Loaders/Loaders";
 
 interface PasswordInputProps {
   $isFocused: boolean;
@@ -88,8 +88,6 @@ const SignUp = () => {
 
   const [title, setTitle] = useState<string>('')
   const [pageNumber, setPageNumber] = useState<number>(0)
-  const [plan, setPlan] = useState<string>('')
-  const [groupName, setGroupName] = useState<string>('')
   const [firstName, setFirstName] = useState<string>('')
   const [lastName, setLastName] = useState<string>('')
   const [isFocused, setIsFocused] = useState<boolean>(false)
@@ -247,14 +245,8 @@ const SignUp = () => {
     setCountry(e)
   }
 
-  const handlePlan = (value: string) => {
-    setPlan(value)
-    setPageNumber(1)
-  }
-
   const handleStateValue = (name: string, value: string) => {
     const stateFunctions: { [key: string]: React.Dispatch<React.SetStateAction<string>> } = {
-      setGroupName,
       setFirstName,
       setLastName,
     };
@@ -271,32 +263,6 @@ const SignUp = () => {
 
       <Header/>
       <Transition in={pageNumber === 0} timeout={transitionDuration}>
-        {(state) => (
-          <SelectPlanContainer style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
-
-            <div className={'page-header'}>
-              <div>Choose a plan</div>
-              <div>Pick a plan for your team</div>
-            </div>
-
-            <div className={'plan-container'}>
-              <div className={'plan-box'} onClick={() => handlePlan('free')}>
-                <div className={'plan-name'}>Free</div>
-              </div>
-
-              <div className={'plan-box'} onClick={() => handlePlan('standard')}>
-                <div className={'plan-name'}>Standard</div>
-              </div>
-
-              <div className={'plan-box'} onClick={() => handlePlan('enterprise')}>
-                <div className={'plan-name'}>Enterprise</div>
-              </div>
-            </div>
-          </SelectPlanContainer>
-        )}
-      </Transition>
-
-      <Transition in={pageNumber === 1} timeout={transitionDuration}>
         {(state) => (
           <SignUpContainer style={{...transitionStyles[state], transitionDuration: `${transitionDuration}ms`}}>
             <CenterBox>
@@ -464,56 +430,6 @@ const SingUpSuccess = styled.div`
 
       &:hover {
         transform: translateY(-3px);
-      }
-    }
-  }
-`
-
-const SelectPlanContainer = styled.div`
-  height: calc(100vh - 3.3rem);
-  width: 100%;
-
-  & .page-header {
-    text-align: center;
-    margin-top: 2rem;
-
-    & div {
-      &:first-child {
-        font-size: 1rem;
-      }
-
-      &:last-child {
-        font-size: 2rem;
-      }
-    }
-  }
-
-  & .plan-container {
-    width: 88%;
-    margin: 3rem auto;
-    height: auto;
-    display: flex;
-    justify-content: space-between;
-
-    & .plan-box {
-      width: 32%;
-      height: 30rem;
-      background-color: rgba(0, 0, 0, .6);
-      border-radius: 5px;
-      transition: all .25s;
-      border: none;
-      color: #fff;
-
-      &:hover {
-        border: 2px solid #eee;
-        transform: translateY(-10px);
-      }
-
-      & .plan-name {
-        margin-top: 2rem;
-        text-align: center;
-        font-weight: 600;
-        font-size: 2rem;
       }
     }
   }

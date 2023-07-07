@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { tokenValidity } from "../../utils/Cookie";
-import Loaders from "../components/Loaders";
+import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import NavigationBar from "./NavigationBar";
 import { BoardSection, DashboardMain, fadeIn } from "../../styles/GlobalStyle";
@@ -24,10 +24,10 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
       checkValidity().then(() => setLoading(false));
     }, []);
     return loading ? <Loaders/> : isAuthorized ? <WrappedComponent/> : <Unauthorized/>;
-  };
+  }
 
-  return TokenValidationComponent;
-};
+  return TokenValidationComponent
+}
 
 const TeamSetting = () => {
   const [cookies] = useCookies()

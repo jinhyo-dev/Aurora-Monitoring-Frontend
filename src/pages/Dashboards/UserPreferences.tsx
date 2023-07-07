@@ -17,7 +17,7 @@ import { LazyLoadImage } from "react-lazy-load-image-component";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import * as React from "react";
 import { fetchUserInfo } from "../../utils/Cookie";
-import Loaders from "../components/Loaders";
+import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 
 interface ButtonStatusProps {

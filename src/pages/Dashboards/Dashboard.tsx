@@ -19,7 +19,7 @@ import faker from 'faker';
 import { useCookies } from "react-cookie";
 import { useEffect, useState } from "react";
 import { tokenValidity } from "../../utils/Cookie";
-import Loaders from "../components/Loaders";
+import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 
 ChartJS.register(

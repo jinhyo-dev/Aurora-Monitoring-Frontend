@@ -11,12 +11,13 @@ import { useNavigate } from "react-router-dom";
 import { confirmAlert } from "react-confirm-alert";
 import { FormEvent, PropsWithChildren, useEffect, useState } from "react";
 import { tokenValidity } from "../utils/Cookie";
-import Loaders from "./components/Loaders";
+import Loaders from "./components/Loaders/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
 import axiosInstance from "../utils/AxiosInstance";
 import { AiTwotoneSetting } from 'react-icons/ai'
 import { BsQuestionCircleFill } from 'react-icons/bs'
 import toast from "react-hot-toast";
+import SpinLoaders from "./components/Loaders/SpinLoaders";
 
 interface PageStatus {
   firstRender: boolean;
@@ -34,7 +35,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType<PropsWithChil
       };
 
       checkValidity().then(() => setLoading(false));
-    }, []);
+    }, [])
     return loading ? <Loaders/> : isAuthorized ? <WrappedComponent {...props}/> : <Unauthorized/>;
   };
 
@@ -48,10 +49,16 @@ const TeamsComponents = () => {
   const [teamData, setTeamData] = useState<any>([])
 
   useEffect(() => {
+    getTeamData()
+  }, [])
+
+  const getTeamData = () => {
+    setLoading(true)
     axiosInstance.get('/user/team')
       .then(res => res.data.success && setTeamData(res.data.data))
       .catch(err => console.log(err))
-  }, [])
+      .finally(() => setLoading(false))
+  }
 
   const createTeamHandler = (e: FormEvent) => {
     e.preventDefault()
@@ -81,12 +88,13 @@ const TeamsComponents = () => {
         }
       }
     )
+      .then(getTeamData)
   }
 
   const createNewTeamModal = () => {
     const handleClick = (event: React.MouseEvent<HTMLDivElement>) => {
       const clickedElement = event.currentTarget
-      const { id } = clickedElement
+      const {id} = clickedElement
 
       const elements = document.getElementsByClassName('plan-box')
       Array.from(elements).forEach((element) => {
@@ -99,109 +107,105 @@ const TeamsComponents = () => {
     }
 
     return (
-        confirmAlert({
-          customUI: ({onClose}) => {
-            return (
-              <div className='custom-alert-ui'>
-                <div className={'logo-container'}>
-                  {cookies.theme === 'dark' ? <AuroraLogo/> :
-                    <AuroraLogoDark/>}
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <p>Create new team</p>
+
+              <form className={'team-form'} onSubmit={e => e.preventDefault()}>
+                <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
+              </form>
+
+              <p>Choose plan</p>
+
+              <div className={'plan-container'}>
+
+                <div className={'plan-box'} id={'free'} onClick={handleClick}>
+                  <div className={'plan-name'}>
+                    Free
+                    <div className={'tooltip-container'}>
+                      <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                      <div className="tooltip">
+                        <ul>
+                          <li>Up to 3 Agents with 5 Processes</li>
+                          <li>See your data as real-time</li>
+                          <li>Notify when its down</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div className={'plan-price'}>0 $</div>
                 </div>
 
-                <p>Create new team</p>
-
-                <form className={'team-form'} onSubmit={e => e.preventDefault()}>
-                  <input type="text" placeholder="Team name" maxLength={15} required={true} id={'team-name'}/>
-                </form>
-
-                <p>Choose plan</p>
-
-                <div className={'plan-container'}>
-
-                  <div className={'plan-box'} id={'free'} onClick={handleClick}>
-                    <div className={'plan-name'}>
-                      Free
-                      <div className={'tooltip-container'}>
-                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
-                        <div className="tooltip">
-                          <ul>
-                            <li>Up to 3 Agents with 5 Processes</li>
-                            <li>See your data as real-time</li>
-                            <li>Notify when its down</li>
-                          </ul>
-                        </div>
+                <div className={'plan-box'} id={'pro'} onClick={handleClick}>
+                  <div className={'plan-name'}>
+                    Pro
+                    <div className={'tooltip-container'}>
+                      <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                      <div className="tooltip">
+                        <ul>
+                          <li>Up to 10 Agents with 30 Processes</li>
+                          <li>See your data as real-time</li>
+                          <li>Notify when its down</li>
+                          <li>Webhook & Integration</li>
+                          <li>Advanced Log Filtering</li>
+                          <li>Save history for 30 days</li>
+                          <li>24/7 Support</li>
+                        </ul>
                       </div>
-                    </div>
-                    <div className={'plan-price'}>0 $</div>
-                  </div>
-
-                  <div className={'plan-box'} id={'pro'} onClick={handleClick}>
-                    <div className={'plan-name'}>
-                      Pro
-                      <div className={'tooltip-container'}>
-                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
-                        <div className="tooltip">
-                          <ul>
-                            <li>Up to 10 Agents with 30 Processes</li>
-                            <li>See your data as real-time</li>
-                            <li>Notify when its down</li>
-                            <li>Webhook & Integration</li>
-                            <li>Advanced Log Filtering</li>
-                            <li>Save history for 30 days</li>
-                            <li>24/7 Support</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-                    <div className={'plan-price'}>15.29 $
-                      <div>(per month)</div>
                     </div>
                   </div>
-
-                  <div className={'plan-box'} id={'enterprise'} onClick={handleClick}>
-                    <div className={'plan-name'}>
-                      Enterprise
-                      <div className={'tooltip-container'}>
-                        <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
-                        <div className="tooltip">
-                          <ul>
-                            <li>Up to 100 Agents with Over 500 Processes</li>
-                            <li>See your data as real-time</li>
-                            <li>Notify when its down</li>
-                            <li>Webhook & Integration</li>
-                            <li>Advanced Log Filtering</li>
-                            <li>Save history for 180 days</li>
-                            <li>24/7 Support</li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className={'plan-price'}>Get in touch</div>
+                  <div className={'plan-price'}>15.29 $
+                    <div>(per month)</div>
                   </div>
                 </div>
 
-                <div className={'button-container'}>
-                  <button onClick={onClose} className={'close-btn'}>Cancel</button>
-                  <button
-                    onClick={e => {
-                      createTeamHandler(e)
-                      onClose()
-                    }}
-                    className={'create-btn'}
-                  >
-                    Create
-                  </button>
+                <div className={'plan-box'} id={'enterprise'} onClick={handleClick}>
+                  <div className={'plan-name'}>
+                    Enterprise
+                    <div className={'tooltip-container'}>
+                      <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
+                      <div className="tooltip">
+                        <ul>
+                          <li>Up to 100 Agents with Over 500 Processes</li>
+                          <li>See your data as real-time</li>
+                          <li>Notify when its down</li>
+                          <li>Webhook & Integration</li>
+                          <li>Advanced Log Filtering</li>
+                          <li>Save history for 180 days</li>
+                          <li>24/7 Support</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={'plan-price'}>Get in touch</div>
                 </div>
               </div>
-            )
-          }
-        })
-      )
-  }
 
-  const teamEditHandler = () => {
-    navigate('/team/AURORA633/teams/setting')
+              <div className={'button-container'}>
+                <button onClick={onClose} className={'close-btn'}>Cancel</button>
+                <button
+                  onClick={e => {
+                    createTeamHandler(e)
+                    onClose()
+                  }}
+                  className={'create-btn'}
+                >
+                  Create
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
   }
 
   return (
@@ -216,31 +220,33 @@ const TeamsComponents = () => {
       </div>
 
       <div className={teamData.length === 0 ? 'teams-list-none' : 'teams-list'}>
-        {
-          teamData.length === 0 ?
-            (<div>Team does not exist.</div>) :
-            (
-              Object.values(teamData).map((value: any, index: number) => (
-                <div className={'team'} onClick={() => navigate(`/team/${value._id}/dashboard`)} key={index}>
-                  <div>
-                    <div className={'server-name'}>
-                      {value.name}
-                      <span>{value.plan}</span>
-                    </div>
-                    <div className={'server-info'}>
-                      <FaUsers/> <span>1 Team members</span>
-                    </div>
-                  </div>
 
-                  <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                    event.stopPropagation();
-                    teamEditHandler();
-                  }}>
-                    <AiTwotoneSetting/> Setting
-                  </EditButton>
-                </div>
-              ))
-            )
+        {
+          loading ? <SpinLoaders/> :
+            teamData.length === 0 ?
+              (<div>Team does not exist.</div>) :
+              (
+                Object.values(teamData).map((value: any, index: number) => (
+                  <div className={'team'} onClick={() => navigate(`/team/${value._id}/dashboard`)} key={index}>
+                    <div>
+                      <div className={'server-name'}>
+                        {value.name}
+                        <span>{value.plan}</span>
+                      </div>
+                      <div className={'server-info'}>
+                        <FaUsers/> <span>{value.members.length} Team members</span>
+                      </div>
+                    </div>
+
+                    <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
+                      event.stopPropagation();
+                      navigate(`/team/${value._id}/teams/setting`)
+                    }}>
+                      <AiTwotoneSetting/> Setting
+                    </EditButton>
+                  </div>
+                ))
+              )
         }
       </div>
     </TeamsContainer>
