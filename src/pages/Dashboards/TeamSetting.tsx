@@ -14,6 +14,7 @@ import axiosInstance from "../../utils/AxiosInstance";
 import { useNavigate, useParams } from "react-router-dom";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
 import { BsQuestionCircleFill } from "react-icons/bs";
+import { confirmAlert } from "react-confirm-alert";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
@@ -81,6 +82,36 @@ const TeamSetting = () => {
     setPlan(planValue)
   }
 
+  const deleteTeamModal = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'delete-team-text'}>Are you sure you want to delete this team?</div>
+
+              <div className={'button-container'} style={{ width: '10rem' }}>
+                <button onClick={onClose} className={'close-btn'} style={{ width: '4.5rem' }}>No</button>
+                <button
+                  onClick={deleteTeam}
+                  className={'create-btn'}
+                  style={{ width: '4.5rem' }}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
   return (
     <DashboardMain>
       <NavigationBar active={7}/>
@@ -91,7 +122,7 @@ const TeamSetting = () => {
             <AuroraLogoDark className={'aurora-logo'}/>}
           <div className={'title'}>
             <div>Team Information</div>
-            <button onClick={deleteTeam}>
+            <button onClick={deleteTeamModal}>
               Delete this team
             </button>
           </div>
@@ -175,6 +206,11 @@ const TeamSetting = () => {
                           <div className={'plan-price'}>Get in touch</div>
                         </div>
                       </div>
+                    </div>
+
+                    <div className={'button-container'}>
+                      <button className={'cancel-button'} onClick={() => navigate(`/team/${teamId}/teams`)}>Back</button>
+                      <button className={'save-button'}>Save</button>
                     </div>
                   </>
                 )
@@ -302,6 +338,37 @@ const TeamSettingContainer = styled.div`
         outline: none;
         border: ${({theme}) => `1px solid ${theme.fontColor}`};
       }
+    }
+  }
+
+  & .button-container {
+    margin: 2.8rem auto 0;
+    width: 50%;
+    height: 2.3rem;
+
+    & button {
+      height: 100%;
+      font-size: 0.9rem;
+      border: none;
+      border-radius: 5px;
+      width: 5rem;
+      cursor: pointer;
+      transition: all .2s;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
+
+    & .save-button {
+      margin-left: 1rem;
+      background: ${({theme}) => theme.fontColor};
+      color: ${({theme}) => theme.backgroundColor};
+    }
+
+    & .cancel-button {
+      background: ${({theme}) => theme.NavigationFocusButtonColor};
+      color: ${({theme}) => theme.fontColor};
     }
   }
 `

@@ -1,5 +1,5 @@
 import NavigationBar from "./NavigationBar";
-import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox } from "../../styles/GlobalStyle";
+import { BoardRowSection, BoardSection, DashboardMain, fadeIn, RealTimeBox } from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
 import styled, { keyframes } from "styled-components";
 import { FormEvent, useEffect, useState } from "react";
@@ -10,7 +10,7 @@ import { TbCopy } from 'react-icons/tb'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
 import toast from "react-hot-toast";
 import { useCookies } from "react-cookie";
-import { isValidEmail } from "../../utils/Formatter";
+import { getNumericPhoneNumber, isValidEmail, phoneNumberAutoFormat } from "../../utils/Formatter";
 import { FiEdit } from 'react-icons/fi'
 import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
 import { LazyLoadImage } from "react-lazy-load-image-component";
@@ -19,6 +19,10 @@ import * as React from "react";
 import { fetchUserInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
+import { CountryList, OptionType } from "../../interfaces/interface";
+import Select from "react-select";
+import axiosInstance from "../../utils/AxiosInstance";
+import SpinLoaders from "../components/Loaders/SpinLoaders";
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -81,16 +85,81 @@ const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.Com
 };
 
 const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
+  const selectedCountryLabel = CountryList.find(item => item.value === userInfo.country)?.label
+
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
   const [isEmailFormValid, setIsEmailFormValid] = useState<EmailListErrorProps>({status: true, message: ''})
   const [emailList, setEmailList] = useState<EmailListProps[]>([])
   const [editNewEmail, setEditNewEmail] = useState<string>('')
   const [cookies] = useCookies()
+  const [country, setCountry] = useState<OptionType | null>(selectedCountryLabel ? {
+    value: userInfo.country,
+    label: selectedCountryLabel
+  } : null)
   const [editUserInfo, setEditUserInfo] = useState<UserInformationProps>(userInfo)
+  const [currentPassword, setCurrentPassword] = useState<string>('')
+  const [newPassword, setNewPassword] = useState<string>('')
+  const [loading, setLoading] = useState<boolean>(false)
+  const SelectOption = CountryList
+
+  const selectCustomStyle = {
+    option: (provided: any, state: any) => ({
+      ...provided,
+      textAlign: 'left',
+      color: state.isFocused ? '#fff' : '#000',
+      backgroundColor: state.isFocused ? '#474747' : '#fff',
+      transition: 'all .15s',
+      width: '100%',
+      fontSize: '1rem',
+    }),
+    singleValue: (provided: any) => ({
+      ...provided,
+      textAlign: 'left',
+      color: cookies.theme === 'dark' ? '#fff' : '#000',
+      width: '100%',
+    }),
+    control: (provided: any) => ({
+      ...provided,
+      background: 'none',
+      margin: '0.5rem auto 0.2rem',
+      border: `1px solid ${cookies.theme === 'dark' ? '#999' : '#888'}`,
+      height: '3.1rem',
+      width: '100%',
+      paddingLeft: '0.5rem',
+      textOverflow: 'ellipsis',
+      boxSizing: 'border-box',
+      fontSize: '1rem',
+      borderRadius: '5px',
+      whiteSpace: 'nowrap',
+      overflow: 'hidden',
+      color: cookies.theme === 'dark' ? '#fff' : '#000',
+      placeholder: cookies.theme === 'dark' ? '#999' : '#888',
+      boxShadow: 'none',
+      '&:hover': {
+        border: `1px solid ${cookies.theme === 'dark' ? '#fff' : '#000'}`,
+      }
+    }),
+    placeholder: (provided: any) => ({
+      ...provided,
+      color: cookies.theme === 'dark' ? '#999' : '#888',
+    }),
+    input: (provided: any) => ({
+      ...provided,
+      color: cookies.theme === 'dark' ? '#fff' : '#000',
+    }),
+    indicatorsContainer: (provided: any) => ({
+      ...provided,
+      display: 'none',
+    }),
+  };
 
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
+  }
+
+  const handleCountry = (e: OptionType | null) => {
+    setCountry(e)
   }
 
   const handleEditUserInfo = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -113,7 +182,7 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
 
       return {
         ...prevEditUserInfo,
-        [name]: value,
+        [name]: name === 'phone' ? phoneNumberAutoFormat(value) : value,
       };
     });
   }
@@ -216,6 +285,77 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
     }
   };
 
+  const fetchUserData = async () => {
+    setLoading(true)
+    const response = await fetchUserInfo();
+    const userInfo = response.data
+    setEditUserInfo({
+      id: userInfo._id,
+      country: userInfo.country,
+      plan: userInfo.plan,
+      email: userInfo.email,
+      name: userInfo.name,
+      phone: userInfo.phone,
+    })
+  }
+
+  const saveUserInfo = () => {
+    const payload = {
+      'country': country?.value,
+      'firstName': editUserInfo.name.firstName,
+      'lastName': editUserInfo.name.lastName,
+      'phone': getNumericPhoneNumber(editUserInfo.phone)
+    }
+
+    toast.promise(
+      axiosInstance.put('/user/update', payload), {
+        loading: 'Saving..',
+        success: 'Saved !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => (fetchUserData().then(() => setLoading(false))))
+  }
+
+  const savePassword = () => {
+    const payload = {
+      'newPW': newPassword,
+      'currentPW': currentPassword
+    }
+
+    toast.promise(
+      axiosInstance.put('/user/newPW', payload), {
+        loading: 'Saving..',
+        success: 'Saved !',
+        error: 'Your current password is invalid.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => {
+        setCurrentPassword('')
+        setNewPassword('')
+      })
+  }
+
   return (
     <DashboardMain>
       <NavigationBar active={8}/>
@@ -251,127 +391,148 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
           </RealTimeBox>
           <RealTimeBox width={'65%'} $leftGap={false} $rightGap={true}>
             {
-              preferencesState === 0 ?
-                (<ProfileContainer>
-                  <div className={'container-name'}>Account Information</div>
-                  <div className={'container-information'}>Edit personal information and password</div>
-                  <div className={'container-subtitle'}>Personal Information</div>
+              loading ?
+                (
+                  <SpinLoaderContainer>
+                    <SpinLoaders/>
+                  </SpinLoaderContainer>
+                ) :
+                preferencesState === 0 ?
+                  (<ProfileContainer style={{overflow: 'auto'}}>
+                    <div className={'container-name'}>Account Information</div>
+                    <div className={'container-information'}>Edit personal information and password</div>
+                    <div className={'container-subtitle'}>Personal Information</div>
 
-                  <div className={'input-container'} style={{marginTop: '5%'}}>
-                    <div className={'left-input'}>
-                      <div>First Name</div>
-                      <input type={'text'} name={'name.firstName'} value={editUserInfo.name.firstName}
-                             onChange={handleEditUserInfo}/>
+                    <div className={'email-info'}>
+                      Your Email <span className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span>
+                      <div>{editUserInfo.email}</div>
                     </div>
 
-                    <div className={'right-input'}>
-                      <div>Last Name</div>
-                      <input type={'text'} name={'name.lastName'} value={editUserInfo.name.lastName}
-                             onChange={handleEditUserInfo}/>
-                    </div>
-                  </div>
+                    <div className={'user-info-container'} style={{height: '21.5rem'}}>
+                      <div className={'input-container'} style={{paddingTop: '2rem'}}>
+                        <div className={'left-input'}>
+                          <div>First Name</div>
+                          <input type={'text'} name={'name.firstName'} value={editUserInfo.name.firstName}
+                                 onChange={handleEditUserInfo} className={'input'}/>
+                        </div>
 
-                  <div className={'input-container'}>
-                    <div className={'left-input'}>
-                      <div>Phone Number</div>
-                      <input type={'text'} value={editUserInfo.phone} name={'phone'} onChange={handleEditUserInfo}/>
+                        <div className={'right-input'}>
+                          <div>Last Name</div>
+                          <input type={'text'} name={'name.lastName'} value={editUserInfo.name.lastName}
+                                 onChange={handleEditUserInfo} className={'input'}/>
+                        </div>
+                      </div>
+
+                      <div className={'input-container'}>
+                        <div className={'left-input'}>
+                          <div>Country</div>
+                          <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
+                                  onChange={handleCountry} value={country} id={'country-select'}/>
+                        </div>
+
+                        <div className={'right-input'}>
+                          <div>Phone Number</div>
+                          <input type={'text'} value={phoneNumberAutoFormat(editUserInfo.phone)} name={'phone'}
+                                 onChange={handleEditUserInfo} className={'input'}/>
+                        </div>
+                      </div>
+
+                      <div className={'input-container'} style={{marginTop: '7%'}}>
+                        <button className={'save-button'} onClick={saveUserInfo}>Save</button>
+                      </div>
                     </div>
 
-                    <div className={'right-input'}>
-                      <div>Email <span
-                        className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span></div>
-                      <input type={'text'} value={editUserInfo.email} name={'email'} className={'fix-value'} readOnly={true}/>
-                    </div>
-                  </div>
+                    <div className={'user-info-container'}
+                         style={{marginTop: '5rem', marginBottom: '1.5rem', height: '13rem'}}>
+                      <div className={'input-container'} style={{paddingTop: '2rem'}}>
+                        <div className={'left-input'}>
+                          <div>Confirm Password</div>
+                          <input type={'password'} className={'input'} value={currentPassword}
+                                 onChange={e => setCurrentPassword(e.target.value)}/>
+                        </div>
 
-                  <div className={'input-container'}>
-                    <div className={'left-input'}>
-                      <div>New Password</div>
-                      <input type={'password'}/>
-                    </div>
+                        <div className={'right-input'}>
+                          <div>New Password</div>
+                          <input type={'password'} className={'input'} value={newPassword} onChange={e => setNewPassword(e.target.value)}/>
+                        </div>
+                      </div>
 
-                    <div className={'right-input'}>
-                      <div>Confirm Password</div>
-                      <input type={'password'}/>
+                      <div className={'input-container'} style={{marginTop: '7%'}}>
+                        <button className={'save-button'} onClick={savePassword}>Save</button>
+                      </div>
                     </div>
-                  </div>
-
-                  <div className={'button-container'}>
-                    <button className={'save-button'}>Save</button>
-                    <button className={'cancel-button'}>Cancel</button>
-                  </div>
-                </ProfileContainer>) :
-                preferencesState === 1 ?
-                  (<ProfileContainer>
                   </ProfileContainer>) :
-                  (<ProfileContainer>
-                    <div className={'container-name'}>Invite member to your team</div>
-                    <div className={'container-information'}>Invite by code or email address</div>
-                    <div className={'container-subtitle'}>Your team code
-                      <div>
-                        @kimsunghyun-cute
-                        <CopyToClipboard text={'@kimsunghyun-cute'}>
-                          <button onClick={CopiedAlert}><TbCopy/> Copy</button>
-                        </CopyToClipboard>
+                  preferencesState === 1 ?
+                    (<ProfileContainer>
+                    </ProfileContainer>) :
+                    (<ProfileContainer>
+                      <div className={'container-name'}>Invite member to your team</div>
+                      <div className={'container-information'}>Invite by code or email address</div>
+                      <div className={'container-subtitle'}>Your team code
+                        <div>
+                          @kimsunghyun-cute
+                          <CopyToClipboard text={'@kimsunghyun-cute'}>
+                            <button onClick={CopiedAlert}><TbCopy/> Copy</button>
+                          </CopyToClipboard>
+                        </div>
                       </div>
-                    </div>
 
-                    <div className={'add-form-container'}>
-                      <form onSubmit={addEmailToList}>
-                        <label>
-                          <input placeholder={'Add user by email'} required={true} value={email}
-                                 onChange={(e) => setEmail(e.target.value)}/>
-                          <button type="submit">Add</button>
-                        </label>
+                      <div className={'add-form-container'}>
+                        <form onSubmit={addEmailToList}>
+                          <label>
+                            <input placeholder={'Add user by email'} required={true} value={email}
+                                   onChange={(e) => setEmail(e.target.value)}/>
+                            <button type="submit">Add</button>
+                          </label>
 
-                        {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
-                      </form>
-                    </div>
+                          {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
+                        </form>
+                      </div>
 
-                    <div className={'email-list-container'}>
-                      <div>
-                        {Object.values(emailList).map((value: EmailListProps, index: number) => (
-                          <div key={index} className={`email-box ${value.removing ? 'removing' : ''}`}>
-                            <form onSubmit={e => handleEmailChange(e, value.email, true)}>
-                              <label>
-                                <input value={value.editing ? editNewEmail : value.email}
-                                       className={`email-name ${value.editing ? 'editing' : ''}`}
-                                       readOnly={!value.editing}
-                                       id={value.email}
-                                       onChange={e => setEditNewEmail(e.target.value)}
-                                       ref={inputRef => {
-                                         if (value.editing) {
-                                           inputRef && inputRef.focus();
-                                         }
-                                       }}
-                                />
-                                {
-                                  value.editing &&
-                                  (
-                                    <div className={'button-container'}>
-                                      <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}>
-                                        <IoClose/></button>
-                                      <button type={'submit'}><IoCheckmarkSharp/>
-                                      </button>
-                                    </div>
-                                  )
-                                }
-                              </label>
-                            </form>
-                            <div className={'button-container'}>
-                              <button onClick={() => editEmail(value.email)}><FiEdit/></button>
-                              <button onClick={() => deleteEmail(value.email)}><AiFillDelete/></button>
+                      <div className={'email-list-container'}>
+                        <div>
+                          {Object.values(emailList).map((value: EmailListProps, index: number) => (
+                            <div key={index} className={`email-box ${value.removing ? 'removing' : ''}`}>
+                              <form onSubmit={e => handleEmailChange(e, value.email, true)}>
+                                <label>
+                                  <input value={value.editing ? editNewEmail : value.email}
+                                         className={`email-name ${value.editing ? 'editing' : ''}`}
+                                         readOnly={!value.editing}
+                                         id={value.email}
+                                         onChange={e => setEditNewEmail(e.target.value)}
+                                         ref={inputRef => {
+                                           if (value.editing) {
+                                             inputRef && inputRef.focus();
+                                           }
+                                         }}
+                                  />
+                                  {
+                                    value.editing &&
+                                    (
+                                      <div className={'button-container'}>
+                                        <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}>
+                                          <IoClose/></button>
+                                        <button type={'submit'}><IoCheckmarkSharp/>
+                                        </button>
+                                      </div>
+                                    )
+                                  }
+                                </label>
+                              </form>
+                              <div className={'button-container'}>
+                                <button onClick={() => editEmail(value.email)}><FiEdit/></button>
+                                <button onClick={() => deleteEmail(value.email)}><AiFillDelete/></button>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
 
-                    <div className={'button-container'}>
-                      <button className={'save-button'}>Invite User</button>
-                      <button className={'cancel-button'} onClick={() => setEmailList([])}>Cancel</button>
-                    </div>
-                  </ProfileContainer>)
+                      <div className={'button-container'}>
+                        <button className={'save-button'}>Invite User</button>
+                        <button className={'cancel-button'} onClick={() => setEmailList([])}>Cancel</button>
+                      </div>
+                    </ProfileContainer>)
             }
           </RealTimeBox>
         </BoardRowSection>
@@ -453,11 +614,37 @@ const NavigationButton = styled.button<ButtonStatusProps>`
 const ProfileContainer = styled.div`
   width: 100%;
   height: 100%;
-  display: flex;
-  flex-direction: column;
 
   & > div {
     padding-left: 2rem;
+  }
+
+  & .user-info-container {
+    width: 90%;
+    margin: -2rem auto;
+    background-color: ${({theme}) => theme.backgroundColor};
+    border-radius: 5px;
+    animation: ${fadeIn} 0.3s ease-out backwards;
+    transition: background-color 0.3s ease-out;
+
+    & .save-button {
+      padding-left: 1rem;
+      padding-right: 1rem;
+      height: 2.2rem;
+      float: right;
+      margin-right: 1.5rem;
+      border: none;
+      border-radius: 5px;
+      background: ${({theme}) => theme.fontColor};
+      color: ${({theme}) => theme.backgroundColor};
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all .2s;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+    }
   }
 
   & .container-name {
@@ -577,7 +764,6 @@ const ProfileContainer = styled.div`
     width: 90%;
     height: 50%;
     overflow: auto;
-    transition: all .25s;
 
     & form {
       width: 60%;
@@ -690,9 +876,31 @@ const ProfileContainer = styled.div`
     }
   }
 
+
+  & .email-info {
+    margin-top: 2%;
+    padding-left: 2rem;
+    color: ${({theme}) => theme.fontSecondColor};
+
+    & div {
+      margin-top: 0.3rem;
+      font-size: 1.2rem;
+      color: ${({theme}) => theme.fontColor};
+    }
+
+    & .warning-text {
+      font-size: 0.6rem;
+
+      & svg {
+        padding-left: 0.3rem;
+        margin-bottom: -1px;
+      }
+    }
+  }
+
   & .input-container {
     padding-left: 0;
-    margin-top: 13%;
+    margin-top: 10%;
     height: 4rem;
     width: 100%;
     color: ${({theme}) => theme.fontSecondColor};
@@ -700,33 +908,23 @@ const ProfileContainer = styled.div`
     & .left-input {
       width: 40%;
       float: left;
-      padding-left: 2rem;
     }
 
     & .right-input {
       width: 40%;
       float: right;
-      padding-right: 2rem;
-
-      & .warning-text {
-        font-size: 0.6rem;
-
-        & svg {
-          padding-left: 0.3rem;
-          margin-bottom: -1px;
-        }
-      }
+      margin-right: 1.5rem;
     }
-    
+
     & .fix-value {
       cursor: default;
+
       &:focus {
         border: ${({theme}) => `1px solid ${theme.fontSecondColor}`};
       }
     }
 
-    & input {
-      margin-top: 0.5rem;
+    & .input {
       width: 100%;
       background: none;
       height: 3.1rem;
@@ -749,7 +947,7 @@ const ProfileContainer = styled.div`
   & > .button-container {
     width: 50%;
     height: 3rem;
-    margin: auto 2rem 1rem auto;
+    margin: 2rem 2rem 1rem auto;
 
     & button {
       padding-left: 1rem;
@@ -778,4 +976,12 @@ const ProfileContainer = styled.div`
       color: ${({theme}) => theme.fontColor};
     }
   }
+`
+
+const SpinLoaderContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `

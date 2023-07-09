@@ -113,6 +113,14 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       color: ${({theme}) => theme.fontColor};
     }
 
+    & .delete-team-text {
+      margin-top: 1rem;
+      text-align: center;
+      font-size: 1.1rem;
+      color: ${({theme}) => theme.fontColor};
+    }
+    
+
     & .button-container {
       width: 9rem;
       margin: 2.2rem auto 0.7rem;

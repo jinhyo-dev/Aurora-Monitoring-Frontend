@@ -22,6 +22,10 @@ import { fetchTeamInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import { useParams } from "react-router-dom";
+import styled from "styled-components";
+import * as React from "react";
+import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
+import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
 
 ChartJS.register(
   CategoryScale,
@@ -50,7 +54,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
     const [loading, setLoading] = useState<boolean>(true)
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
-    const { teamId } = useParams()
+    const {teamId} = useParams()
 
     useEffect(() => {
       const checkValidity = async () => {
@@ -69,6 +73,15 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 
 const Dashboard = () => {
   const [cookies] = useCookies()
+  const [sidebarMove, setSidebarMove] = useState<boolean>(true)
+
+  useEffect(() => {
+    setSidebarMove(true)
+    setTimeout(() => {
+      setSidebarMove(false)
+    }, 500)
+  }, [cookies.sidebarStatus])
+
 
   const boxNameStyle = {
     fontSize: cookies.sidebarStatus === 'closed' ? '1.2rem' : '0.9rem',
@@ -127,14 +140,14 @@ const Dashboard = () => {
   };
 
 
-  const labels = ['1s', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52', '10:40', '10:41', '10:42', '10:43', '10:44', '10:45', '10:46', '10:47', '10:48', '10:49', '10:50', '10:51', '10:51', '10:52'];
+  const labels = ['', ''];
 
-  const data: ExtendedChartData = {
-    labels,
+  const [data, setData] = useState<ExtendedChartData>({
+    labels: labels.slice(0, 1),
     datasets: [
       {
         label: 'A',
-        data: labels.map(() => faker.datatype.number({min: -1000, max: 1000})),
+        data: [0],
         borderColor: 'rgb(255, 99, 132)',
         backgroundColor: 'rgba(255, 99, 132, 0.5)',
         pointStyle: false,
@@ -144,7 +157,7 @@ const Dashboard = () => {
       },
       {
         label: 'B',
-        data: labels.map(() => faker.datatype.number({min: -1000, max: 1000})),
+        data: [0],
         borderColor: 'rgb(53, 162, 235)',
         backgroundColor: 'rgba(53, 162, 235, 0.5)',
         pointStyle: false,
@@ -153,74 +166,111 @@ const Dashboard = () => {
         tension: 0.15
       },
     ],
-  };
+  });
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      const now = new Date();
+      const currentTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+      setData((prevData: ExtendedChartData) => ({
+        labels: [...((prevData.labels || []).slice(-10)), currentTime],
+        datasets: prevData.datasets.map((dataset) => ({
+          ...dataset,
+          data: [...dataset.data.slice(-10), faker.datatype.number({min: -1000, max: 1000})]
+        }))
+      }))
+    }, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
 
   return (
     <DashboardMain>
       <NavigationBar active={0}/>
-      <BoardSection>
-        <PageName name={'Dashboard'}/>
+      {sidebarMove ?
+        (
+          <SidebarMovingHandler>
+            {cookies.theme === 'dark' ? <AuroraLogo/> : <AuroraLogoDark/>}
+          </SidebarMovingHandler>
+        ) :
+        (
+          <BoardSection>
+            <PageName name={'Dashboard'}/>
 
-        <BoardRowSection>
-          <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
+            <BoardRowSection>
+              <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
 
-          <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
-        </BoardRowSection>
+              <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
+            </BoardRowSection>
 
-        <BoardRowSection>
-          <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
+            <BoardRowSection>
+              <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
 
-          <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
+              <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
 
-          <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
+              <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
 
-        </BoardRowSection>
+            </BoardRowSection>
 
-        <BoardRowSection>
-          <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
+            <BoardRowSection>
+              <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
 
-          <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
-            <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-            <div className={'chart-container'}>
-              <Line options={options} data={data} className={'chart'}/>
-            </div>
-          </RealTimeBox>
-        </BoardRowSection>
+              <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'chart-container'}>
+                  <Line options={options} data={data} className={'chart'}/>
+                </div>
+              </RealTimeBox>
+            </BoardRowSection>
 
-      </BoardSection>
+          </BoardSection>
+        )
+      }
     </DashboardMain>
   )
 }
+
+const SidebarMovingHandler = styled.div`
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & svg {
+    width: 15rem;
+  }
+`
 
 const EnhancedMain = withTokenValidation(Dashboard);
 
