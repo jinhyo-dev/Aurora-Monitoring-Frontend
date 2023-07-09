@@ -113,57 +113,6 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
       color: ${({theme}) => theme.fontColor};
     }
 
-    & .plan-container {
-      width: 85%;
-      height: 6rem;
-      margin: 0.3rem auto;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-
-      & .plan-box-active {
-        background: ${({theme}) => theme.fontColor};
-        color: ${({theme}) => theme.backgroundColor};
-
-        & .tooltip-container .tooltip-trigger {
-          color: ${({theme}) => theme.backgroundColor};
-        }
-      }
-
-      & .plan-box {
-        user-select: none;
-        transition: all .25s;
-        cursor: pointer;
-        width: 30%;
-        height: 100%;
-        border: ${({theme}) => `1px solid ${theme.fontColor}`};
-        border-radius: 4px;
-        position: relative;
-
-        & .plan-name {
-          margin-top: 1.7rem;
-          font-weight: 600;
-          text-align: center;
-          font-size: 0.9rem;
-
-          & svg {
-            font-size: 0.55rem;
-          }
-        }
-
-        & .plan-price {
-          margin-top: 0.3rem;
-          font-weight: 400;
-          text-align: center;
-          font-size: 0.75rem;
-
-          & div {
-            font-size: 0.4rem;
-          }
-        }
-      }
-    }
-
     & .button-container {
       width: 9rem;
       margin: 2.2rem auto 0.7rem;
@@ -270,6 +219,57 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
     &:hover .tooltip {
       visibility: visible;
       opacity: 1;
+    }
+  }
+
+  & .plan-select-container {
+    width: 85%;
+    height: 6rem;
+    margin: 0.3rem auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    & .plan-box-active {
+      background: ${({theme}) => theme.fontColor};
+      color: ${({theme}) => theme.backgroundColor};
+
+      & .tooltip-container .tooltip-trigger {
+        color: ${({theme}) => theme.backgroundColor};
+      }
+    }
+
+    & .plan-box {
+      user-select: none;
+      transition: all .25s;
+      cursor: pointer;
+      width: 30%;
+      height: 100%;
+      border: ${({theme}) => `1px solid ${theme.fontColor}`};
+      border-radius: 4px;
+      position: relative;
+
+      & .plan-name {
+        margin-top: 1.7rem;
+        font-weight: 600;
+        text-align: center;
+        font-size: 0.9rem;
+
+        & svg {
+          font-size: 0.55rem;
+        }
+      }
+
+      & .plan-price {
+        margin-top: 0.3rem;
+        font-weight: 400;
+        text-align: center;
+        font-size: 0.75rem;
+
+        & div {
+          font-size: 0.4rem;
+        }
+      }
     }
   }
 `

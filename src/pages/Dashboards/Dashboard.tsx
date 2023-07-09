@@ -55,8 +55,7 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
     useEffect(() => {
       const checkValidity = async () => {
         const isValid = await fetchTeamInfo(teamId)
-        console.log(isValid)
-        setIsAuthorized(isValid?._id)
+        setIsAuthorized(isValid?.success)
       };
 
       checkValidity().then(() => setLoading(false))

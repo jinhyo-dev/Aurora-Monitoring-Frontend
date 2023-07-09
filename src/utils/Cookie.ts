@@ -20,7 +20,6 @@ export const fetchUserInfo = async () => {
 }
 
 export const fetchTeamInfo = async (teamId: string | undefined) => {
-  console.log(teamId)
   if (teamId !== undefined) {
     try {
       const response = await axiosInstance.post('/team/info', {'teamId': teamId})

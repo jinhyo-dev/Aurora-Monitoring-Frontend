@@ -124,7 +124,7 @@ const TeamsComponents = () => {
 
               <p>Choose plan</p>
 
-              <div className={'plan-container'}>
+              <div className={'plan-select-container'}>
 
                 <div className={'plan-box'} id={'free'} onClick={handleClick}>
                   <div className={'plan-name'}>
@@ -219,7 +219,7 @@ const TeamsComponents = () => {
         </button>
       </div>
 
-      <div className={teamData.length === 0 ? 'teams-list-none' : 'teams-list'}>
+      <div className={teamData.length === 0 || loading ? 'teams-list-none' : 'teams-list'}>
 
         {
           loading ? <SpinLoaders/> :
