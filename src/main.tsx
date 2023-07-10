@@ -54,6 +54,17 @@ const router = createBrowserRouter([
                 country: '',
                 email: ''
               }}
+
+              teamInfo={{
+                id: '',
+                name: '',
+                createdAt: '',
+                owner: '',
+                plan: '',
+                registrationCode: '',
+                group: [],
+                members: [],
+              }}
             />
           },
           {
