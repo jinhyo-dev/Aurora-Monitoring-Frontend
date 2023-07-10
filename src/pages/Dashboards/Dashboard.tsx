@@ -26,7 +26,6 @@ import styled from "styled-components";
 import * as React from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
-import { WebSocket } from "vite";
 import useWebSocket, { ReadyState } from 'react-use-websocket';
 ChartJS.register(
   CategoryScale,

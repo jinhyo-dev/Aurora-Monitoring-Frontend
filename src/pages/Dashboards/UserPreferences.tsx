@@ -106,7 +106,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
-  const [editTeamInfo, setEditTeamInfo] = useState<TeamInfoProps>(teamInfo)
+  // const [editTeamInfo, setEditTeamInfo] = useState<TeamInfoProps>(teamInfo)
   const SelectOption = CountryList
 
   const selectCustomStyle = {
