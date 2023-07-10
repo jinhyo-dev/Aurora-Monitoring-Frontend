@@ -513,7 +513,7 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
     transition: all .25s;
     
     & span {
-      padding-left: 0.2rem;
+      padding-left: 0.3rem;
       font-size: 0.6rem;
       color: ${({theme}) => theme.fontSecondColor};
     }

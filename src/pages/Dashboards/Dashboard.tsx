@@ -10,12 +10,9 @@ import {
   Title,
   Tooltip,
   Legend,
-  ChartType,
-  ChartData,
 } from 'chart.js';
 
 import { Line } from 'react-chartjs-2';
-import faker from 'faker';
 import { useCookies } from "react-cookie";
 import { useCallback, useEffect, useState } from "react";
 import { fetchTeamInfo } from "../../utils/Cookie";
@@ -27,6 +24,14 @@ import * as React from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+import axiosInstance from "../../utils/AxiosInstance";
+import {
+  CpuChartConfig,
+  DiskReadSizeChartConfig, DiskWriteSizeChartConfig,
+  ExtendedChartData, MemoryFreeChartConfig, MemoryUsedChartConfig, SwapFreeChartConfig, SwapUsedChartConfig,
+  SystemChartConfig,
+  UserChartConfig
+} from "./ChartConfiguraion";
 
 ChartJS.register(
   CategoryScale,
@@ -37,18 +42,16 @@ ChartJS.register(
   Tooltip,
   Legend
 )
+import TitleTag from '../components/TitleTag'
 
-interface ExtendedChartData extends ChartData<ChartType, number[], string> {
-  datasets: {
-    label: string;
-    data: number[];
-    borderColor: string;
-    backgroundColor: string;
-    pointStyle: false;
-    pointBorderColor: string;
-    borderWidth: number;
-    tension: number;
-  }[];
+interface TempValues {
+  [key: string]: any[];
+}
+
+interface DataItem {
+  _field: string;
+
+  [key: string]: any;
 }
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
@@ -75,21 +78,104 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 const Dashboard = () => {
   const [cookies] = useCookies()
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
-  // const [cpuPercent, setCpuPercent] = useState<any[]>([])
-  // const [systemPercent, setSystemPercent] = useState<any[]>([])
-  // const [userPercent, setUserPercent] = useState<any[]>([])
+
+  const [cpuData, setCpuData] = useState<ExtendedChartData | null>(null);
+  const [systemData, setSystemData] = useState<ExtendedChartData | null>(null);
+  const [userData, setUserData] = useState<ExtendedChartData | null>(null);
+  const [diskReadData, setDiskReadData] = useState<ExtendedChartData | null>(null);
+  const [diskWriteData, setDiskWriteData] = useState<ExtendedChartData | null>(null);
+  const [memoryFreeData, setMemoryFreeData] = useState<ExtendedChartData | null>(null);
+  const [memoryUsedData, setMemoryUsedData] = useState<ExtendedChartData | null>(null);
+  const [swapFreeData, setSwapFreeData] = useState<ExtendedChartData | null>(null);
+  const [swapUsedData, setSwapUsedData] = useState<ExtendedChartData | null>(null);
+
+  useEffect(() => {
+    const payload = {
+      start: '-2m',
+      stop: 'now()',
+      key: 'f9338c3ef6d54cc182f648d8add520e2',
+      windowPeriod: '10s',
+    }
+
+    const tempValues: TempValues = {
+      CpuPercent: [],
+      SystemPercent: [],
+      UserPercent: [],
+      ReadSize: [],
+      WriteSize: [],
+      MemoryFree: [],
+      MemoryUsed: [],
+      MemoryTotal: [],
+      SwapFree: [],
+      SwapUsed: [],
+      SwapTotal: [],
+    };
+
+    axiosInstance.post("/influx/overview", payload).then((res) => {
+      if (Array.isArray(res.data)) {
+        res.data.forEach((v: DataItem) => {
+          if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
+            tempValues[v._field].push(v);
+          }
+        })
+      } else {
+        console.error("res.data is not an array")
+      }
+    })
+      .then(() => {
+        setCpuData(CpuChartConfig(tempValues.CpuPercent))
+        setSystemData(SystemChartConfig(tempValues.SystemPercent))
+        setUserData(UserChartConfig(tempValues.UserPercent))
+        setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
+        setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
+        setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
+        setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
+        setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
+        setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
+      })
+  }, [])
 
   const SOCKET_URL = import.meta.env.VITE_WS_URL;
 
   const messageHandler = useCallback((event: MessageEvent<any>) => {
-    console.log(JSON.parse(event.data));
+    const tempValues: TempValues = {
+      CpuPercent: [],
+      SystemPercent: [],
+      UserPercent: [],
+      ReadSize: [],
+      WriteSize: [],
+      MemoryFree: [],
+      MemoryUsed: [],
+      MemoryTotal: [],
+      SwapFree: [],
+      SwapUsed: [],
+      SwapTotal: [],
+    };
+
+    const data = JSON.parse(event.data);
+
+    if (Array.isArray(data)) {
+      data.forEach((v: DataItem) => {
+        if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
+          tempValues[v._field].push(v);
+        }
+      });
+    } else {
+      console.error("Event data is not an array");
+    }
+
+    setCpuData(CpuChartConfig(tempValues.CpuPercent))
+    setSystemData(SystemChartConfig(tempValues.SystemPercent))
+    setUserData(UserChartConfig(tempValues.UserPercent))
+    setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
+    setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
+    setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
+    setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
+    setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
+    setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
   }, []);
 
-  // useEffect(() => {
-  //   console.log(cpuPercent)
-  // }, [cpuPercent])
-
-  const { sendMessage, readyState } = useWebSocket(SOCKET_URL, {
+  const {sendMessage, readyState} = useWebSocket(SOCKET_URL, {
     onMessage: messageHandler,
     reconnectAttempts: 10,
     reconnectInterval: 3000,
@@ -99,12 +185,11 @@ const Dashboard = () => {
   useEffect(() => {
     const timerId = setInterval(() => {
       if (readyState === ReadyState.OPEN) {
-        console.log('Sent request')
         sendMessage(
           JSON.stringify({
             event: 'overview',
             data: {
-              start: '-1m',
+              start: '-2m',
               stop: 'now()',
               key: 'f9338c3ef6d54cc182f648d8add520e2',
               windowPeriod: '10s',
@@ -131,9 +216,6 @@ const Dashboard = () => {
   };
 
   const options = {
-    animation: {
-      duration: 150,
-    },
     maintainAspectRatio: false,
     responsive: true,
     interaction: {
@@ -185,50 +267,21 @@ const Dashboard = () => {
     bezierCurve: true,
   };
 
-
-  const labels = [''];
-
-  const [data, setData] = useState<ExtendedChartData>({
-    labels: labels.slice(0, 1),
-    datasets: [
-      {
-        label: 'A',
-        data: [0],
-        borderColor: 'rgb(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      },
-      {
-        label: 'B',
-        data: [0],
-        borderColor: 'rgb(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      },
-    ],
-  });
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      const now = new Date();
-      const currentTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-      setData((prevData: ExtendedChartData) => ({
-        labels: [...((prevData.labels || []).slice(-10)), currentTime],
-        datasets: prevData.datasets.map((dataset) => ({
-          ...dataset,
-          data: [...dataset.data.slice(-10), faker.datatype.number({min: -1000, max: 1000})]
-        }))
-      }))
-    }, 1000);
-
-    return () => clearInterval(intervalId);
-  }, []);
+// useEffect(() => {
+  // const intervalId = setInterval(() => {
+  //   const now = new Date();
+  //   const currentTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
+  //   setData((prevData: ExtendedChartData) => ({
+  //     labels: [...((prevData.labels || []).slice(-10)), currentTime],
+  //     datasets: prevData.datasets.map((dataset) => ({
+  //       ...dataset,
+  //       data: [...dataset.data.slice(-10), faker.datatype.number({min: -1000, max: 1000})]
+  //     }))
+  //   }))
+  // }, 1000);
+//
+//   return () => clearInterval(intervalId);
+// }, []);
 
   return (
     <DashboardMain>
@@ -240,66 +293,83 @@ const Dashboard = () => {
           </SidebarMovingHandler>
         ) :
         (
-          <BoardSection>
-            <PageName name={'Dashboard'}/>
+          <>
+            <TitleTag title={'Dashboard'}/>
+            <BoardSection>
+              <PageName name={'Dashboard'}/>
 
-            <BoardRowSection>
-              <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction <span>unit: byte</span></div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
+              <BoardRowSection>
+                <RealTimeBox width={'50%'} $leftGap={true} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Disk - Read Size<span>unit: size</span></div>
+                  <div className={'chart-container'}>
+                    {diskReadData && <Line options={options} data={diskReadData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-              <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
-            </BoardRowSection>
+                <RealTimeBox width={'50%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Disk - Write Size<span>unit: size</span></div>
+                  <div className={'chart-container'}>
+                    {diskWriteData && <Line options={options} data={diskWriteData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
+              </BoardRowSection>
 
-            <BoardRowSection>
-              <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>Cpu Percent</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
+              <BoardRowSection>
+                <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Cpu Percent<span>unit: percent</span></div>
+                  <div className={'chart-container'}>
+                    {cpuData && <Line options={options} data={cpuData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-              <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>System Percent</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
+                <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>System Percent<span>unit: percent</span></div>
+                  <div className={'chart-container'}>
+                    {systemData && <Line options={options} data={systemData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-              <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>User Percent</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
+                <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>User Percent<span>unit: percent</span></div>
+                  <div className={'chart-container'}>
+                    {userData && <Line options={options} data={userData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-            </BoardRowSection>
+              </BoardRowSection>
 
-            <BoardRowSection>
-              <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
+              <BoardRowSection>
+                <RealTimeBox width={'25%'} $leftGap={true} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Memory Free<span>unit: byte</span></div>
+                  <div className={'chart-container'}>
+                    {memoryFreeData && <Line options={options} data={memoryFreeData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-              <RealTimeBox width={'39%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
-                <div className={'chart-container'}>
-                  <Line options={options} data={data} className={'chart'}/>
-                </div>
-              </RealTimeBox>
-            </BoardRowSection>
+                <RealTimeBox width={'25%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Memory Used<span>unit: byte</span></div>
+                  <div className={'chart-container'}>
+                    {memoryUsedData && <Line options={options} data={memoryUsedData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
 
-          </BoardSection>
+                <RealTimeBox width={'25%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Swap Free<span>unit: byte</span></div>
+                  <div className={'chart-container'}>
+                    {swapFreeData && <Line options={options} data={swapFreeData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
+
+                <RealTimeBox width={'25%'} $leftGap={false} $rightGap={true}>
+                  <div className={'box-name'} style={boxNameStyle}>Swap Used<span>unit: byte</span></div>
+                  <div className={'chart-container'}>
+                    {swapUsedData && <Line options={options} data={swapUsedData} className={'chart'}/>}
+                  </div>
+                </RealTimeBox>
+              </BoardRowSection>
+
+            </BoardSection>
+          </>
         )
       }
     </DashboardMain>

@@ -404,7 +404,7 @@ const Teams: React.FC<PropsWithChildren<PageStatus>> = ({firstRender}) => {
   } else {
     return (
       <DashboardMain>
-        <NavigationBar active={7}/>
+        <NavigationBar active={6}/>
         <BoardSection>
           <PageName name={'Teams'}/>
           <TeamsComponents/>

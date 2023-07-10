@@ -114,7 +114,7 @@ const TeamSetting = () => {
 
   return (
     <DashboardMain>
-      <NavigationBar active={7}/>
+      <NavigationBar active={6}/>
       <BoardSection>
         <PageName name={'Team Setting'}/>
         <TeamSettingContainer>

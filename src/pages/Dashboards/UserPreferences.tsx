@@ -364,7 +364,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
 
   return (
     <DashboardMain>
-      <NavigationBar active={8}/>
+      <NavigationBar active={7}/>
       <BoardSection>
         <PageName name={'User Preferences'}/>
         <BoardRowSection style={{height: '91%'}}>

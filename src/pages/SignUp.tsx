@@ -5,7 +5,7 @@ import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
 import Select from 'react-select'
 import React, { ChangeEvent, FormEvent, useEffect, useRef, useState } from "react";
 import { getNumericPhoneNumber, isValidEmail, phoneNumberAutoFormat } from "../utils/Formatter";
-import Title from "./components/Title";
+import Title from "./components/TitleTag";
 import { Transition } from 'react-transition-group';
 import axiosInstance from "../utils/AxiosInstance";
 import { CountryList, OptionType, StatusProps } from "../interfaces/interface";

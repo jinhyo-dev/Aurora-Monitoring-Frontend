@@ -2,7 +2,7 @@ import styled, { keyframes } from "styled-components";
 import AuroraBackground from '../assets/images/Aurora-Main-Background.jpg'
 import Header from "./components/Header";
 import { useEffect, useState } from "react";
-import Title from "./components/Title";
+import Title from "./components/TitleTag";
 import { useNavigate } from "react-router-dom";
 import { tokenValidity } from "../utils/Cookie";
 import Loaders from "./components/Loaders/Loaders";

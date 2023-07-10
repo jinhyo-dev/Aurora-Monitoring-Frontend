@@ -5,7 +5,7 @@ interface TitleProps {
   title: string
 }
 
-const Title: React.FC<TitleProps> = ({title}) => {
+const TitleTag: React.FC<TitleProps> = ({title}) => {
   return (
     <>
       <HelmetProvider>
@@ -17,4 +17,4 @@ const Title: React.FC<TitleProps> = ({title}) => {
   )
 }
 
-export default Title
+export default TitleTag

@@ -11,7 +11,7 @@ import axiosInstance from "../utils/AxiosInstance";
 import { StatusProps } from "../interfaces/interface";
 import { useCookies } from "react-cookie";
 import { tokenValidity } from "../utils/Cookie";
-import Title from "./components/Title";
+import Title from "./components/TitleTag";
 import Header from "./components/Header";
 import {
   AccountLink,

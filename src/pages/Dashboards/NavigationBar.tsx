@@ -5,16 +5,13 @@ import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.sv
 import { ReactComponent as AuroraSimpleLogo } from '../../assets/svg/AuroraSimpleLogo.svg'
 import { ReactComponent as AuroraSimpleLogoDark } from '../../assets/svg/AuroraSimpleLogoDark.svg'
 import { IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle } from 'react-icons/io'
-import { HiServer } from 'react-icons/hi'
-import { BsGraphUp, BsStack } from 'react-icons/bs'
 import * as React from "react";
-import { AiFillDashboard } from "react-icons/ai";
 import { RiBug2Fill } from "react-icons/ri";
-import { FaUserCircle, FaUsers } from 'react-icons/fa'
-import { MdAccessTimeFilled } from 'react-icons/md'
+import { FaUserCircle, FaUsers, FaMemory } from 'react-icons/fa'
 import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
-import { FiLogOut, FiRefreshCw } from "react-icons/fi";
+import { FiCpu, FiLogOut, FiRefreshCw, FiHardDrive} from "react-icons/fi";
+import { RxDashboard } from 'react-icons/rx'
 import { useNavigate, useParams } from "react-router-dom";
 import { fetchTeamInfo, fetchUserInfo } from "../../utils/Cookie";
 import { confirmAlert } from "react-confirm-alert";
@@ -106,6 +103,35 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     )
   }
 
+  const NoAuthModal = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'delete-team-text'}>This service is only available in enterprise.</div>
+
+              <div className={'button-container'} style={{width: '10rem', textAlign: 'center'}}>
+                <button
+                  onClick={onClose}
+                  className={'cancel-btn'}
+                  style={{width: '5rem', padding: '0', margin: 'auto'}}
+                >
+                  Confirm
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
   const SignOut = () => {
     removeCookie('aurora_token', {path: '/'})
     window.location.replace('/')
@@ -141,34 +167,30 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
       <NavigationButton $active={active === 0} className={'navigation-container'}
                         onClick={() => navigate(`/team/${teamId}/dashboard`)}>
-        <HiServer/>
-        {showBackIcon && <span>Process Overview</span>}
+        <RxDashboard/>
+        {showBackIcon && <span>Dashboard</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 1} className={'navigation-container'}>
-        <BsGraphUp/>
-        {showBackIcon && <span>Realtime Metrics</span>}
+      <NavigationButton $active={active === 1} className={'navigation-container'} onClick={NoAuthModal}>
+        <FiCpu/>
+        {showBackIcon && <span>CPU Overview</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 2} className={'navigation-container'}>
-        <BsStack/>
-        {showBackIcon && <span>Apps Overview</span>}
+      <NavigationButton $active={active === 2} className={'navigation-container'} onClick={NoAuthModal}>
+        <FiHardDrive/>
+        {showBackIcon && <span>Disk Overview</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 3} className={'navigation-container'}>
-        <AiFillDashboard/>
-        {showBackIcon && <span>App Dashboard</span>}
+      <NavigationButton $active={active === 3} className={'navigation-container'} onClick={NoAuthModal}>
+        <FaMemory/>
+        {showBackIcon && <span>Memory Overview</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 4} className={'navigation-container'}>
+      <NavigationButton $active={active === 4} className={'navigation-container'} onClick={NoAuthModal}>
         <RiBug2Fill/>
         {showBackIcon && <span>Historical Issue</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 5} className={'navigation-container'}>
-        <MdAccessTimeFilled/>
-        {showBackIcon && <span>Realtime Logs</span>}
-      </NavigationButton>
 
       <div className={'bottom-navigation-container'}>
         <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} $active={false}>
@@ -180,18 +202,18 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 6} className={'navigation-container'}>
+        <NavigationBottomButton $active={active === 5} className={'navigation-container'}>
           <IoIosHelpCircle/>
           {showBackIcon && <span>Help</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 7} className={'navigation-container'}
+        <NavigationBottomButton $active={active === 6} className={'navigation-container'}
                                 onClick={() => navigate(`/team/${teamId}/teams`)}>
           <FaUsers/>
           {showBackIcon && <span>Teams</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 8} className={'navigation-container'}
+        <NavigationBottomButton $active={active === 7} className={'navigation-container'}
                                 onClick={() => navigate(`/team/${teamId}/user-preference`)}>
           <FaUserCircle/>
           {showBackIcon && <span>{nameLoading ? 'loading...' : name}</span>}
@@ -203,7 +225,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         </NavigationBottomButton>
 
         <div className={'bottom-box'}>
-          {showBackIcon && <div><FiRefreshCw/> <span>Last Update: 1s</span></div>}
+          {showBackIcon && <div><FiRefreshCw/> <span>Updated every 10s</span></div>}
           <button onClick={toggleSideBar} className={'close-button'}>
             {cookies.sidebarStatus === 'open' ? <IoIosArrowBack className={'logo'}/> :
               <IoIosArrowForward className={'logo'}/>}
