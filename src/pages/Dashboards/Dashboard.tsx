@@ -27,6 +27,7 @@ import * as React from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
 import useWebSocket, { ReadyState } from 'react-use-websocket';
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -74,13 +75,21 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 const Dashboard = () => {
   const [cookies] = useCookies()
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
+  // const [cpuPercent, setCpuPercent] = useState<any[]>([])
+  // const [systemPercent, setSystemPercent] = useState<any[]>([])
+  // const [userPercent, setUserPercent] = useState<any[]>([])
 
-  const SOCKET_URL = 'ws://183.106.245.209:8265';
+  const SOCKET_URL = import.meta.env.VITE_WS_URL;
+
   const messageHandler = useCallback((event: MessageEvent<any>) => {
-    console.log('Received:', JSON.parse(event.data));
+    console.log(JSON.parse(event.data));
   }, []);
 
-  const {sendMessage, readyState} = useWebSocket(SOCKET_URL, {
+  // useEffect(() => {
+  //   console.log(cpuPercent)
+  // }, [cpuPercent])
+
+  const { sendMessage, readyState } = useWebSocket(SOCKET_URL, {
     onMessage: messageHandler,
     reconnectAttempts: 10,
     reconnectInterval: 3000,
@@ -88,19 +97,26 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    if (readyState === ReadyState.OPEN) {
-      sendMessage(JSON.stringify({
-        event: 'influx',
-        data: {
-          start: '-7d',
-          stop: 'now()',
-          windowPeriod: '1s'
-        }
-      }));
-      console.log('Request sent');
-    } else {
-      console.log('WebSocket is not connected');
-    }
+    const timerId = setInterval(() => {
+      if (readyState === ReadyState.OPEN) {
+        console.log('Sent request')
+        sendMessage(
+          JSON.stringify({
+            event: 'overview',
+            data: {
+              start: '-1m',
+              stop: 'now()',
+              key: 'f9338c3ef6d54cc182f648d8add520e2',
+              windowPeriod: '10s',
+            },
+          }),
+        );
+      } else {
+        console.log('WebSocket is not connected');
+      }
+    }, 10000);
+
+    return () => clearInterval(timerId);
   }, [readyState, sendMessage]);
 
   useEffect(() => {
@@ -229,7 +245,7 @@ const Dashboard = () => {
 
             <BoardRowSection>
               <RealTimeBox width={'58%'} $leftGap={true} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'box-name'} style={boxNameStyle}>WebTransaction <span>unit: byte</span></div>
                 <div className={'chart-container'}>
                   <Line options={options} data={data} className={'chart'}/>
                 </div>
@@ -245,21 +261,21 @@ const Dashboard = () => {
 
             <BoardRowSection>
               <RealTimeBox width={'32%'} $leftGap={true} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'box-name'} style={boxNameStyle}>Cpu Percent</div>
                 <div className={'chart-container'}>
                   <Line options={options} data={data} className={'chart'}/>
                 </div>
               </RealTimeBox>
 
               <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'box-name'} style={boxNameStyle}>System Percent</div>
                 <div className={'chart-container'}>
                   <Line options={options} data={data} className={'chart'}/>
                 </div>
               </RealTimeBox>
 
               <RealTimeBox width={'32%'} $leftGap={false} $rightGap={true}>
-                <div className={'box-name'} style={boxNameStyle}>WebTransaction</div>
+                <div className={'box-name'} style={boxNameStyle}>User Percent</div>
                 <div className={'chart-container'}>
                   <Line options={options} data={data} className={'chart'}/>
                 </div>

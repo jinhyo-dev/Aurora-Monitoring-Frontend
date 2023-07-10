@@ -511,6 +511,12 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
     padding-left: 1rem;
     padding-top: 0.5rem;
     transition: all .25s;
+    
+    & span {
+      padding-left: 0.2rem;
+      font-size: 0.6rem;
+      color: ${({theme}) => theme.fontSecondColor};
+    }
   }
   
   & .chart-container {
