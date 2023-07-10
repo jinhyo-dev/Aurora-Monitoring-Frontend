@@ -16,8 +16,9 @@ import { DarkModeSwitch } from 'react-toggle-dark-mode';
 import { useCookies } from "react-cookie";
 import { FiLogOut, FiRefreshCw } from "react-icons/fi";
 import { useNavigate, useParams } from "react-router-dom";
-import { fetchUserInfo } from "../../utils/Cookie";
+import { fetchTeamInfo, fetchUserInfo } from "../../utils/Cookie";
 import { confirmAlert } from "react-confirm-alert";
+import { loadingGradientAnimation } from "../../styles/GlobalStyle";
 
 interface NavigationProps {
   active: number;
@@ -28,13 +29,14 @@ interface ButtonStatusProps {
 }
 
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
-  const { teamId } = useParams()
+  const {teamId} = useParams()
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
   const [name, setName] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
+  const [teamName, setTeamName] = useState<string>('')
+  const [nameLoading, setNameLoading] = useState<boolean>(true)
+  const [teamLoading, setTeamLoading] = useState<boolean>(true)
   const [cookies, setCookie, removeCookie] = useCookies()
   const navigate = useNavigate()
-
 
   useEffect(() => {
     fetchUserInfo()
@@ -46,7 +48,14 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         }
       })
       .catch(err => console.error(err))
-      .finally(() => setLoading(false))
+      .finally(() => setNameLoading(false))
+
+    fetchTeamInfo(teamId)
+      .then(res => {
+        setTeamName(res.data.team.name)
+      })
+      .catch(err => console.error(err))
+      .finally(() => setTeamLoading(false))
   }, [])
 
   const toggleDarkMode = () => {
@@ -80,12 +89,12 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
 
               <div className={'sign-out-text'}>Are you sure you want to sign out?</div>
 
-              <div className={'button-container'} style={{ width: '10rem' }}>
-                <button onClick={onClose} className={'close-btn'} style={{ width: '4.5rem' }}>Cancel</button>
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>Cancel</button>
                 <button
                   onClick={SignOut}
                   className={'create-btn'}
-                  style={{ width: '4.5rem' }}
+                  style={{width: '4.5rem'}}
                 >
                   Sign Out
                 </button>
@@ -126,9 +135,12 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           <AuroraSimpleLogoDark className={'logo'}/>)}
       </div>
 
-      <div className={'server-name'}>Jinhyo-Server</div>
+      <div className={teamLoading ? 'server-name-loading' : 'server-name'}>
+        {teamName}
+      </div>
 
-      <NavigationButton $active={active === 0} className={'navigation-container'} onClick={() => navigate(`/team/${teamId}/dashboard`)}>
+      <NavigationButton $active={active === 0} className={'navigation-container'}
+                        onClick={() => navigate(`/team/${teamId}/dashboard`)}>
         <HiServer/>
         {showBackIcon && <span>Process Overview</span>}
       </NavigationButton>
@@ -182,7 +194,7 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         <NavigationBottomButton $active={active === 8} className={'navigation-container'}
                                 onClick={() => navigate(`/team/${teamId}/user-preference`)}>
           <FaUserCircle/>
-          {showBackIcon && <span>{loading ? 'loading...' : name}</span>}
+          {showBackIcon && <span>{nameLoading ? 'loading...' : name}</span>}
         </NavigationBottomButton>
 
         <NavigationBottomButton className={'navigation-container'} onClick={SignOutModalHandler} $active={false}>
@@ -245,16 +257,43 @@ const Nav = styled.nav<{ $status: boolean }>`
   }
 
   & .server-name {
-    transition: all .3s;
-    background: none;
+    height: 5vh;
     margin: 5% auto 2%;
     max-width: 95%;
     font-size: ${({$status}) => ($status ? "1.2rem" : "0.4rem")};
     color: ${({theme}) => theme.fontColor};
     white-space: nowrap;
+    width: 90%;
+    overflow: hidden;
+    display: flex;
+    background: none;
+    align-items: center;
+    justify-content: center;
+    text-overflow: ellipsis;
+  }
+
+  & .server-name-loading {
+    margin: 5% auto 2%;
+    height: 5vh;
+    width: 90%;
+    border-radius: 5px;
+    background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: center;
+    position: relative;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(110deg, rgba(227, 227, 227, 0) 0%, rgba(227, 227, 227, 0) 40%, rgba(171, 170, 170, 0.5) 50%, rgba(227, 227, 227, 0) 60%, rgba(227, 227, 227, 0) 100%);
+      animation: ${loadingGradientAnimation} 1.2s linear infinite;
+    }
   }
 
   & .navigation-container {

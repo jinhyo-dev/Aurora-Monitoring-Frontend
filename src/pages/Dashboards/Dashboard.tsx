@@ -17,7 +17,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import faker from 'faker';
 import { useCookies } from "react-cookie";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { fetchTeamInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
@@ -26,7 +26,8 @@ import styled from "styled-components";
 import * as React from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
-
+import { WebSocket } from "vite";
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -75,6 +76,34 @@ const Dashboard = () => {
   const [cookies] = useCookies()
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
 
+  const SOCKET_URL = 'ws://183.106.245.209:8265';
+  const messageHandler = useCallback((event: MessageEvent<any>) => {
+    console.log('Received:', JSON.parse(event.data));
+  }, []);
+
+  const {sendMessage, readyState} = useWebSocket(SOCKET_URL, {
+    onMessage: messageHandler,
+    reconnectAttempts: 10,
+    reconnectInterval: 3000,
+    shouldReconnect: () => true,
+  });
+
+  useEffect(() => {
+    if (readyState === ReadyState.OPEN) {
+      sendMessage(JSON.stringify({
+        event: 'influx',
+        data: {
+          start: '-7d',
+          stop: 'now()',
+          windowPeriod: '1s'
+        }
+      }));
+      console.log('Request sent');
+    } else {
+      console.log('WebSocket is not connected');
+    }
+  }, [readyState, sendMessage]);
+
   useEffect(() => {
     setSidebarMove(true)
     setTimeout(() => {
@@ -82,12 +111,14 @@ const Dashboard = () => {
     }, 500)
   }, [cookies.sidebarStatus])
 
-
   const boxNameStyle = {
     fontSize: cookies.sidebarStatus === 'closed' ? '1.2rem' : '0.9rem',
   };
 
   const options = {
+    animation: {
+      duration: 150,
+    },
     maintainAspectRatio: false,
     responsive: true,
     interaction: {
@@ -140,7 +171,7 @@ const Dashboard = () => {
   };
 
 
-  const labels = ['', ''];
+  const labels = [''];
 
   const [data, setData] = useState<ExtendedChartData>({
     labels: labels.slice(0, 1),

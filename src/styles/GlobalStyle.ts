@@ -176,8 +176,8 @@ export const GlobalStyle = createGlobalStyle<GlobalStyleProps>`
   }
 
   .lazy-load-image {
-    width: 8rem;
-    height: 8rem;
+    width: 9rem;
+    height: 9rem;
     margin: auto;
     border-radius: 50%;
     background-size: cover;
@@ -548,4 +548,14 @@ export const LoadingText = styled.p`
   padding-left: 0.1rem;
   font-size: 0.8rem;
   color: #fff;
+`
+
+export const loadingGradientAnimation = keyframes`
+  0% {
+    transform: translateX(-100%);
+  }
+
+  100% {
+    transform: translateX(100%);
+  }
 `

@@ -42,3 +42,26 @@ export interface OptionType {
   value: string,
   label: string
 }
+
+export interface UserInformationProps {
+  id: string;
+  country: string;
+  plan: string;
+  email: string;
+  name: {
+    firstName: string;
+    lastName: string;
+  };
+  phone: string;
+}
+
+export interface TeamInfoProps {
+  id: string;
+  name: string;
+  createdAt: string;
+  owner: string;
+  plan: string;
+  registrationCode: string;
+  group: string[];
+  members: string[];
+}

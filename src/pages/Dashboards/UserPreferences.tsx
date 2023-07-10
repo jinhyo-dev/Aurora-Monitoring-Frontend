@@ -16,13 +16,15 @@ import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import * as React from "react";
-import { fetchUserInfo } from "../../utils/Cookie";
+import { fetchTeamInfo, fetchUserInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
-import { CountryList, OptionType } from "../../interfaces/interface";
+import { CountryList, OptionType, TeamInfoProps, UserInformationProps } from "../../interfaces/interface";
 import Select from "react-select";
 import axiosInstance from "../../utils/AxiosInstance";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
+import { useParams } from "react-router-dom";
+import { RiImageEditFill } from "react-icons/ri";
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -39,27 +41,18 @@ interface EmailListErrorProps {
   message: string;
 }
 
-interface UserInformationProps {
-  id: string;
-  country: string;
-  plan: string;
-  email: string;
-  name: {
-    firstName: string;
-    lastName: string;
-  };
-  phone: string;
-}
-
-interface UserInfoType {
+interface UserPreferencesProps {
   userInfo: UserInformationProps;
+  teamInfo: TeamInfoProps;
 }
 
-const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.ComponentType<P>) => {
+const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: React.ComponentType<P>) => {
   const TokenValidationComponent: React.FC<P> = (props: P) => {
     const [loading, setLoading] = useState<boolean>(true);
     const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
     const [userInfo, setUserInfo] = useState<UserInformationProps | null>(null)
+    const [teamInfo, setTeamInfo] = useState<TeamInfoProps | null>(null)
+    const {teamId} = useParams()
 
     useEffect(() => {
       const checkValidity = async () => {
@@ -74,17 +67,29 @@ const withTokenValidation = <P extends UserInfoType>(WrappedComponent: React.Com
           name: userInfo.name,
           phone: userInfo.phone,
         })
+        const teamInfo = await fetchTeamInfo(teamId)
+        setTeamInfo({
+          id: teamInfo.data.team._id,
+          name: teamInfo.data.team.name,
+          createdAt: teamInfo.data.team.createdAt,
+          owner: teamInfo.data.team.owner,
+          plan: teamInfo.data.team.plan,
+          registrationCode: teamInfo.data.team.registrationCode,
+          group: teamInfo.data.team.group,
+          members: teamInfo.data.team.members
+        })
       }
 
       checkValidity().then(() => setLoading(false));
     }, []);
-    return loading ? <Loaders/> : isAuthorized ? <WrappedComponent {...props} userInfo={userInfo}/> : <Unauthorized/>;
+    return loading ? <Loaders/> : isAuthorized ?
+      <WrappedComponent {...props} userInfo={userInfo} teamInfo={teamInfo}/> : <Unauthorized/>;
   };
 
   return TokenValidationComponent;
 };
 
-const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
+const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) => {
   const selectedCountryLabel = CountryList.find(item => item.value === userInfo.country)?.label
 
   const [preferencesState, setPreferencesState] = useState<number>(0)
@@ -101,6 +106,7 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  const [editTeamInfo, setEditTeamInfo] = useState<TeamInfoProps>(teamInfo)
   const SelectOption = CountryList
 
   const selectCustomStyle = {
@@ -365,8 +371,16 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
           <RealTimeBox width={'35%'} $leftGap={true} $rightGap={true} style={{display: 'flex', alignItems: 'center'}}>
 
             <UserInformationContainer>
-              <LazyLoadImage alt={'user-profile'} effect={'blur'} className={'lazy-load-image'}
-                             src={'https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg'}/>
+              <UserImageContainer>
+                <LazyLoadImage alt={'user-profile'} effect={'blur'} className={'user-profile-image'}
+                               src={'https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg'}/>
+                <div className={'edit-profile-container'}>
+                  <label htmlFor="fileInput">
+                    <RiImageEditFill className={'edit'}/>
+                  </label>
+                  <input type="file" id="fileInput"/>
+                </div>
+              </UserImageContainer>
               <Username>{userInfo.name.firstName + ' ' + userInfo.name.lastName}</Username>
               <UserPermission>Owner</UserPermission>
 
@@ -453,7 +467,8 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
 
                         <div className={'right-input'}>
                           <div>New Password</div>
-                          <input type={'password'} className={'input'} value={newPassword} onChange={e => setNewPassword(e.target.value)}/>
+                          <input type={'password'} className={'input'} value={newPassword}
+                                 onChange={e => setNewPassword(e.target.value)}/>
                         </div>
                       </div>
 
@@ -468,10 +483,10 @@ const UserPreferences: React.FC<UserInfoType> = ({userInfo}) => {
                     (<ProfileContainer>
                       <div className={'container-name'}>Invite member to your team</div>
                       <div className={'container-information'}>Invite by code or email address</div>
-                      <div className={'container-subtitle'}>Your team code
+                      <div className={'container-subtitle'}>Your team invitation code
                         <div>
-                          @kimsunghyun-cute
-                          <CopyToClipboard text={'@kimsunghyun-cute'}>
+                          {teamInfo.registrationCode}
+                          <CopyToClipboard text={teamInfo.registrationCode}>
                             <button onClick={CopiedAlert}><TbCopy/> Copy</button>
                           </CopyToClipboard>
                         </div>
@@ -559,6 +574,48 @@ const UserInformationContainer = styled.div`
   text-align: center;
   height: 28rem;
   width: 100%;
+`
+
+const UserImageContainer = styled.div`
+  margin: auto;
+  width: 9rem;
+  height: 9rem;
+  position: relative;
+
+  & input {
+    display: none;
+  }
+
+  & label {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    background-color: ${({theme}) => theme.fontColor};
+    animation: ${fadeIn} 0.3s ease-out backwards;
+    transition: all .3s;
+    cursor: pointer;
+    
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+  
+  & .edit {
+    color: ${({theme}) => theme.backgroundColor};
+    margin-top: 0.7rem;
+    font-size: 1.2rem;
+  }
+
+  & .user-profile-image {
+    height: 9rem;
+    width: 9rem;
+    object-fit: cover;
+    object-position: center;
+    border-radius: 50%;
+  }
 `
 
 const Username = styled.div`
@@ -662,7 +719,7 @@ const ProfileContainer = styled.div`
   & .container-subtitle {
     padding-top: 1.5rem;
     color: ${({theme}) => theme.fontColor};
-    font-size: 1.45rem;
+    font-size: 1.35rem;
     display: flex;
 
     & div {
