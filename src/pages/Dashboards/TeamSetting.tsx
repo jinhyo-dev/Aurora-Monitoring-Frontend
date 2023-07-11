@@ -51,10 +51,11 @@ const TeamSetting = () => {
 
   const getTeamInfo = async () => {
     setLoading(true)
-    const team = await fetchTeamInfo(teamId)
-    setTeamName(team?.data.team.name)
-    setPlan(team?.data.team.plan)
-    setTeamInfo(team?.data.team)
+      const team = await fetchTeamInfo(teamId)
+      setTeamName(team?.data.team.name)
+      setPlan(team?.data.team.plan)
+      setTeamInfo(team?.data.team)
+      setLoading(false)
   }
 
   const deleteTeam = () => {
@@ -110,6 +111,33 @@ const TeamSetting = () => {
         }
       })
     )
+  }
+
+  const updateTeam = () => {
+    const payload = {
+      teamId: teamId,
+      name: teamName,
+      plan: plan
+    }
+
+    toast.promise(
+      axiosInstance.post('/team/update', payload), {
+        loading: 'Updating..',
+        success: 'Updated !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => getTeamInfo())
   }
 
   return (
@@ -210,7 +238,7 @@ const TeamSetting = () => {
 
                     <div className={'button-container'}>
                       <button className={'cancel-button'} onClick={() => navigate(`/team/${teamId}/teams`)}>Back</button>
-                      <button className={'save-button'}>Save</button>
+                      <button className={'save-button'} onClick={updateTeam}>Save</button>
                     </div>
                   </>
                 )

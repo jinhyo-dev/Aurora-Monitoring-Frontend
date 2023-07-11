@@ -67,7 +67,8 @@ const router = createBrowserRouter([
                 plan: '',
                 phone: '',
                 country: '',
-                email: ''
+                email: '',
+                profileImage: ''
               }}
 
               teamInfo={{

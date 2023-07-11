@@ -53,6 +53,7 @@ export interface UserInformationProps {
     lastName: string;
   };
   phone: string;
+  profileImage: string;
 }
 
 export interface TeamInfoProps {

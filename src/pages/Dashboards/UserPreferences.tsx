@@ -1,30 +1,36 @@
 import NavigationBar from "./NavigationBar";
-import { BoardRowSection, BoardSection, DashboardMain, fadeIn, RealTimeBox } from "../../styles/GlobalStyle";
+import {
+  BoardRowSection,
+  BoardSection,
+  DashboardMain,
+  fadeIn,
+  RealTimeBox,
+  loadingGradientAnimation
+} from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
-import styled, { keyframes } from "styled-components";
-import { FormEvent, useEffect, useState } from "react";
-import { FaUserAlt } from "react-icons/fa";
-import { AiTwotoneSetting, AiFillDelete, AiFillInfoCircle } from 'react-icons/ai'
-import { BsPersonFillAdd } from 'react-icons/bs'
-import { TbCopy } from 'react-icons/tb'
-import { CopyToClipboard } from 'react-copy-to-clipboard';
+import styled, {keyframes} from "styled-components";
+import {FormEvent, useEffect, useState} from "react";
+import {FaUserAlt} from "react-icons/fa";
+import {AiTwotoneSetting, AiFillDelete, AiFillInfoCircle} from 'react-icons/ai'
+import {BsPersonFillAdd} from 'react-icons/bs'
+import {TbCopy} from 'react-icons/tb'
+import {CopyToClipboard} from 'react-copy-to-clipboard';
 import toast from "react-hot-toast";
-import { useCookies } from "react-cookie";
-import { getNumericPhoneNumber, isValidEmail, phoneNumberAutoFormat } from "../../utils/Formatter";
-import { FiEdit } from 'react-icons/fi'
-import { IoClose, IoCheckmarkSharp } from 'react-icons/io5'
-import { LazyLoadImage } from "react-lazy-load-image-component";
+import {useCookies} from "react-cookie";
+import {getNumericPhoneNumber, isValidEmail, phoneNumberAutoFormat} from "../../utils/Formatter";
+import {FiEdit} from 'react-icons/fi'
+import {IoClose, IoCheckmarkSharp} from 'react-icons/io5'
 import 'react-lazy-load-image-component/src/effects/blur.css';
 import * as React from "react";
-import { fetchTeamInfo, fetchUserInfo } from "../../utils/Cookie";
+import {fetchTeamInfo, fetchUserInfo} from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
-import { CountryList, OptionType, TeamInfoProps, UserInformationProps } from "../../interfaces/interface";
+import {CountryList, OptionType, TeamInfoProps, UserInformationProps} from "../../interfaces/interface";
 import Select from "react-select";
 import axiosInstance from "../../utils/AxiosInstance";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
-import { useParams } from "react-router-dom";
-import { RiImageEditFill } from "react-icons/ri";
+import {useParams} from "react-router-dom";
+import {RiImageEditFill} from "react-icons/ri";
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -66,6 +72,7 @@ const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: R
           email: userInfo.email,
           name: userInfo.name,
           phone: userInfo.phone,
+          profileImage: userInfo.profileImage
         })
         const teamInfo = await fetchTeamInfo(teamId)
         setTeamInfo({
@@ -91,7 +98,6 @@ const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: R
 
 const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) => {
   const selectedCountryLabel = CountryList.find(item => item.value === userInfo.country)?.label
-
   const [preferencesState, setPreferencesState] = useState<number>(0)
   const [email, setEmail] = useState<string>('')
   const [isEmailFormValid, setIsEmailFormValid] = useState<EmailListErrorProps>({status: true, message: ''})
@@ -106,8 +112,10 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
+  const [imageLoading, setImageLoading] = useState<boolean>(true)
   // const [editTeamInfo, setEditTeamInfo] = useState<TeamInfoProps>(teamInfo)
   const SelectOption = CountryList
+  const [profileImageUrl, setProfileImageUrl] = useState('');
 
   const selectCustomStyle = {
     option: (provided: any, state: any) => ({
@@ -158,7 +166,12 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
       ...provided,
       display: 'none',
     }),
-  };
+  }
+
+  useEffect(() => {
+    setImageLoading(true);
+    setProfileImageUrl(`${import.meta.env.VITE_API_URL}/profile/${editUserInfo.profileImage}`);
+  }, [editUserInfo.profileImage]);
 
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
@@ -302,6 +315,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
       email: userInfo.email,
       name: userInfo.name,
       phone: userInfo.phone,
+      profileImage: userInfo.profileImage
     })
   }
 
@@ -362,40 +376,87 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
       })
   }
 
+  const handleImageUpload = (file: File) => {
+    const formData: FormData = new FormData();
+    formData.append('file', file);
+
+    toast.promise(
+      axiosInstance.post('/user/upload', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }), {
+        loading: 'Uploading..',
+        success: 'Uploaded !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => (fetchUserData().then(() => setLoading(false))))
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file: File | undefined = event.target.files?.[0];
+    file && handleImageUpload(file)
+  };
+
   return (
     <DashboardMain>
       <NavigationBar active={7}/>
       <BoardSection>
         <PageName name={'User Preferences'}/>
         <BoardRowSection style={{height: '91%'}}>
-          <RealTimeBox width={'35%'} $leftGap={true} $rightGap={true} style={{display: 'flex', alignItems: 'center'}}>
-
+          <RealTimeBox width={'35%'} $leftGap={true} $rightGap={true}
+                       style={{display: 'flex', alignItems: 'center'}}>
             <UserInformationContainer>
               <UserImageContainer>
-                <LazyLoadImage alt={'user-profile'} effect={'blur'} className={'user-profile-image'}
-                               src={'https://www.snexplores.org/wp-content/uploads/2021/11/1030_LL_auroras.jpg'}/>
+
+                {
+                  <img
+                    alt={"user-profile"}
+                    className={"user-profile-image"}
+                    style={{ display: imageLoading ? 'none' : '' }}
+                    src={profileImageUrl}
+                    onLoad={() => setImageLoading(false)}
+                  />
+                }
+
+                {imageLoading && <div className={'user-profile-loading'}/>}
+
                 <div className={'edit-profile-container'}>
                   <label htmlFor="fileInput">
                     <RiImageEditFill className={'edit'}/>
                   </label>
-                  <input type="file" id="fileInput"/>
+                  <input type="file" id="fileInput" onChange={handleFileSelect}/>
                 </div>
               </UserImageContainer>
               <Username>{userInfo.name.firstName + ' ' + userInfo.name.lastName}</Username>
               <UserPermission>Owner</UserPermission>
 
               <NavigationButtonContainer>
-                <NavigationButton $active={preferencesState === 0} onClick={() => handlePreferencesState(0)}>
+                <NavigationButton $active={preferencesState === 0}
+                                  onClick={() => handlePreferencesState(0)}>
                   <FaUserAlt/>
                   {<span>My Profile</span>}
                 </NavigationButton>
 
-                <NavigationButton $active={preferencesState === 1} onClick={() => handlePreferencesState(1)}>
+                <NavigationButton $active={preferencesState === 1}
+                                  onClick={() => handlePreferencesState(1)}>
                   <AiTwotoneSetting/>
                   {<span>User management</span>}
                 </NavigationButton>
 
-                <NavigationButton $active={preferencesState === 2} onClick={() => handlePreferencesState(2)}>
+                <NavigationButton $active={preferencesState === 2}
+                                  onClick={() => handlePreferencesState(2)}>
                   <BsPersonFillAdd/>
                   {<span>Invite members</span>}
                 </NavigationButton>
@@ -414,7 +475,9 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                 preferencesState === 0 ?
                   (<ProfileContainer style={{overflow: 'auto'}}>
                     <div className={'container-name'}>Account Information</div>
-                    <div className={'container-information'}>Edit personal information and password</div>
+                    <div className={'container-information'}>Edit personal information and
+                      password
+                    </div>
                     <div className={'container-subtitle'}>Personal Information</div>
 
                     <div className={'email-info'}>
@@ -426,13 +489,15 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                       <div className={'input-container'} style={{paddingTop: '2rem'}}>
                         <div className={'left-input'}>
                           <div>First Name</div>
-                          <input type={'text'} name={'name.firstName'} value={editUserInfo.name.firstName}
+                          <input type={'text'} name={'name.firstName'}
+                                 value={editUserInfo.name.firstName}
                                  onChange={handleEditUserInfo} className={'input'}/>
                         </div>
 
                         <div className={'right-input'}>
                           <div>Last Name</div>
-                          <input type={'text'} name={'name.lastName'} value={editUserInfo.name.lastName}
+                          <input type={'text'} name={'name.lastName'}
+                                 value={editUserInfo.name.lastName}
                                  onChange={handleEditUserInfo} className={'input'}/>
                         </div>
                       </div>
@@ -440,13 +505,17 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                       <div className={'input-container'}>
                         <div className={'left-input'}>
                           <div>Country</div>
-                          <Select options={SelectOption} styles={selectCustomStyle} placeholder={'Country'}
-                                  onChange={handleCountry} value={country} id={'country-select'}/>
+                          <Select options={SelectOption} styles={selectCustomStyle}
+                                  placeholder={'Country'}
+                                  onChange={handleCountry} value={country}
+                                  id={'country-select'}/>
                         </div>
 
                         <div className={'right-input'}>
                           <div>Phone Number</div>
-                          <input type={'text'} value={phoneNumberAutoFormat(editUserInfo.phone)} name={'phone'}
+                          <input type={'text'}
+                                 value={phoneNumberAutoFormat(editUserInfo.phone)}
+                                 name={'phone'}
                                  onChange={handleEditUserInfo} className={'input'}/>
                         </div>
                       </div>
@@ -482,7 +551,8 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                     </ProfileContainer>) :
                     (<ProfileContainer>
                       <div className={'container-name'}>Invite member to your team</div>
-                      <div className={'container-information'}>Invite by code or email address</div>
+                      <div className={'container-information'}>Invite by code or email address
+                      </div>
                       <div className={'container-subtitle'}>Your team invitation code
                         <div>
                           {teamInfo.registrationCode}
@@ -495,7 +565,8 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                       <div className={'add-form-container'}>
                         <form onSubmit={addEmailToList}>
                           <label>
-                            <input placeholder={'Add user by email'} required={true} value={email}
+                            <input placeholder={'Add user by email'} required={true}
+                                   value={email}
                                    onChange={(e) => setEmail(e.target.value)}/>
                             <button type="submit">Add</button>
                           </label>
@@ -507,27 +578,32 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                       <div className={'email-list-container'}>
                         <div>
                           {Object.values(emailList).map((value: EmailListProps, index: number) => (
-                            <div key={index} className={`email-box ${value.removing ? 'removing' : ''}`}>
-                              <form onSubmit={e => handleEmailChange(e, value.email, true)}>
+                            <div key={index}
+                                 className={`email-box ${value.removing ? 'removing' : ''}`}>
+                              <form
+                                onSubmit={e => handleEmailChange(e, value.email, true)}>
                                 <label>
-                                  <input value={value.editing ? editNewEmail : value.email}
-                                         className={`email-name ${value.editing ? 'editing' : ''}`}
-                                         readOnly={!value.editing}
-                                         id={value.email}
-                                         onChange={e => setEditNewEmail(e.target.value)}
-                                         ref={inputRef => {
-                                           if (value.editing) {
-                                             inputRef && inputRef.focus();
-                                           }
-                                         }}
+                                  <input
+                                    value={value.editing ? editNewEmail : value.email}
+                                    className={`email-name ${value.editing ? 'editing' : ''}`}
+                                    readOnly={!value.editing}
+                                    id={value.email}
+                                    onChange={e => setEditNewEmail(e.target.value)}
+                                    ref={inputRef => {
+                                      if (value.editing) {
+                                        inputRef && inputRef.focus();
+                                      }
+                                    }}
                                   />
                                   {
                                     value.editing &&
                                     (
                                       <div className={'button-container'}>
-                                        <button type={'button'} onClick={e => handleEmailChange(e, value.email, false)}>
+                                        <button type={'button'}
+                                                onClick={e => handleEmailChange(e, value.email, false)}>
                                           <IoClose/></button>
-                                        <button type={'submit'}><IoCheckmarkSharp/>
+                                        <button type={'submit'}>
+                                          <IoCheckmarkSharp/>
                                         </button>
                                       </div>
                                     )
@@ -535,8 +611,10 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                                 </label>
                               </form>
                               <div className={'button-container'}>
-                                <button onClick={() => editEmail(value.email)}><FiEdit/></button>
-                                <button onClick={() => deleteEmail(value.email)}><AiFillDelete/></button>
+                                <button onClick={() => editEmail(value.email)}><FiEdit/>
+                                </button>
+                                <button onClick={() => deleteEmail(value.email)}>
+                                  <AiFillDelete/></button>
                               </div>
                             </div>
                           ))}
@@ -545,7 +623,9 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
 
                       <div className={'button-container'}>
                         <button className={'save-button'}>Invite User</button>
-                        <button className={'cancel-button'} onClick={() => setEmailList([])}>Cancel</button>
+                        <button className={'cancel-button'}
+                                onClick={() => setEmailList([])}>Cancel
+                        </button>
                       </div>
                     </ProfileContainer>)
             }
@@ -597,12 +677,12 @@ const UserImageContainer = styled.div`
     animation: ${fadeIn} 0.3s ease-out backwards;
     transition: all .3s;
     cursor: pointer;
-    
+
     &:hover {
       transform: translateY(-2px);
     }
   }
-  
+
   & .edit {
     color: ${({theme}) => theme.backgroundColor};
     margin-top: 0.7rem;
@@ -615,6 +695,27 @@ const UserImageContainer = styled.div`
     object-fit: cover;
     object-position: center;
     border-radius: 50%;
+  }
+
+  & .user-profile-loading {
+    height: 9rem;
+    width: 9rem;
+    border-radius: 50%;
+    background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden;
+
+    &::after {
+      content: "";
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      background: linear-gradient(110deg, rgba(227, 227, 227, 0) 0%, rgba(227, 227, 227, 0) 40%, rgba(171, 170, 170, 0.5) 50%, rgba(227, 227, 227, 0) 60%, rgba(227, 227, 227, 0) 100%);
+      animation: ${loadingGradientAnimation} 1.2s linear infinite;
+    }
   }
 `
 

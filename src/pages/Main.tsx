@@ -92,7 +92,6 @@ const Main = () => {
   );
 };
 
-// 고차 컴포넌트 적용
 const EnhancedMain = withTokenValidation(Main);
 
 export default EnhancedMain;
@@ -125,6 +124,8 @@ const MainTag = styled.main`
   background-image: url(${AuroraBackground});
   top: 0;
   left: 0;
+  min-height: 800px;
+  min-width: 1100px;
   position: absolute;
   overflow: hidden;
 `
