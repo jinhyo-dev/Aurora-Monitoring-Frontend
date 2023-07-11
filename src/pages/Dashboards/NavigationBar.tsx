@@ -1,239 +1,245 @@
-import styled, { keyframes } from "styled-components";
-import { useEffect, useState } from "react";
-import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
-import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
-import { ReactComponent as AuroraSimpleLogo } from '../../assets/svg/AuroraSimpleLogo.svg'
-import { ReactComponent as AuroraSimpleLogoDark } from '../../assets/svg/AuroraSimpleLogoDark.svg'
-import { IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle } from 'react-icons/io'
+import styled, {keyframes} from "styled-components";
+import {useEffect, useState} from "react";
+import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
+import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
+import {ReactComponent as AuroraSimpleLogo} from '../../assets/svg/AuroraSimpleLogo.svg'
+import {ReactComponent as AuroraSimpleLogoDark} from '../../assets/svg/AuroraSimpleLogoDark.svg'
+import {IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle} from 'react-icons/io'
 import * as React from "react";
-import { RiBug2Fill } from "react-icons/ri";
-import { FaUserCircle, FaUsers, FaMemory } from 'react-icons/fa'
-import { DarkModeSwitch } from 'react-toggle-dark-mode';
-import { useCookies } from "react-cookie";
-import { FiCpu, FiLogOut, FiRefreshCw, FiHardDrive} from "react-icons/fi";
-import { RxDashboard } from 'react-icons/rx'
-import { useNavigate, useParams } from "react-router-dom";
-import { fetchTeamInfo, fetchUserInfo } from "../../utils/Cookie";
-import { confirmAlert } from "react-confirm-alert";
-import { loadingGradientAnimation } from "../../styles/GlobalStyle";
+import {RiBug2Fill} from "react-icons/ri";
+import {FaUserCircle, FaUsers, FaMemory} from 'react-icons/fa'
+import {DarkModeSwitch} from 'react-toggle-dark-mode';
+import {useCookies} from "react-cookie";
+import {FiCpu, FiLogOut, FiRefreshCw, FiHardDrive} from "react-icons/fi";
+import {RxDashboard} from 'react-icons/rx'
+import {useNavigate, useParams} from "react-router-dom";
+import {fetchTeamInfo, fetchUserInfo} from "../../utils/Cookie";
+import {confirmAlert} from "react-confirm-alert";
+import {loadingGradientAnimation} from "../../styles/GlobalStyle";
 
 interface NavigationProps {
-  active: number;
+    active: number;
 }
 
 interface ButtonStatusProps {
-  $active: boolean;
+    $active: boolean;
 }
 
 const NavigationBar: React.FC<NavigationProps> = ({active}) => {
-  const {teamId} = useParams()
-  const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
-  const [name, setName] = useState<string>('')
-  const [teamName, setTeamName] = useState<string>('')
-  const [nameLoading, setNameLoading] = useState<boolean>(true)
-  const [teamLoading, setTeamLoading] = useState<boolean>(true)
-  const [cookies, setCookie, removeCookie] = useCookies()
-  const navigate = useNavigate()
+    const {teamId} = useParams()
+    const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
+    const [name, setName] = useState<string>('')
+    const [teamName, setTeamName] = useState<string>('')
+    const [nameLoading, setNameLoading] = useState<boolean>(true)
+    const [teamLoading, setTeamLoading] = useState<boolean>(true)
+    const [cookies, setCookie, removeCookie] = useCookies()
+    const navigate = useNavigate()
 
-  useEffect(() => {
-    fetchUserInfo()
-      .then(res => {
-        if (res.data.email) {
-          setName(res.data.name.firstName + ' ' + res.data.name.lastName)
-        } else {
-          SignOut()
-        }
-      })
-      .catch(err => console.error(err))
-      .finally(() => setNameLoading(false))
+    useEffect(() => {
+        fetchUserInfo()
+            .then(res => {
+                if (res.data.email) {
+                    setName(res.data.name.firstName + ' ' + res.data.name.lastName)
+                } else {
+                    SignOut()
+                }
+            })
+            .catch(err => console.error(err))
+            .finally(() => setNameLoading(false))
 
-    fetchTeamInfo(teamId)
-      .then(res => {
-        setTeamName(res.data.team.name)
-      })
-      .catch(err => console.error(err))
-      .finally(() => setTeamLoading(false))
-  }, [])
+        fetchTeamInfo(teamId)
+            .then(res => {
+                setTeamName(res.data.team.name)
+            })
+            .catch(err => console.error(err))
+            .finally(() => setTeamLoading(false))
+    }, [])
 
-  const toggleDarkMode = () => {
-    const checked: string = cookies.theme
-    setCookie('theme', checked === 'dark' ? 'light' : 'dark', {
-      sameSite: 'none',
-      secure: true,
-      path: '/'
-    })
-  };
+    const toggleDarkMode = () => {
+        const checked: string = cookies.theme
+        setCookie('theme', checked === 'dark' ? 'light' : 'dark', {
+            sameSite: 'none',
+            secure: true,
+            path: '/'
+        })
+    };
 
-  const toggleSideBar = () => {
-    const status: string = cookies.sidebarStatus
-    setCookie('sidebarStatus', status === 'open' ? 'closed' : 'open', {
-      sameSite: 'none',
-      secure: true,
-      path: '/'
-    })
-  }
-
-  const SignOutModalHandler = () => {
-    return (
-      confirmAlert({
-        customUI: ({onClose}) => {
-          return (
-            <div className='custom-alert-ui'>
-              <div className={'logo-container'}>
-                {cookies.theme === 'dark' ? <AuroraLogo/> :
-                  <AuroraLogoDark/>}
-              </div>
-
-              <div className={'sign-out-text'}>Are you sure you want to sign out?</div>
-
-              <div className={'button-container'} style={{width: '10rem'}}>
-                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>Cancel</button>
-                <button
-                  onClick={SignOut}
-                  className={'create-btn'}
-                  style={{width: '4.5rem'}}
-                >
-                  Sign Out
-                </button>
-              </div>
-            </div>
-          )
-        }
-      })
-    )
-  }
-
-  const NoAuthModal = () => {
-    return (
-      confirmAlert({
-        customUI: ({onClose}) => {
-          return (
-            <div className='custom-alert-ui'>
-              <div className={'logo-container'}>
-                {cookies.theme === 'dark' ? <AuroraLogo/> :
-                  <AuroraLogoDark/>}
-              </div>
-
-              <div className={'delete-team-text'}>This service is only available in enterprise.</div>
-
-              <div className={'button-container'} style={{width: '10rem', textAlign: 'center'}}>
-                <button
-                  onClick={onClose}
-                  className={'cancel-btn'}
-                  style={{width: '5rem', padding: '0', margin: 'auto'}}
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          )
-        }
-      })
-    )
-  }
-
-  const SignOut = () => {
-    removeCookie('aurora_token', {path: '/'})
-    window.location.replace('/')
-  }
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (cookies.sidebarStatus === 'open') {
-      timeout = setTimeout(() => {
-        setShowBackIcon(true);
-      }, 300);
-    } else {
-      timeout = setTimeout(() => {
-        setShowBackIcon(false);
-      }, 300);
+    const toggleSideBar = () => {
+        const status: string = cookies.sidebarStatus
+        setCookie('sidebarStatus', status === 'open' ? 'closed' : 'open', {
+            sameSite: 'none',
+            secure: true,
+            path: '/'
+        })
     }
 
-    return () => clearTimeout(timeout);
-  }, [cookies.sidebarStatus]);
+    const SignOutModalHandler = () => {
+        return (
+            confirmAlert({
+                customUI: ({onClose}) => {
+                    return (
+                        <div className='custom-alert-ui'>
+                            <div className={'logo-container'}>
+                                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                                    <AuroraLogoDark/>}
+                            </div>
 
-  return (
-    <Nav $status={cookies.sidebarStatus === 'open'}>
-      <div className={'logo-container'}>
-        {showBackIcon ? (cookies.theme === 'dark' ? <AuroraLogo className={'logo'}/> :
-          <AuroraLogoDark className={'logo'}/>) : (cookies.theme === 'dark' ? <AuroraSimpleLogo className={'logo'}/> :
-          <AuroraSimpleLogoDark className={'logo'}/>)}
-      </div>
+                            <div className={'sign-out-text'}>Are you sure you want to sign out?</div>
 
-      <div className={teamLoading ? 'server-name-loading' : 'server-name'}>
-        {teamName}
-      </div>
+                            <div className={'button-container'} style={{width: '10rem'}}>
+                                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>Cancel
+                                </button>
+                                <button
+                                    onClick={SignOut}
+                                    className={'create-btn'}
+                                    style={{width: '4.5rem'}}
+                                >
+                                    Sign Out
+                                </button>
+                            </div>
+                        </div>
+                    )
+                }
+            })
+        )
+    }
 
-      <NavigationButton $active={active === 0} className={'navigation-container'}
-                        onClick={() => navigate(`/team/${teamId}/dashboard`)}>
-        <RxDashboard/>
-        {showBackIcon && <span>Dashboard</span>}
-      </NavigationButton>
+    const NoAuthModal = () => {
+        return (
+            confirmAlert({
+                customUI: ({onClose}) => {
+                    return (
+                        <div className='custom-alert-ui'>
+                            <div className={'logo-container'}>
+                                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                                    <AuroraLogoDark/>}
+                            </div>
 
-      <NavigationButton $active={active === 1} className={'navigation-container'} onClick={NoAuthModal}>
-        <FiCpu/>
-        {showBackIcon && <span>CPU Overview</span>}
-      </NavigationButton>
+                            <div className={'delete-team-text'}>This service is only available in enterprise.</div>
 
-      <NavigationButton $active={active === 2} className={'navigation-container'} onClick={NoAuthModal}>
-        <FiHardDrive/>
-        {showBackIcon && <span>Disk Overview</span>}
-      </NavigationButton>
+                            <div className={'button-container'} style={{width: '10rem', textAlign: 'center'}}>
+                                <button
+                                    onClick={onClose}
+                                    className={'cancel-btn'}
+                                    style={{width: '5rem', padding: '0', margin: 'auto'}}
+                                >
+                                    Confirm
+                                </button>
+                            </div>
+                        </div>
+                    )
+                }
+            })
+        )
+    }
 
-      <NavigationButton $active={active === 3} className={'navigation-container'} onClick={NoAuthModal}>
-        <FaMemory/>
-        {showBackIcon && <span>Memory Overview</span>}
-      </NavigationButton>
+    const SignOut = () => {
+        removeCookie('aurora_token', {path: '/'})
+        window.location.replace('/')
+    }
 
-      <NavigationButton $active={active === 4} className={'navigation-container'} onClick={NoAuthModal}>
-        <RiBug2Fill/>
-        {showBackIcon && <span>Historical Issue</span>}
-      </NavigationButton>
+    useEffect(() => {
+        let timeout: ReturnType<typeof setTimeout>;
+
+        if (cookies.sidebarStatus === 'open') {
+            timeout = setTimeout(() => {
+                setShowBackIcon(true);
+            }, 300);
+        } else {
+            timeout = setTimeout(() => {
+                setShowBackIcon(false);
+            }, 300);
+        }
+
+        return () => clearTimeout(timeout);
+    }, [cookies.sidebarStatus]);
+
+    return (
+        <Nav $status={cookies.sidebarStatus === 'open'}>
+            <div className={'logo-container'}>
+                {showBackIcon ? (cookies.theme === 'dark' ? <AuroraLogo className={'logo'}/> :
+                    <AuroraLogoDark className={'logo'}/>) : (cookies.theme === 'dark' ?
+                    <AuroraSimpleLogo className={'logo'}/> :
+                    <AuroraSimpleLogoDark className={'logo'}/>)}
+            </div>
+
+            <div className={teamLoading ? 'server-name-loading' : 'server-name'}>
+                {teamName}
+            </div>
+
+            <NavigationButton $active={active === 0} className={'navigation-container'}
+                              onClick={() => navigate(`/team/${teamId}/dashboard`)}>
+                <RxDashboard/>
+                {showBackIcon && <span>Dashboard</span>}
+            </NavigationButton>
+
+            <NavigationButton $active={active === 1} className={'navigation-container'}
+                              onClick={() => navigate(`/team/${teamId}/cpu-overview`)}>
+                <FiCpu/>
+                {showBackIcon && <span>CPU Overview</span>}
+            </NavigationButton>
+
+            <NavigationButton $active={active === 2} className={'navigation-container'}
+                              onClick={() => navigate(`/team/${teamId}/disk-overview`)}>
+                <FiHardDrive/>
+                {showBackIcon && <span>Disk Overview</span>}
+            </NavigationButton>
+
+            <NavigationButton $active={active === 3} className={'navigation-container'}
+                              onClick={() => navigate(`/team/${teamId}/memory-overview`)}>
+                <FaMemory/>
+                {showBackIcon && <span>Memory Overview</span>}
+            </NavigationButton>
+
+            <NavigationButton $active={active === 4} className={'navigation-container'} onClick={NoAuthModal}>
+                <RiBug2Fill/>
+                {showBackIcon && <span>Historical Issue</span>}
+            </NavigationButton>
 
 
-      <div className={'bottom-navigation-container'}>
-        <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} $active={false}>
-          <DarkModeSwitch
-            checked={cookies.theme === 'dark'}
-            onChange={toggleDarkMode}
-            size={'22px'}
-          />
-          {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
-        </NavigationBottomButton>
+            <div className={'bottom-navigation-container'}>
+                <NavigationBottomButton className={'navigation-container'} onClick={toggleDarkMode} $active={false}>
+                    <DarkModeSwitch
+                        checked={cookies.theme === 'dark'}
+                        onChange={toggleDarkMode}
+                        size={'22px'}
+                    />
+                    {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
+                </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 5} className={'navigation-container'}>
-          <IoIosHelpCircle/>
-          {showBackIcon && <span>Help</span>}
-        </NavigationBottomButton>
+                <NavigationBottomButton $active={active === 5} className={'navigation-container'}>
+                    <IoIosHelpCircle/>
+                    {showBackIcon && <span>Help</span>}
+                </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 6} className={'navigation-container'}
-                                onClick={() => navigate(`/team/${teamId}/teams`)}>
-          <FaUsers/>
-          {showBackIcon && <span>Teams</span>}
-        </NavigationBottomButton>
+                <NavigationBottomButton $active={active === 6} className={'navigation-container'}
+                                        onClick={() => navigate(`/team/${teamId}/teams`)}>
+                    <FaUsers/>
+                    {showBackIcon && <span>Teams</span>}
+                </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 7} className={'navigation-container'}
-                                onClick={() => navigate(`/team/${teamId}/user-preference`)}>
-          <FaUserCircle/>
-          {showBackIcon && <span>{nameLoading ? 'loading...' : name}</span>}
-        </NavigationBottomButton>
+                <NavigationBottomButton $active={active === 7} className={'navigation-container'}
+                                        onClick={() => navigate(`/team/${teamId}/user-preference`)}>
+                    <FaUserCircle/>
+                    {showBackIcon && <span>{nameLoading ? 'loading...' : name}</span>}
+                </NavigationBottomButton>
 
-        <NavigationBottomButton className={'navigation-container'} onClick={SignOutModalHandler} $active={false}>
-          <FiLogOut/>
-          {showBackIcon && <span>Sign Out</span>}
-        </NavigationBottomButton>
+                <NavigationBottomButton className={'navigation-container'} onClick={SignOutModalHandler}
+                                        $active={false}>
+                    <FiLogOut/>
+                    {showBackIcon && <span>Sign Out</span>}
+                </NavigationBottomButton>
 
-        <div className={'bottom-box'}>
-          {showBackIcon && <div><FiRefreshCw/> <span>Updated every 10s</span></div>}
-          <button onClick={toggleSideBar} className={'close-button'}>
-            {cookies.sidebarStatus === 'open' ? <IoIosArrowBack className={'logo'}/> :
-              <IoIosArrowForward className={'logo'}/>}
-          </button>
-        </div>
-      </div>
-    </Nav>
-  )
+                <div className={'bottom-box'}>
+                    {showBackIcon && <div><FiRefreshCw/> <span>Updated every 10s</span></div>}
+                    <button onClick={toggleSideBar} className={'close-button'}>
+                        {cookies.sidebarStatus === 'open' ? <IoIosArrowBack className={'logo'}/> :
+                            <IoIosArrowForward className={'logo'}/>}
+                    </button>
+                </div>
+            </div>
+        </Nav>
+    )
 }
 
 const fadeIn = keyframes`

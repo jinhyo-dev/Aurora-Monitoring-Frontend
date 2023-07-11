@@ -13,6 +13,15 @@ export interface ExtendedChartData extends ChartData<ChartType, number[], string
   }[];
 }
 
+export interface TempValues {
+  [key: string]: any[];
+}
+
+export interface DataItem {
+  _field: string;
+  [key: string]: any;
+}
+
 const labelValue = ['100s', '90s', '80s', '70s', '60s', '50s', '40s', '30s', '20s', '10s']
 
 export const CpuChartConfig = (data: any) => {
@@ -41,8 +50,8 @@ export const SystemChartConfig = (data: any) => {
       {
         label: 'System percent',
         data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#ff5b5b',
-        backgroundColor: '#ff5b5b',
+        borderColor: '#FF00FF',
+        backgroundColor: '#FF00FF',
         pointStyle: false,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
@@ -60,8 +69,8 @@ export const UserChartConfig = (data: any) => {
       {
         label: 'User percent',
         data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#ff5b5b',
-        backgroundColor: '#ff5b5b',
+        borderColor: '#3c6fcb',
+        backgroundColor: '#3c6fcb',
         pointStyle: false,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,

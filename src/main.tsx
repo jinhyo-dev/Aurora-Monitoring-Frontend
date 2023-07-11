@@ -11,6 +11,9 @@ import 'react-confirm-alert/src/react-confirm-alert.css';
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/components/Error/NotFound";
 import TeamSetting from "./pages/Dashboards/TeamSetting";
+import CpuOverview from "./pages/Dashboards/CpuOverview.tsx";
+import DiskOverview from "./pages/Dashboards/DiskOverview.tsx";
+import MemoryOverview from "./pages/Dashboards/MemoryOverview.tsx";
 
 const router = createBrowserRouter([
   {
@@ -42,6 +45,18 @@ const router = createBrowserRouter([
           {
             path: '/team/:teamId/dashboard',
             element: <Dashboard/>
+          },
+          {
+            path: '/team/:teamId/cpu-overview',
+            element: <CpuOverview/>
+          },
+          {
+            path: '/team/:teamId/disk-overview',
+            element: <DiskOverview/>
+          },
+          {
+            path: '/team/:teamId/memory-overview',
+            element: <MemoryOverview/>
           },
           {
             path: '/team/:teamId/user-preference',

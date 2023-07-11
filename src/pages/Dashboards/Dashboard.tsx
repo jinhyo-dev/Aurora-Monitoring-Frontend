@@ -1,4 +1,4 @@
-import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox } from "../../styles/GlobalStyle";
+import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox, SidebarMovingHandler } from "../../styles/GlobalStyle";
 import NavigationBar from "./NavigationBar";
 import PageName from "../components/PageName";
 import {
@@ -19,7 +19,6 @@ import { fetchTeamInfo } from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import { useParams } from "react-router-dom";
-import styled from "styled-components";
 import * as React from "react";
 import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
 import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
@@ -29,7 +28,7 @@ import {
   CpuChartConfig,
   DiskReadSizeChartConfig, DiskWriteSizeChartConfig,
   ExtendedChartData, MemoryFreeChartConfig, MemoryUsedChartConfig, SwapFreeChartConfig, SwapUsedChartConfig,
-  SystemChartConfig,
+  SystemChartConfig, TempValues, DataItem,
   UserChartConfig
 } from "./ChartConfiguraion";
 
@@ -43,16 +42,6 @@ ChartJS.register(
   Legend
 )
 import TitleTag from '../components/TitleTag'
-
-interface TempValues {
-  [key: string]: any[];
-}
-
-interface DataItem {
-  _field: string;
-
-  [key: string]: any;
-}
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
@@ -267,22 +256,6 @@ const Dashboard = () => {
     bezierCurve: true,
   };
 
-// useEffect(() => {
-  // const intervalId = setInterval(() => {
-  //   const now = new Date();
-  //   const currentTime = `${now.getHours()}:${now.getMinutes()}:${now.getSeconds()}`;
-  //   setData((prevData: ExtendedChartData) => ({
-  //     labels: [...((prevData.labels || []).slice(-10)), currentTime],
-  //     datasets: prevData.datasets.map((dataset) => ({
-  //       ...dataset,
-  //       data: [...dataset.data.slice(-10), faker.datatype.number({min: -1000, max: 1000})]
-  //     }))
-  //   }))
-  // }, 1000);
-//
-//   return () => clearInterval(intervalId);
-// }, []);
-
   return (
     <DashboardMain>
       <NavigationBar active={0}/>
@@ -375,18 +348,6 @@ const Dashboard = () => {
     </DashboardMain>
   )
 }
-
-const SidebarMovingHandler = styled.div`
-  width: 100%;
-  height: 100%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-
-  & svg {
-    width: 15rem;
-  }
-`
 
 const EnhancedMain = withTokenValidation(Dashboard);
 

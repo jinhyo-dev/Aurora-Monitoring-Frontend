@@ -565,3 +565,15 @@ export const loadingGradientAnimation = keyframes`
     transform: translateX(100%);
   }
 `
+
+export const SidebarMovingHandler = styled.div`
+width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  & svg {
+    width: 15rem;
+  }
+`
