@@ -666,7 +666,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                     <div>{editUserInfo.email}</div>
                   </div>
 
-                  <div className={'user-info-container'} style={{height: '21.5rem'}}>
+                  <div className={'user-info-container'} style={{height: '23.5rem'}}>
                     <div className={'input-container'} style={{paddingTop: '2rem'}}>
                       <div className={'left-input'}>
                         <div>First Name</div>
@@ -707,7 +707,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                   </div>
 
                   <div className={'user-info-container'}
-                       style={{marginTop: '5rem', marginBottom: '1.5rem', height: '13rem'}}>
+                       style={{marginTop: '5rem', marginBottom: '1.5rem', height: '14.5rem'}}>
                     <div className={'input-container'} style={{paddingTop: '2rem'}}>
                       <div className={'left-input'}>
                         <div>Confirm Password</div>
