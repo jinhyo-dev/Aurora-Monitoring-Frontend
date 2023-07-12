@@ -15,7 +15,7 @@ import {
 import { Line } from 'react-chartjs-2';
 import { useCookies } from "react-cookie";
 import { useCallback, useEffect, useState } from "react";
-import { fetchTeamInfo } from "../../utils/Cookie";
+import {fetchAgentList, fetchTeamInfo} from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import { useParams } from "react-router-dom";
@@ -67,6 +67,8 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 const Dashboard = () => {
   const [cookies] = useCookies()
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
+  const [agentKey, setAgentKey] = useState<string>('')
+  const {teamId} = useParams()
 
   const [cpuData, setCpuData] = useState<ExtendedChartData | null>(null);
   const [systemData, setSystemData] = useState<ExtendedChartData | null>(null);
@@ -79,49 +81,54 @@ const Dashboard = () => {
   const [swapUsedData, setSwapUsedData] = useState<ExtendedChartData | null>(null);
 
   useEffect(() => {
-    const payload = {
-      start: '-2m',
-      stop: 'now()',
-      key: 'f9338c3ef6d54cc182f648d8add520e2',
-      windowPeriod: '10s',
-    }
+    fetchAgentList(teamId)
+      .then(res => {
+        setAgentKey(res[0].key)
+        const payload = {
+          start: '-2m',
+          stop: 'now()',
+          key: res[0].key,
+          windowPeriod: '10s',
+        }
 
-    const tempValues: TempValues = {
-      CpuPercent: [],
-      SystemPercent: [],
-      UserPercent: [],
-      ReadSize: [],
-      WriteSize: [],
-      MemoryFree: [],
-      MemoryUsed: [],
-      MemoryTotal: [],
-      SwapFree: [],
-      SwapUsed: [],
-      SwapTotal: [],
-    };
+        const tempValues: TempValues = {
+          CpuPercent: [],
+          SystemPercent: [],
+          UserPercent: [],
+          ReadSize: [],
+          WriteSize: [],
+          MemoryFree: [],
+          MemoryUsed: [],
+          MemoryTotal: [],
+          SwapFree: [],
+          SwapUsed: [],
+          SwapTotal: [],
+        };
 
-    axiosInstance.post("/influx/overview", payload).then((res) => {
-      if (Array.isArray(res.data)) {
-        res.data.forEach((v: DataItem) => {
-          if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
-            tempValues[v._field].push(v);
+        axiosInstance.post("/influx/overview", payload).then((res) => {
+          if (Array.isArray(res.data)) {
+            res.data.forEach((v: DataItem) => {
+              if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
+                tempValues[v._field].push(v);
+              }
+            })
+          } else {
+            console.error("res.data is not an array")
           }
         })
-      } else {
-        console.error("res.data is not an array")
-      }
+          .then(() => {
+            setCpuData(CpuChartConfig(tempValues.CpuPercent))
+            setSystemData(SystemChartConfig(tempValues.SystemPercent))
+            setUserData(UserChartConfig(tempValues.UserPercent))
+            setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
+            setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
+            setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
+            setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
+            setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
+            setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
+          })
     })
-      .then(() => {
-        setCpuData(CpuChartConfig(tempValues.CpuPercent))
-        setSystemData(SystemChartConfig(tempValues.SystemPercent))
-        setUserData(UserChartConfig(tempValues.UserPercent))
-        setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
-        setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
-        setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
-        setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
-        setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
-        setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
-      })
+
   }, [])
 
   const SOCKET_URL = import.meta.env.VITE_WS_URL;
@@ -172,26 +179,28 @@ const Dashboard = () => {
   });
 
   useEffect(() => {
-    const timerId = setInterval(() => {
-      if (readyState === ReadyState.OPEN) {
-        sendMessage(
-          JSON.stringify({
-            event: 'overview',
-            data: {
-              start: '-2m',
-              stop: 'now()',
-              key: 'f9338c3ef6d54cc182f648d8add520e2',
-              windowPeriod: '10s',
-            },
-          }),
-        );
-      } else {
-        console.log('WebSocket is not connected');
-      }
-    }, 10000);
+    if (agentKey !== undefined) {
+      const timerId = setInterval(() => {
+        if (readyState === ReadyState.OPEN) {
+          sendMessage(
+            JSON.stringify({
+              event: 'overview',
+              data: {
+                start: '-2m',
+                stop: 'now()',
+                key: agentKey,
+                windowPeriod: '10s',
+              },
+            }),
+          );
+        } else {
+          console.log('WebSocket is not connected');
+        }
+      }, 10000);
 
-    return () => clearInterval(timerId);
-  }, [readyState, sendMessage]);
+      return () => clearInterval(timerId);
+    }
+  }, [agentKey, readyState, sendMessage]);
 
   useEffect(() => {
     setSidebarMove(true)

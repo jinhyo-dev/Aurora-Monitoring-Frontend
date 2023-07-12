@@ -10,7 +10,7 @@ import * as React from "react"
 import {useNavigate} from "react-router-dom";
 import {confirmAlert} from "react-confirm-alert";
 import {FormEvent, PropsWithChildren, useEffect, useState} from "react";
-import {tokenValidity} from "../utils/Cookie";
+import {fetchAgentList, tokenValidity} from "../utils/Cookie";
 import Loaders from "./components/Loaders/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
 import axiosInstance from "../utils/AxiosInstance";
@@ -275,6 +275,15 @@ const TeamsComponents = () => {
     )
   }
 
+  const checkAgentConfig = async (teamId: string) => {
+    const agentList = await fetchAgentList(teamId)
+    if (agentList.length === 1 && agentList[0].status === 'off') {
+      navigate(`/team/${teamId}/agent-register`)
+    } else {
+      navigate(`/team/${teamId}/dashboard`)
+    }
+  }
+
   return (
     <TeamsContainer>
       {cookies.theme === 'dark' ? <AuroraLogo className={'aurora-logo'}/> :
@@ -297,7 +306,7 @@ const TeamsComponents = () => {
               (<div>Team does not exist.</div>) :
               (
                 Object.values(teamData).map((value: any, index: number) => (
-                  <div className={'team'} onClick={() => navigate(`/team/${value._id}/dashboard`)} key={index}>
+                  <div className={'team'} onClick={() => checkAgentConfig(value._id)} key={index}>
                     <div>
                       <div className={'server-name'}>
                         {value.name}

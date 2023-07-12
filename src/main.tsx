@@ -19,6 +19,7 @@ import {BrowserView, MobileView} from 'react-device-detect';
 import styled from "styled-components";
 import AuroraBackground from './assets/images/Aurora-Main-Background.jpg'
 import { ReactComponent as AuroraLogo } from './assets/svg/Aurora.svg'
+import AgentRegister from "./pages/Dashboards/AgentRegister.tsx";
 
 const router = createBrowserRouter([
   {
@@ -46,6 +47,10 @@ const router = createBrowserRouter([
           {
             path: '',
             element: <NotFound/>
+          },
+          {
+            path: '/team/:teamId/agent-register',
+            element: <AgentRegister/>
           },
           {
             path: '/team/:teamId/dashboard',

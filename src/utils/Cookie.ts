@@ -29,3 +29,14 @@ export const fetchTeamInfo = async (teamId: string | undefined) => {
     }
   } else return null
 }
+
+export const fetchAgentList = async (teamId: string | undefined) => {
+  if (teamId !== undefined) {
+    try {
+      const response = await axiosInstance.post('/agent/agent/list', {'teamId': teamId})
+      return response.data
+    } catch (error) {
+      return null
+    }
+  } else return null
+}

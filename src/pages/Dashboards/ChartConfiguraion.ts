@@ -24,99 +24,51 @@ export interface DataItem {
 
 const labelValue = ['100s', '90s', '80s', '70s', '60s', '50s', '40s', '30s', '20s', '10s']
 
-export const CpuChartConfig = (data: any) => {
+const createChartConfig = (data: any, label: string, color: string, unit: string) => {
+  const maxLength = 10;
+  const processedData = data.slice(-maxLength).map((value: any) => value._value);
+
+  if (processedData.length < maxLength) {
+    const padding = Array(maxLength - processedData.length).fill(null);
+    processedData.unshift(...padding);
+  }
+
   const value: ExtendedChartData = {
     labels: labelValue,
     datasets: [
       {
-        label: 'Cpu percent',
-        data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#ff5b5b',
-        backgroundColor: '#ff5b5b',
+        label: `${label} ${unit}`,
+        data: processedData,
+        borderColor: color,
+        backgroundColor: color,
         pointStyle: false,
         pointBorderColor: 'rgb(0, 0, 0)',
         borderWidth: 1,
-        tension: 0.15
-      }
-    ]
-  }
-  return value
-}
+        tension: 0.15,
+      },
+    ],
+  };
+  return value;
+};
+
+export const CpuChartConfig = (data: any) => {
+  return createChartConfig(data, 'Cpu', '#ff5b5b', 'percent');
+};
 
 export const SystemChartConfig = (data: any) => {
-  const value: ExtendedChartData = {
-    labels: labelValue,
-    datasets: [
-      {
-        label: 'System percent',
-        data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#FF00FF',
-        backgroundColor: '#FF00FF',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      }
-    ]
-  }
-  return value
+  return createChartConfig(data, 'System', '#FF00FF', 'percent');
 }
 
 export const UserChartConfig = (data: any) => {
-  const value: ExtendedChartData = {
-    labels: labelValue,
-    datasets: [
-      {
-        label: 'User percent',
-        data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#3c6fcb',
-        backgroundColor: '#3c6fcb',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      }
-    ]
-  }
-  return value
+  return createChartConfig(data, 'User', '#3c6fcb', 'percent');
 }
 
 export const DiskReadSizeChartConfig = (data: any) => {
-  const value: ExtendedChartData = {
-    labels: labelValue,
-    datasets: [
-      {
-        label: 'Disk read size',
-        data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#3399FF',
-        backgroundColor: '#3399FF',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      }
-    ]
-  }
-  return value
+  return createChartConfig(data, 'Disk', '#3399FF', 'read size');
 }
 
 export const DiskWriteSizeChartConfig = (data: any) => {
-  const value: ExtendedChartData = {
-    labels: labelValue,
-    datasets: [
-      {
-        label: 'Disk write size',
-        data: data.slice(-10).map((value: any) => value._value),
-        borderColor: '#3399FF',
-        backgroundColor: '#3399FF',
-        pointStyle: false,
-        pointBorderColor: 'rgb(0, 0, 0)',
-        borderWidth: 1,
-        tension: 0.15
-      }
-    ]
-  }
-  return value
+  return createChartConfig(data, 'Disk', '#3399FF', 'write size');
 }
 
 export const MemoryFreeChartConfig = (data1: any, data2: any) => {

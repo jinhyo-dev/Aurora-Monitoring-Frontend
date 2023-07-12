@@ -20,7 +20,7 @@ import {
 
 import {useCookies} from "react-cookie";
 import {useCallback, useEffect, useState} from "react";
-import {fetchTeamInfo} from "../../utils/Cookie";
+import {fetchAgentList, fetchTeamInfo} from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import {useParams} from "react-router-dom";
@@ -68,26 +68,33 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 
 const SystemLog = () => {
   const [cookies] = useCookies()
+  const [agentKey, setAgentKey] = useState<string>('')
+  const {teamId} = useParams()
+
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
   const [systemLog, setSystemLog] = useState<any[]>([])
   const [logUpdating, setLogUpdating] = useState<boolean>(false)
 
   useEffect(() => {
-    const payload = {
-      key: 'f9338c3ef6d54cc182f648d8add520e2',
-      limit: '15'
-    }
+    fetchAgentList(teamId)
+      .then(res => {
+        setAgentKey(res[0].key)
+        const payload = {
+          key: res[0].key,
+          limit: '15'
+        }
 
-    axiosInstance.post('/agent/syslog/recent', payload).then((res) => {
-      if (Array.isArray(res.data)) {
-        res.data.forEach((v: DataItem) => {
-          const formattedTimestamp = v.data.Timestamp.replace('T', ' ').replace('Z', '')
-          setSystemLog((prevState) => [...prevState, {...v.data, Timestamp: formattedTimestamp}])
+        axiosInstance.post('/agent/syslog/recent', payload).then((res) => {
+          if (Array.isArray(res.data)) {
+            res.data.forEach((v: DataItem) => {
+              const formattedTimestamp = v.data.Timestamp.replace('T', ' ').replace('Z', '')
+              setSystemLog((prevState) => [...prevState, {...v.data, Timestamp: formattedTimestamp}])
+            })
+          } else {
+            console.error('res.data is not an array')
+          }
         })
-      } else {
-        console.error('res.data is not an array')
-      }
-    })
+      })
   }, [])
 
   const SOCKET_URL = import.meta.env.VITE_WS_URL;
@@ -115,25 +122,26 @@ const SystemLog = () => {
   });
 
   useEffect(() => {
-    const timerId = setInterval(() => {
-      if (readyState === ReadyState.OPEN) {
-        setLogUpdating(true)
-        sendMessage(
-          JSON.stringify({
-            event: 'syslog',
-            data: {
-              "key": "f9338c3ef6d54cc182f648d8add520e2",
-              "limit": 1
-            }
-          }),
-        );
-      } else {
-        console.log('WebSocket is not connected');
-      }
-    }, 10000);
-
-    return () => clearInterval(timerId)
-  }, [readyState, sendMessage]);
+    if (agentKey !== undefined) {
+      const timerId = setInterval(() => {
+        if (readyState === ReadyState.OPEN) {
+          setLogUpdating(true)
+          sendMessage(
+            JSON.stringify({
+              event: 'syslog',
+              data: {
+                "key": agentKey,
+                "limit": 1
+              }
+            }),
+          );
+        } else {
+          console.log('WebSocket is not connected');
+        }
+      }, 10000);
+      return () => clearInterval(timerId)
+    }
+  }, [agentKey, readyState, sendMessage]);
 
   useEffect(() => {
     setSidebarMove(true)
@@ -209,7 +217,7 @@ const LogData = styled.div`
       display: flex;
       padding-left: 1.5rem;
       align-items: center;
-      
+
       & span {
         margin-left: auto;
         padding-right: 1.5rem;
@@ -218,11 +226,11 @@ const LogData = styled.div`
       }
     }
   }
-  
+
   & .data-body {
     height: calc(100% - 1rem);
     overflow: auto;
-    
+
     & .row-data {
       background: ${({theme}) => theme.BottomNavigationContainerColor};
       padding-top: 0.7rem;
@@ -234,7 +242,7 @@ const LogData = styled.div`
       border-radius: 4px;
       display: flex;
       box-shadow: ${({theme}) => theme.boxShadow};
-      
+
       & .timestamp {
         width: 18%;
         padding-left: 1rem;
@@ -248,8 +256,8 @@ const LogData = styled.div`
         display: flex;
         align-items: center;
       }
-      
-    } 
+
+    }
   }
 `
 
