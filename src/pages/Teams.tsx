@@ -1,21 +1,20 @@
-import { BoardSection, DashboardMain, fadeIn } from "../styles/GlobalStyle"
+import {BoardSection, DashboardMain, fadeIn} from "../styles/GlobalStyle"
 import styled from "styled-components"
 import NavigationBar from "./Dashboards/NavigationBar"
 import PageName from "./components/PageName"
-import { ReactComponent as AuroraLogo } from '../assets/svg/Aurora.svg'
-import { ReactComponent as AuroraLogoDark } from '../assets/svg/AuroraDark.svg'
-import { useCookies } from "react-cookie"
-import { FaUsers } from 'react-icons/fa'
+import {ReactComponent as AuroraLogo} from '../assets/svg/Aurora.svg'
+import {ReactComponent as AuroraLogoDark} from '../assets/svg/AuroraDark.svg'
+import {useCookies} from "react-cookie"
+import {FaUsers} from 'react-icons/fa'
 import * as React from "react"
-import { useNavigate } from "react-router-dom";
-import { confirmAlert } from "react-confirm-alert";
-import { FormEvent, PropsWithChildren, useEffect, useState } from "react";
-import { tokenValidity } from "../utils/Cookie";
+import {useNavigate} from "react-router-dom";
+import {confirmAlert} from "react-confirm-alert";
+import {FormEvent, PropsWithChildren, useEffect, useState} from "react";
+import {tokenValidity} from "../utils/Cookie";
 import Loaders from "./components/Loaders/Loaders";
 import Unauthorized from "./components/Error/Unauthorized";
 import axiosInstance from "../utils/AxiosInstance";
-import { AiTwotoneSetting } from 'react-icons/ai'
-import { BsQuestionCircleFill } from 'react-icons/bs'
+import {BsQuestionCircleFill} from 'react-icons/bs'
 import toast from "react-hot-toast";
 import SpinLoaders from "./components/Loaders/SpinLoaders";
 
@@ -49,16 +48,22 @@ const TeamsComponents = () => {
   const [teamData, setTeamData] = useState<any>([])
 
   useEffect(() => {
-    getTeamData()
+    fetchTeamData()
   }, [])
 
-  const getTeamData = () => {
+  const fetchTeamData = async () => {
     setLoading(true)
-    axiosInstance.get('/user/team')
-      .then(res => res.data.success && setTeamData(res.data.data))
-      .catch(err => console.log(err))
-      .finally(() => setLoading(false))
-  }
+    try {
+      const res = await axiosInstance.get('/user/team');
+      if (res.data.success) {
+        setTeamData(res.data.data)
+      }
+    } catch (err) {
+      console.log(err)
+    } finally {
+      setLoading(false)
+    }
+  };
 
   const createTeamHandler = (e: FormEvent) => {
     e.preventDefault()
@@ -88,7 +93,69 @@ const TeamsComponents = () => {
         }
       }
     )
-      .then(getTeamData)
+      .then(fetchTeamData)
+  }
+
+  const joinTeamHandler = (e: FormEvent, code: string) => {
+    e.preventDefault()
+
+    toast.promise(
+      axiosInstance.put('/team/join', {registrationCode: code}), {
+        loading: 'Joining..',
+        success: 'Joined !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(fetchTeamData)
+  }
+
+  const joinTeamModal = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <p>Join with Invitation code</p>
+
+              <form className={'team-form'} onSubmit={e => e.preventDefault()}>
+                <input type="text" placeholder="Invitation code" required={true} id={'invitation-code'}/>
+              </form>
+
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>Cancel</button>
+                <button
+                  onClick={e => {
+                    const inputElement = document.getElementById('invitation-code') as HTMLInputElement;
+                    const inputValue = inputElement?.value;
+                    joinTeamHandler(e, inputValue)
+                    onClose()
+                  }}
+                  className={'create-btn'}
+                  style={{width: '4.5rem'}}
+                >
+                  Join
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
   }
 
   const createNewTeamModal = () => {
@@ -214,6 +281,9 @@ const TeamsComponents = () => {
         <AuroraLogoDark className={'aurora-logo'}/>}
       <div className={'title'}>
         <div>Teams</div>
+        <button className={'join-button'} onClick={joinTeamModal}>
+          Join Invitation code
+        </button>
         <button onClick={createNewTeamModal}>
           Create new team
         </button>
@@ -237,13 +307,6 @@ const TeamsComponents = () => {
                         <FaUsers/> <span>{value.members.length} Team members</span>
                       </div>
                     </div>
-
-                    <EditButton onClick={(event: React.MouseEvent<HTMLButtonElement>) => {
-                      event.stopPropagation();
-                      navigate(`/team/${value._id}/teams/setting`)
-                    }}>
-                      <AiTwotoneSetting/> Setting
-                    </EditButton>
                   </div>
                 ))
               )
@@ -296,7 +359,17 @@ const TeamsContainer = styled.div`
       transition: all .25s;
 
       &:hover {
-        background: #0983cb;
+        background: #0a8ad5;
+      }
+    }
+
+    & .join-button {
+      width: 8.7rem;
+      margin-left: 1rem;
+      background: #047cc2;
+
+      &:hover {
+        background: #046ca8;
       }
     }
   }
@@ -370,27 +443,6 @@ const TeamsContainer = styled.div`
         }
       }
     }
-  }
-`
-
-const EditButton = styled.button`
-  width: 5rem;
-  height: 2rem;
-  border: none;
-  margin-left: auto;
-  margin-right: 1rem;
-  border-radius: 3px;
-  background: ${({theme}) => theme.NavigationFocusButtonColor};
-  color: ${({theme}) => theme.fontColor};
-  cursor: pointer;
-  transition: all .25s;
-
-  & svg {
-    margin-bottom: -0.1rem;
-  }
-
-  &:hover {
-    background: ${({theme}) => theme.BottomNavigationContainerColor};
   }
 `
 

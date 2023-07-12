@@ -21,14 +21,6 @@ const Header = () => {
           Sign in
         </UsageNavigator>
 
-        <UsageNavigator onClick={() => navigate('/install')}>
-          Install
-        </UsageNavigator>
-
-        <UsageNavigator onClick={() => navigate('/usage')}>
-          Usage
-        </UsageNavigator>
-
       </NavigateContainer>
     </HeaderTag>
   )

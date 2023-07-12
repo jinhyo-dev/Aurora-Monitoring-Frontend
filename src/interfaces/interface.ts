@@ -65,4 +65,5 @@ export interface TeamInfoProps {
   registrationCode: string;
   group: string[];
   members: string[];
+  permission: string;
 }

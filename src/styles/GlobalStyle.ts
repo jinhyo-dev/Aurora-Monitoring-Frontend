@@ -310,7 +310,7 @@ export const MainTag = styled.main`
 export const DashboardMain = styled.main`
   min-height: 800px;
   max-height: 1700px;
-  min-width: 1200px;
+  min-width: 1250px;
   max-width: 2300px;
   width: 100%;
   height: 100vh;
@@ -520,6 +520,7 @@ export const RealTimeBox = styled.div<RealTimeBoxWidthProps>`
   }
   
   & .chart-container {
+    margin-top: 0.5%;
     width: 95%;
     height: 80%;
     margin-left: auto;

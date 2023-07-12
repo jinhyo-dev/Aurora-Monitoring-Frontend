@@ -1,20 +1,21 @@
-import React, { useEffect, useState } from "react";
-import { fetchTeamInfo } from "../../utils/Cookie";
+import React, {useEffect, useState} from "react";
+import {fetchTeamInfo} from "../../utils/Cookie";
 import Loaders from "../components/Loaders/Loaders";
 import Unauthorized from "../components/Error/Unauthorized";
 import NavigationBar from "./NavigationBar";
-import { BoardSection, DashboardMain, fadeIn } from "../../styles/GlobalStyle";
+import {BoardSection, DashboardMain, fadeIn} from "../../styles/GlobalStyle";
 import PageName from "../components/PageName";
 import styled from "styled-components";
-import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
-import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
-import { useCookies } from "react-cookie"
+import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
+import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
+import {useCookies} from "react-cookie"
 import toast from "react-hot-toast";
 import axiosInstance from "../../utils/AxiosInstance";
-import { useNavigate, useParams } from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
-import { BsQuestionCircleFill } from "react-icons/bs";
-import { confirmAlert } from "react-confirm-alert";
+import {BsQuestionCircleFill} from "react-icons/bs";
+import {confirmAlert} from "react-confirm-alert";
+import TitleTag from "../components/TitleTag.tsx";
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
@@ -44,6 +45,7 @@ const TeamSetting = () => {
   const [teamName, setTeamName] = useState<string>('')
   const [plan, setPlan] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
+  const [isOwner, setIsOwner] = useState<boolean>(false)
 
   useEffect(() => {
     getTeamInfo().then(() => setLoading(false))
@@ -51,16 +53,17 @@ const TeamSetting = () => {
 
   const getTeamInfo = async () => {
     setLoading(true)
-      const team = await fetchTeamInfo(teamId)
-      setTeamName(team?.data.team.name)
-      setPlan(team?.data.team.plan)
-      setTeamInfo(team?.data.team)
-      setLoading(false)
+    const team = await fetchTeamInfo(teamId)
+    setTeamName(team?.data.team.name)
+    setPlan(team?.data.team.plan)
+    setTeamInfo(team?.data.team)
+    setIsOwner(team?.data.you.permission === 'owner')
+    setLoading(false)
   }
 
   const deleteTeam = () => {
     toast.promise(
-      axiosInstance.delete('/team/delete', {data: {'_id': teamId}}), {
+      axiosInstance.delete('/team/delete', {data: {'teamId': teamId}}), {
         loading: 'Deleting..',
         success: 'Deleted !',
         error: 'Error occurred.'
@@ -76,7 +79,7 @@ const TeamSetting = () => {
         }
       }
     )
-      .then(() => navigate(`/team/${teamId}/teams`))
+      .then(() => navigate('/teams'))
   }
 
   const handlePlanState = (planValue: string) => {
@@ -96,12 +99,15 @@ const TeamSetting = () => {
 
               <div className={'delete-team-text'}>Are you sure you want to delete this team?</div>
 
-              <div className={'button-container'} style={{ width: '10rem' }}>
-                <button onClick={onClose} className={'close-btn'} style={{ width: '4.5rem' }}>No</button>
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>No</button>
                 <button
-                  onClick={deleteTeam}
+                  onClick={() => {
+                    deleteTeam()
+                    onClose()
+                  }}
                   className={'create-btn'}
-                  style={{ width: '4.5rem' }}
+                  style={{width: '4.5rem'}}
                 >
                   Yes
                 </button>
@@ -140,9 +146,64 @@ const TeamSetting = () => {
       .then(() => getTeamInfo())
   }
 
+  const leaveTeamHandler = () => {
+    toast.promise(
+      axiosInstance.post('/team/leave', {teamId: teamId}), {
+        loading: 'Updating..',
+        success: 'Success !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => navigate('/teams'))
+  }
+
+  const leaveTeamModal = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'delete-team-text'}>Are you sure you want to leave this team?</div>
+
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>No</button>
+                <button
+                  onClick={() => {
+                    onClose()
+                    leaveTeamHandler()
+                  }}
+                  className={'create-btn'}
+                  style={{width: '4.5rem'}}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
   return (
     <DashboardMain>
-      <NavigationBar active={6}/>
+      <TitleTag title={'Team setting'}/>
+      <NavigationBar active={5}/>
       <BoardSection>
         <PageName name={'Team Setting'}/>
         <TeamSettingContainer>
@@ -150,8 +211,8 @@ const TeamSetting = () => {
             <AuroraLogoDark className={'aurora-logo'}/>}
           <div className={'title'}>
             <div>Team Information</div>
-            <button onClick={deleteTeamModal}>
-              Delete this team
+            <button onClick={isOwner ? deleteTeamModal : leaveTeamModal}>
+              {loading ? 'loading...' : isOwner ? 'Delete this team' : 'Leave this team'}
             </button>
           </div>
 
@@ -164,16 +225,18 @@ const TeamSetting = () => {
                     <div className={'owner'}>Owner - {teamInfo.owner}</div>
                     <div className={'name-container'}>
                       <div>Team name</div>
-                      <input value={teamName} onChange={e => setTeamName(e.target.value)} type={'text'}/>
+                      <input value={teamName} onChange={e => isOwner && setTeamName(e.target.value)} type={'text'}/>
                     </div>
 
                     <div className={'plan-container'}>
                       <div className={'plan'}>Plan</div>
 
-                      <div className={'plan-select-container'} style={{ width: '100%', height: '7.5rem', marginTop: '0.8rem' }}>
+                      <div className={'plan-select-container'}
+                           style={{width: '100%', height: '7.5rem', marginTop: '0.8rem'}}>
 
-                        <div className={`plan-box ${plan === 'free' ? 'plan-box-active' : ''}`} id={'free'} onClick={() => handlePlanState('free')}>
-                          <div className={'plan-name'} style={{ marginTop: '2.4rem' }}>
+                        <div className={`plan-box ${plan === 'free' ? 'plan-box-active' : ''}`} id={'free'}
+                             onClick={() => isOwner && handlePlanState('free')}>
+                          <div className={'plan-name'} style={{marginTop: '2.4rem'}}>
                             Free
                             <div className={'tooltip-container'}>
                               <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
@@ -189,8 +252,9 @@ const TeamSetting = () => {
                           <div className={'plan-price'}>0 $</div>
                         </div>
 
-                        <div className={`plan-box ${plan === 'pro' ? 'plan-box-active' : ''}`} id={'pro'} onClick={() => handlePlanState('pro')}>
-                          <div className={'plan-name'} style={{ marginTop: '2.4rem' }}>
+                        <div className={`plan-box ${plan === 'pro' ? 'plan-box-active' : ''}`} id={'pro'}
+                             onClick={() => isOwner && handlePlanState('pro')}>
+                          <div className={'plan-name'} style={{marginTop: '2.4rem'}}>
                             Pro
                             <div className={'tooltip-container'}>
                               <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
@@ -212,8 +276,9 @@ const TeamSetting = () => {
                           </div>
                         </div>
 
-                        <div className={`plan-box ${plan === 'enterprise' ? 'plan-box-active' : ''}`} id={'enterprise'} onClick={() => handlePlanState('enterprise')}>
-                          <div className={'plan-name'} style={{ marginTop: '2.4rem' }}>
+                        <div className={`plan-box ${plan === 'enterprise' ? 'plan-box-active' : ''}`} id={'enterprise'}
+                             onClick={() => isOwner && handlePlanState('enterprise')}>
+                          <div className={'plan-name'} style={{marginTop: '2.4rem'}}>
                             Enterprise
                             <div className={'tooltip-container'}>
                               <button className="tooltip-trigger"><BsQuestionCircleFill/></button>
@@ -237,8 +302,10 @@ const TeamSetting = () => {
                     </div>
 
                     <div className={'button-container'}>
-                      <button className={'cancel-button'} onClick={() => navigate(`/team/${teamId}/teams`)}>Back</button>
-                      <button className={'save-button'} onClick={updateTeam}>Save</button>
+                      <button className={'cancel-button'} onClick={() => navigate(`/team/${teamId}/teams`)}>Back
+                      </button>
+
+                      {isOwner && <button className={'save-button'} onClick={updateTeam}>Save</button>}
                     </div>
                   </>
                 )
@@ -319,14 +386,14 @@ const TeamSettingContainer = styled.div`
     padding-top: 0.8rem;
     color: ${({theme}) => theme.AlertOverlayColor};
   }
-  
+
   & .owner {
     text-align: right;
     font-size: 0.85rem;
     color: ${({theme}) => theme.AlertOverlayColor};
     padding-top: 0.1rem;
   }
-  
+
   & .plan-container {
     margin-top: 1.5rem;
     text-align: left;
@@ -336,18 +403,18 @@ const TeamSettingContainer = styled.div`
       color: ${({theme}) => theme.fontSecondColor};
     }
   }
-  
+
   & .name-container {
     text-align: left;
     margin-top: 0.8rem;
     height: 4.6rem;
     width: 100%;
-    
+
     & div {
       font-size: 1.2rem;
       color: ${({theme}) => theme.fontSecondColor};
     }
-    
+
     & input {
       width: 100%;
       box-sizing: border-box;
@@ -361,7 +428,7 @@ const TeamSettingContainer = styled.div`
       border-radius: 5px;
       color: ${({theme}) => theme.fontColor};
       transition: all .25s;
-      
+
       &:focus {
         outline: none;
         border: ${({theme}) => `1px solid ${theme.fontColor}`};

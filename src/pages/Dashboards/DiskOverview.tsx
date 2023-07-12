@@ -242,7 +242,7 @@ const DiskOverview = () => {
                                 <RealTimeBox width={'100%'} $leftGap={true} $rightGap={true}>
                                     <div className={'box-name'} style={boxNameStyle}>Disk - Read
                                         Size<span>unit: size</span></div>
-                                    <div className={'chart-container'}>
+                                    <div className={'chart-container'} style={{ marginTop: '1.5%' }}>
                                         {diskReadData &&
                                             <Line options={options} data={diskReadData} className={'chart'}/>}
                                     </div>
@@ -253,7 +253,7 @@ const DiskOverview = () => {
                                 <RealTimeBox width={'100%'} $leftGap={true} $rightGap={true}>
                                     <div className={'box-name'} style={boxNameStyle}>Disk - Write
                                         Size<span>unit: size</span></div>
-                                    <div className={'chart-container'}>
+                                    <div className={'chart-container'} style={{ marginTop: '1.5%' }}>
                                         {diskWriteData &&
                                             <Line options={options} data={diskWriteData} className={'chart'}/>}
                                     </div>

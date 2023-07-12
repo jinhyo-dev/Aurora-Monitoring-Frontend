@@ -29,7 +29,7 @@ import {CountryList, OptionType, TeamInfoProps, UserInformationProps} from "../.
 import Select from "react-select";
 import axiosInstance from "../../utils/AxiosInstance";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import {RiImageEditFill} from "react-icons/ri";
 import DefaultImage from '../../assets/images/Aurora-defualt-profile.png'
 import {MdDelete} from 'react-icons/md'
@@ -70,6 +70,7 @@ const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: R
         const response = await fetchUserInfo();
         const userInfo = response.data
         setIsAuthorized(response.success)
+        console.log(response.data.you)
         setUserInfo({
           id: userInfo._id,
           country: userInfo.country,
@@ -77,7 +78,7 @@ const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: R
           email: userInfo.email,
           name: userInfo.name,
           phone: userInfo.phone,
-          profileImage: userInfo.profileImage
+          profileImage: userInfo.profileImage,
         })
         const teamInfo = await fetchTeamInfo(teamId)
         setTeamInfo({
@@ -88,7 +89,8 @@ const withTokenValidation = <P extends UserPreferencesProps>(WrappedComponent: R
           plan: teamInfo.data.team.plan,
           registrationCode: teamInfo.data.team.registrationCode,
           group: teamInfo.data.team.group,
-          members: teamInfo.data.team.members
+          members: teamInfo.data.team.members,
+          permission: teamInfo.data.you.permission
         })
       }
 
@@ -116,13 +118,13 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   const [editUserInfo, setEditUserInfo] = useState<UserInformationProps>(userInfo)
   const [currentPassword, setCurrentPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
   const [imageLoading, setImageLoading] = useState<boolean>(true)
   const [memberListLoading, setMemberListLoading] = useState<boolean>(true)
   const [memberList, setMemberList] = useState<any[]>([])
   const SelectOption = CountryList
   const [profileImageUrl, setProfileImageUrl] = useState('');
   const {teamId} = useParams()
+  const navigate = useNavigate()
   const [headCheckBox, setHeadCheckBox] = useState<boolean>(false)
   const [showDeleteButton, setShowDeleteButton] = useState<boolean>(false)
 
@@ -337,21 +339,6 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
     }
   };
 
-  const fetchUserData = async () => {
-    setLoading(true)
-    const response = await fetchUserInfo();
-    const userInfo = response.data
-    setEditUserInfo({
-      id: userInfo._id,
-      country: userInfo.country,
-      plan: userInfo.plan,
-      email: userInfo.email,
-      name: userInfo.name,
-      phone: userInfo.phone,
-      profileImage: userInfo.profileImage
-    })
-  }
-
   const saveUserInfo = () => {
     const payload = {
       'country': country?.value,
@@ -377,7 +364,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
         }
       }
     )
-      .then(() => (fetchUserData().then(() => setLoading(false))))
+      .then(() => window.location.reload())
   }
 
   const savePassword = () => {
@@ -434,7 +421,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
         }
       }
     )
-      .then(() => (fetchUserData().then(() => setLoading(false))))
+      .then(() => window.location.reload())
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -467,8 +454,8 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
 
     toast.promise(
       axiosInstance.post('/team/invite', payload), {
-        loading: 'Sending email..',
-        success: 'Email sent !',
+        loading: 'Inviting user..',
+        success: 'Invited !',
         error: 'Error occurred.'
       }, {
         duration: 2500,
@@ -543,6 +530,69 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
     )
   }
 
+  const transferOwnershipHandler = (id: string) => {
+    const payload = {
+      teamId: teamId,
+      memberId: id
+    }
+
+    toast.promise(
+      axiosInstance.post('/team/owner', payload), {
+        loading: 'Changing owner..',
+        success: 'Change owner successfully !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '22rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => navigate(`/team/${teamId}/teams`))
+  }
+
+  const transferOwnershipModal = (id: string) => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'delete-team-text'}>
+                <span style={{color: '#ef1010'}}>If you transfer permissions, you lose your permissions.</span>
+                <br/>
+                Do you want to relocate?
+              </div>
+
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>No</button>
+                <button
+                  onClick={() => {
+                    onClose()
+                    transferOwnershipHandler(id)
+                  }}
+                  className={'create-btn'}
+                  style={{width: '4.5rem'}}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
+
   return (
     <DashboardMain>
       <NavigationBar active={7}/>
@@ -553,7 +603,6 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                        style={{display: 'flex', alignItems: 'center'}}>
             <UserInformationContainer>
               <UserImageContainer>
-
                 {
                   <img
                     alt={"user-profile"}
@@ -574,7 +623,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                 </div>
               </UserImageContainer>
               <Username>{userInfo.name.firstName + ' ' + userInfo.name.lastName}</Username>
-              <UserPermission>Owner</UserPermission>
+              <UserPermission>{teamInfo.permission}</UserPermission>
 
               <NavigationButtonContainer>
                 <NavigationButton $active={preferencesState === 0}
@@ -582,224 +631,226 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                   <FaUserAlt/>
                   {<span>My Profile</span>}
                 </NavigationButton>
+                {
+                  teamInfo.permission === 'owner' &&
+                    <>
+                        <NavigationButton $active={preferencesState === 1}
+                                          onClick={() => handlePreferencesState(1)}>
+                            <AiTwotoneSetting/>
+                          {<span>Member management</span>}
+                        </NavigationButton>
 
-                <NavigationButton $active={preferencesState === 1}
-                                  onClick={() => handlePreferencesState(1)}>
-                  <AiTwotoneSetting/>
-                  {<span>Member management</span>}
-                </NavigationButton>
-
-                <NavigationButton $active={preferencesState === 2}
-                                  onClick={() => handlePreferencesState(2)}>
-                  <BsPersonFillAdd/>
-                  {<span>Invite members</span>}
-                </NavigationButton>
+                        <NavigationButton $active={preferencesState === 2}
+                                          onClick={() => handlePreferencesState(2)}>
+                            <BsPersonFillAdd/>
+                          {<span>Invite members</span>}
+                        </NavigationButton>
+                    </>
+                }
               </NavigationButtonContainer>
             </UserInformationContainer>
 
           </RealTimeBox>
           <RealTimeBox width={'65%'} $leftGap={false} $rightGap={true}>
             {
-              loading ?
-                (
-                  <SpinLoaderContainer>
-                    <SpinLoaders/>
-                  </SpinLoaderContainer>
-                ) :
-                preferencesState === 0 ?
-                  (<ProfileContainer style={{overflow: 'auto'}}>
-                    <div className={'container-name'}>Account Information</div>
-                    <div className={'container-information'}>Edit personal information and
-                      password
-                    </div>
-                    <div className={'container-subtitle'}>Personal Information</div>
+              preferencesState === 0 ?
+                (<ProfileContainer style={{overflow: 'auto'}}>
+                  <div className={'container-name'}>Account Information</div>
+                  <div className={'container-information'}>Edit personal information and
+                    password
+                  </div>
+                  <div className={'container-subtitle'}>Personal Information</div>
 
-                    <div className={'email-info'}>
-                      Your Email <span className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span>
-                      <div>{editUserInfo.email}</div>
-                    </div>
+                  <div className={'email-info'}>
+                    Your Email <span className={'warning-text'}> <AiFillInfoCircle/> Email cannot be modified.</span>
+                    <div>{editUserInfo.email}</div>
+                  </div>
 
-                    <div className={'user-info-container'} style={{height: '21.5rem'}}>
-                      <div className={'input-container'} style={{paddingTop: '2rem'}}>
-                        <div className={'left-input'}>
-                          <div>First Name</div>
-                          <input type={'text'} name={'name.firstName'}
-                                 value={editUserInfo.name.firstName}
-                                 onChange={handleEditUserInfo} className={'input'}/>
-                        </div>
-
-                        <div className={'right-input'}>
-                          <div>Last Name</div>
-                          <input type={'text'} name={'name.lastName'}
-                                 value={editUserInfo.name.lastName}
-                                 onChange={handleEditUserInfo} className={'input'}/>
-                        </div>
+                  <div className={'user-info-container'} style={{height: '21.5rem'}}>
+                    <div className={'input-container'} style={{paddingTop: '2rem'}}>
+                      <div className={'left-input'}>
+                        <div>First Name</div>
+                        <input type={'text'} name={'name.firstName'}
+                               value={editUserInfo.name.firstName}
+                               onChange={handleEditUserInfo} className={'input'}/>
                       </div>
 
-                      <div className={'input-container'}>
-                        <div className={'left-input'}>
-                          <div>Country</div>
-                          <Select options={SelectOption} styles={selectCustomStyle}
-                                  placeholder={'Country'}
-                                  onChange={handleCountry} value={country}
-                                  id={'country-select'}/>
-                        </div>
-
-                        <div className={'right-input'}>
-                          <div>Phone Number</div>
-                          <input type={'text'}
-                                 value={phoneNumberAutoFormat(editUserInfo.phone)}
-                                 name={'phone'}
-                                 onChange={handleEditUserInfo} className={'input'}/>
-                        </div>
-                      </div>
-
-                      <div className={'input-container'} style={{marginTop: '7%'}}>
-                        <button className={'save-button'} onClick={saveUserInfo}>Save</button>
+                      <div className={'right-input'}>
+                        <div>Last Name</div>
+                        <input type={'text'} name={'name.lastName'}
+                               value={editUserInfo.name.lastName}
+                               onChange={handleEditUserInfo} className={'input'}/>
                       </div>
                     </div>
 
-                    <div className={'user-info-container'}
-                         style={{marginTop: '5rem', marginBottom: '1.5rem', height: '13rem'}}>
-                      <div className={'input-container'} style={{paddingTop: '2rem'}}>
-                        <div className={'left-input'}>
-                          <div>Confirm Password</div>
-                          <input type={'password'} className={'input'} value={currentPassword}
-                                 onChange={e => setCurrentPassword(e.target.value)}/>
-                        </div>
-
-                        <div className={'right-input'}>
-                          <div>New Password</div>
-                          <input type={'password'} className={'input'} value={newPassword}
-                                 onChange={e => setNewPassword(e.target.value)}/>
-                        </div>
+                    <div className={'input-container'}>
+                      <div className={'left-input'}>
+                        <div>Country</div>
+                        <Select options={SelectOption} styles={selectCustomStyle}
+                                placeholder={'Country'}
+                                onChange={handleCountry} value={country}
+                                id={'country-select'}/>
                       </div>
 
-                      <div className={'input-container'} style={{marginTop: '7%'}}>
-                        <button className={'save-button'} onClick={savePassword}>Save</button>
+                      <div className={'right-input'}>
+                        <div>Phone Number</div>
+                        <input type={'text'}
+                               value={phoneNumberAutoFormat(editUserInfo.phone)}
+                               name={'phone'}
+                               onChange={handleEditUserInfo} className={'input'}/>
                       </div>
                     </div>
-                  </ProfileContainer>) :
-                  memberListLoading ?
+
+                    <div className={'input-container'} style={{marginTop: '7%'}}>
+                      <button className={'save-button'} onClick={saveUserInfo}>Save</button>
+                    </div>
+                  </div>
+
+                  <div className={'user-info-container'}
+                       style={{marginTop: '5rem', marginBottom: '1.5rem', height: '13rem'}}>
+                    <div className={'input-container'} style={{paddingTop: '2rem'}}>
+                      <div className={'left-input'}>
+                        <div>Confirm Password</div>
+                        <input type={'password'} className={'input'} value={currentPassword}
+                               onChange={e => setCurrentPassword(e.target.value)}/>
+                      </div>
+
+                      <div className={'right-input'}>
+                        <div>New Password</div>
+                        <input type={'password'} className={'input'} value={newPassword}
+                               onChange={e => setNewPassword(e.target.value)}/>
+                      </div>
+                    </div>
+
+                    <div className={'input-container'} style={{marginTop: '7%'}}>
+                      <button className={'save-button'} onClick={savePassword}>Save</button>
+                    </div>
+                  </div>
+                </ProfileContainer>) :
+                memberListLoading ?
+                  (
+                    <SpinLoaderContainer>
+                      <SpinLoaders/>
+                    </SpinLoaderContainer>
+                  ) :
+                  preferencesState === 1 ?
+                    (<ProfileContainer>
+                      <div className={'container-name'}>Member management</div>
+                      <div className={'container-information'}>Delete user or transfer owner</div>
+                      <UserTableContainer>
+                        <div className={'header'}>
+                          <div>
+                            <input type={'checkbox'} className={'ui-checkbox'} checked={headCheckBox}
+                                   onChange={(e) => checkAllButton(e.currentTarget.checked)}/>
+                          </div>
+                          <div>Members
+                            <button className={showDeleteButton ? 'show-delete-button' : 'hidden-delete-button'}
+                                    onClick={removeUserModal}><MdDelete/> Remove</button>
+                          </div>
+                        </div>
+
+                        {Object.values(memberList).map((value: any, index: number) => (
+                          <div className={'row-data'} key={index}>
+                            <div>
+                              <input type={'checkbox'} className={'ui-checkbox'} checked={value.isChecked}
+                                     onChange={() => handelCheckButton(value.userId)}/>
+                            </div>
+                            <div>
+                              <img
+                                src={value.profileImage === undefined ? DefaultImage : import.meta.env.VITE_API_URL + value.profileImage}
+                                alt={'image'}/>
+                              <div className={'user-name'}>
+                                <div>{value.name} {value.permission === 'owner' && <span>[Owner]</span>}</div>
+                                <div>{value.email}</div>
+                              </div>
+                              {value.permission !== 'owner' &&
+                                  <button onClick={() => transferOwnershipModal(value._id)}>Transfer
+                                      ownership</button>}
+                            </div>
+                          </div>
+                        ))}
+                      </UserTableContainer>
+                    </ProfileContainer>) :
                     (
-                      <SpinLoaderContainer>
-                        <SpinLoaders/>
-                      </SpinLoaderContainer>
-                    ) :
-                    preferencesState === 1 ?
-                      (<ProfileContainer>
-                        <div className={'container-name'}>Member management</div>
-                        <div className={'container-information'}>Delete user or transfer owner</div>
-                        <UserTableContainer>
-                          <div className={'header'}>
-                            <div>
-                              <input type={'checkbox'} className={'ui-checkbox'} checked={headCheckBox}
-                                     onChange={(e) => checkAllButton(e.currentTarget.checked)}/>
-                            </div>
-                            <div>Members
-                              <button className={showDeleteButton ? 'show-delete-button' : 'hidden-delete-button'}
-                                      onClick={removeUserModal}><MdDelete/> Remove</button>
-                            </div>
+                      <ProfileContainer>
+                        <div className={'container-name'}>Invite member to your team</div>
+                        <div className={'container-information'}>Invite by code or email address
+                        </div>
+                        <div className={'container-subtitle'}>Your team invitation code
+                          <div>
+                            {teamInfo.registrationCode}
+                            <CopyToClipboard text={teamInfo.registrationCode}>
+                              <button onClick={CopiedAlert}><TbCopy/> Copy</button>
+                            </CopyToClipboard>
                           </div>
+                        </div>
 
-                          {Object.values(memberList).map((value: any, index: number) => (
-                            <div className={'row-data'} key={index}>
-                              <div>
-                                <input type={'checkbox'} className={'ui-checkbox'} checked={value.isChecked}
-                                       onChange={() => handelCheckButton(value.userId)}/>
-                              </div>
-                              <div>
-                                <img src={import.meta.env.VITE_API_URL + value.profileImage} alt={'image'}/>
-                                <div className={'user-name'}>
-                                  <div>{value.name} {value.permission === 'owner' && <span>[Owner]</span>}</div>
-                                  <div>{value.email}</div>
+                        <div className={'add-form-container'}>
+                          <form onSubmit={addEmailToList}>
+                            <label>
+                              <input placeholder={'Add user by email'} required={true}
+                                     value={email}
+                                     onChange={(e) => setEmail(e.target.value)}/>
+                              <button type="submit">Add</button>
+                            </label>
+
+                            {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
+                          </form>
+                        </div>
+
+                        <div className={'email-list-container'}>
+                          <div>
+                            {Object.values(emailList).map((value: EmailListProps, index: number) => (
+                              <div key={index}
+                                   className={`email-box ${value.removing ? 'removing' : ''}`}>
+                                <form
+                                  onSubmit={e => handleEmailChange(e, value.email, true)}>
+                                  <label>
+                                    <input
+                                      value={value.editing ? editNewEmail : value.email}
+                                      className={`email-name ${value.editing ? 'editing' : ''}`}
+                                      readOnly={!value.editing}
+                                      id={value.email}
+                                      onChange={e => setEditNewEmail(e.target.value)}
+                                      ref={inputRef => {
+                                        if (value.editing) {
+                                          inputRef && inputRef.focus();
+                                        }
+                                      }}
+                                    />
+                                    {
+                                      value.editing &&
+                                      (
+                                        <div className={'button-container'}>
+                                          <button type={'button'}
+                                                  onClick={e => handleEmailChange(e, value.email, false)}>
+                                            <IoClose/></button>
+                                          <button type={'submit'}>
+                                            <IoCheckmarkSharp/>
+                                          </button>
+                                        </div>
+                                      )
+                                    }
+                                  </label>
+                                </form>
+                                <div className={'button-container'}>
+                                  <button onClick={() => editEmail(value.email)}><FiEdit/>
+                                  </button>
+                                  <button onClick={() => deleteEmail(value.email)}>
+                                    <AiFillDelete/></button>
                                 </div>
-                                {value.permission !== 'owner' && <button>Transfer ownership</button>}
                               </div>
-                            </div>
-                          ))}
-                        </UserTableContainer>
-                      </ProfileContainer>) :
-                      (
-                        <ProfileContainer>
-                          <div className={'container-name'}>Invite member to your team</div>
-                          <div className={'container-information'}>Invite by code or email address
+                            ))}
                           </div>
-                          <div className={'container-subtitle'}>Your team invitation code
-                            <div>
-                              {teamInfo.registrationCode}
-                              <CopyToClipboard text={teamInfo.registrationCode}>
-                                <button onClick={CopiedAlert}><TbCopy/> Copy</button>
-                              </CopyToClipboard>
-                            </div>
-                          </div>
+                        </div>
 
-                          <div className={'add-form-container'}>
-                            <form onSubmit={addEmailToList}>
-                              <label>
-                                <input placeholder={'Add user by email'} required={true}
-                                       value={email}
-                                       onChange={(e) => setEmail(e.target.value)}/>
-                                <button type="submit">Add</button>
-                              </label>
-
-                              {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
-                            </form>
-                          </div>
-
-                          <div className={'email-list-container'}>
-                            <div>
-                              {Object.values(emailList).map((value: EmailListProps, index: number) => (
-                                <div key={index}
-                                     className={`email-box ${value.removing ? 'removing' : ''}`}>
-                                  <form
-                                    onSubmit={e => handleEmailChange(e, value.email, true)}>
-                                    <label>
-                                      <input
-                                        value={value.editing ? editNewEmail : value.email}
-                                        className={`email-name ${value.editing ? 'editing' : ''}`}
-                                        readOnly={!value.editing}
-                                        id={value.email}
-                                        onChange={e => setEditNewEmail(e.target.value)}
-                                        ref={inputRef => {
-                                          if (value.editing) {
-                                            inputRef && inputRef.focus();
-                                          }
-                                        }}
-                                      />
-                                      {
-                                        value.editing &&
-                                        (
-                                          <div className={'button-container'}>
-                                            <button type={'button'}
-                                                    onClick={e => handleEmailChange(e, value.email, false)}>
-                                              <IoClose/></button>
-                                            <button type={'submit'}>
-                                              <IoCheckmarkSharp/>
-                                            </button>
-                                          </div>
-                                        )
-                                      }
-                                    </label>
-                                  </form>
-                                  <div className={'button-container'}>
-                                    <button onClick={() => editEmail(value.email)}><FiEdit/>
-                                    </button>
-                                    <button onClick={() => deleteEmail(value.email)}>
-                                      <AiFillDelete/></button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-
-                          <div className={'button-container'}>
-                            <button className={'save-button'} onClick={inviteUserHandler}>Invite User</button>
-                            <button className={'cancel-button'}
-                                    onClick={() => setEmailList([])}>Cancel
-                            </button>
-                          </div>
-                        </ProfileContainer>)
+                        <div className={'button-container'}>
+                          <button className={'save-button'} onClick={inviteUserHandler}>Invite User</button>
+                          <button className={'cancel-button'}
+                                  onClick={() => setEmailList([])}>Cancel
+                          </button>
+                        </div>
+                      </ProfileContainer>)
             }
           </RealTimeBox>
         </BoardRowSection>
@@ -1118,6 +1169,13 @@ const UserTableContainer = styled.div`
           color: ${({theme}) => theme.fontColor};
           border: none;
           border-radius: 4px;
+          transition: all .25s;
+          cursor: pointer;
+
+          &:hover {
+            background-color: ${({theme}) => theme.backgroundColor};
+            transform: translateY(-1px);
+          }
         }
       }
     }

@@ -4,7 +4,7 @@ import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
 import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
 import {ReactComponent as AuroraSimpleLogo} from '../../assets/svg/AuroraSimpleLogo.svg'
 import {ReactComponent as AuroraSimpleLogoDark} from '../../assets/svg/AuroraSimpleLogoDark.svg'
-import {IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle} from 'react-icons/io'
+import {IoIosArrowBack, IoIosArrowForward} from 'react-icons/io'
 import * as React from "react";
 import {FaUserCircle, FaUsers, FaMemory} from 'react-icons/fa'
 import {DarkModeSwitch} from 'react-toggle-dark-mode';
@@ -16,6 +16,7 @@ import {fetchTeamInfo, fetchUserInfo} from "../../utils/Cookie";
 import {confirmAlert} from "react-confirm-alert";
 import {loadingGradientAnimation} from "../../styles/GlobalStyle";
 import {BsTerminalFill} from "react-icons/bs";
+import {AiTwotoneSetting} from "react-icons/ai";
 
 interface NavigationProps {
   active: number;
@@ -178,9 +179,10 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
           {showBackIcon && <span>{cookies.theme === 'dark' ? 'Dark' : 'Light'}</span>}
         </NavigationBottomButton>
 
-        <NavigationBottomButton $active={active === 5} className={'navigation-container'}>
-          <IoIosHelpCircle/>
-          {showBackIcon && <span>Help</span>}
+        <NavigationBottomButton $active={active === 5} className={'navigation-container'}
+                                onClick={() => navigate(`/team/${teamId}/team-setting`)}>
+          <AiTwotoneSetting/>
+          {showBackIcon && <span>Team setting</span>}
         </NavigationBottomButton>
 
         <NavigationBottomButton $active={active === 6} className={'navigation-container'}
@@ -316,6 +318,11 @@ const Nav = styled.nav<{ $status: boolean }>`
       margin-left: 1rem;
       display: ${({$status}) => ($status ? "" : "none")};
       animation: ${fadeIn} 0.35s ease-in-out;
+      width: 70%;
+      overflow:hidden;
+      text-align: left;
+      text-overflow:ellipsis;
+      white-space:nowrap;
     }
 
     & svg {
