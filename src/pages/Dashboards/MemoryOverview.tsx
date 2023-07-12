@@ -244,9 +244,9 @@ const MemoryOverview = () => {
                 ) :
                 (
                     <>
-                        <TitleTag title={'Dashboard'}/>
+                        <TitleTag title={'Memory Overview'}/>
                         <BoardSection>
-                            <PageName name={'Dashboard'}/>
+                            <PageName name={'Memory Overview'}/>
 
                             <BoardRowSection>
                                 <RealTimeBox width={'50%'} $leftGap={true} $rightGap={true}>

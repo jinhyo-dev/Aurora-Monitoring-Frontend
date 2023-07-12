@@ -6,7 +6,6 @@ import {ReactComponent as AuroraSimpleLogo} from '../../assets/svg/AuroraSimpleL
 import {ReactComponent as AuroraSimpleLogoDark} from '../../assets/svg/AuroraSimpleLogoDark.svg'
 import {IoIosArrowBack, IoIosArrowForward, IoIosHelpCircle} from 'react-icons/io'
 import * as React from "react";
-import {RiBug2Fill} from "react-icons/ri";
 import {FaUserCircle, FaUsers, FaMemory} from 'react-icons/fa'
 import {DarkModeSwitch} from 'react-toggle-dark-mode';
 import {useCookies} from "react-cookie";
@@ -16,6 +15,7 @@ import {useNavigate, useParams} from "react-router-dom";
 import {fetchTeamInfo, fetchUserInfo} from "../../utils/Cookie";
 import {confirmAlert} from "react-confirm-alert";
 import {loadingGradientAnimation} from "../../styles/GlobalStyle";
+import {BsTerminalFill} from "react-icons/bs";
 
 interface NavigationProps {
   active: number;
@@ -104,35 +104,6 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
     )
   }
 
-  const NoAuthModal = () => {
-    return (
-      confirmAlert({
-        customUI: ({onClose}) => {
-          return (
-            <div className='custom-alert-ui'>
-              <div className={'logo-container'}>
-                {cookies.theme === 'dark' ? <AuroraLogo/> :
-                  <AuroraLogoDark/>}
-              </div>
-
-              <div className={'delete-team-text'}>This service is only available in enterprise.</div>
-
-              <div className={'button-container'} style={{width: '10rem', textAlign: 'center'}}>
-                <button
-                  onClick={onClose}
-                  className={'cancel-btn'}
-                  style={{width: '5rem', padding: '0', margin: 'auto'}}
-                >
-                  Confirm
-                </button>
-              </div>
-            </div>
-          )
-        }
-      })
-    )
-  }
-
   const SignOut = () => {
     removeCookie('aurora_token', {path: '/'})
     window.location.replace('/')
@@ -191,9 +162,10 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
         {showBackIcon && <span>Memory Overview</span>}
       </NavigationButton>
 
-      <NavigationButton $active={active === 4} className={'navigation-container'} onClick={NoAuthModal}>
-        <RiBug2Fill/>
-        {showBackIcon && <span>Historical Issue</span>}
+      <NavigationButton $active={active === 4} className={'navigation-container'}
+                        onClick={() => navigate(`/team/${teamId}/system-log`)}>
+        <BsTerminalFill/>
+        {showBackIcon && <span>System Log</span>}
       </NavigationButton>
 
       <div className={'bottom-navigation-container'}>

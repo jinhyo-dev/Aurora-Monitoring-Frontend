@@ -14,6 +14,7 @@ import TeamSetting from "./pages/Dashboards/TeamSetting";
 import CpuOverview from "./pages/Dashboards/CpuOverview.tsx";
 import DiskOverview from "./pages/Dashboards/DiskOverview.tsx";
 import MemoryOverview from "./pages/Dashboards/MemoryOverview.tsx";
+import SystemLog from "./pages/Dashboards/SystemLog.tsx";
 
 const router = createBrowserRouter([
   {
@@ -57,6 +58,10 @@ const router = createBrowserRouter([
           {
             path: '/team/:teamId/memory-overview',
             element: <MemoryOverview/>
+          },
+          {
+            path: '/team/:teamId/system-log',
+            element: <SystemLog/>
           },
           {
             path: '/team/:teamId/user-preference',
