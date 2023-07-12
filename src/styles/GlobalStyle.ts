@@ -310,7 +310,7 @@ export const MainTag = styled.main`
 export const DashboardMain = styled.main`
   min-height: 800px;
   max-height: 1700px;
-  min-width: 1100px;
+  min-width: 1200px;
   max-width: 2300px;
   width: 100%;
   height: 100vh;

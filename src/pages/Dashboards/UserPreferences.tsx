@@ -31,6 +31,11 @@ import axiosInstance from "../../utils/AxiosInstance";
 import SpinLoaders from "../components/Loaders/SpinLoaders";
 import {useParams} from "react-router-dom";
 import {RiImageEditFill} from "react-icons/ri";
+import DefaultImage from '../../assets/images/Aurora-defualt-profile.png'
+import {MdDelete} from 'react-icons/md'
+import {confirmAlert} from "react-confirm-alert";
+import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
+import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -113,9 +118,13 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   const [newPassword, setNewPassword] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(false)
   const [imageLoading, setImageLoading] = useState<boolean>(true)
-  // const [editTeamInfo, setEditTeamInfo] = useState<TeamInfoProps>(teamInfo)
+  const [memberListLoading, setMemberListLoading] = useState<boolean>(true)
+  const [memberList, setMemberList] = useState<any[]>([])
   const SelectOption = CountryList
   const [profileImageUrl, setProfileImageUrl] = useState('');
+  const {teamId} = useParams()
+  const [headCheckBox, setHeadCheckBox] = useState<boolean>(false)
+  const [showDeleteButton, setShowDeleteButton] = useState<boolean>(false)
 
   const selectCustomStyle = {
     option: (provided: any, state: any) => ({
@@ -170,8 +179,25 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
 
   useEffect(() => {
     setImageLoading(true);
-    setProfileImageUrl(`${import.meta.env.VITE_API_URL}/profile/${editUserInfo.profileImage}`);
+    setProfileImageUrl(editUserInfo.profileImage === undefined ? DefaultImage : `${import.meta.env.VITE_API_URL}${editUserInfo.profileImage}`)
   }, [editUserInfo.profileImage]);
+
+  useEffect(() => {
+    fetchMemberList()
+  }, [])
+
+  const fetchMemberList = () => {
+    setMemberListLoading(true)
+    axiosInstance.post('/team/member', {teamId: teamId})
+      .then(res => {
+        const initialMembers = res.data.map((member: any) => {
+          return {...member, isChecked: false}
+        })
+        setMemberList(initialMembers)
+      })
+      .catch(err => console.error(err))
+      .finally(() => setMemberListLoading(false))
+  }
 
   const handlePreferencesState = (value: number) => {
     setPreferencesState(value)
@@ -179,6 +205,13 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
 
   const handleCountry = (e: OptionType | null) => {
     setCountry(e)
+  }
+
+  const checkAllButton = (isClicked: boolean) => {
+    setHeadCheckBox(!headCheckBox)
+    setMemberList(memberList.map((v: any) =>
+      v.userId ? {...v, isChecked: isClicked} : v
+    ))
   }
 
   const handleEditUserInfo = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -407,7 +440,108 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file: File | undefined = event.target.files?.[0];
     file && handleImageUpload(file)
-  };
+  }
+
+  const handleShowControlButton = () => {
+    const isChecked = memberList.some(member => member.isChecked);
+    setShowDeleteButton(isChecked);
+  }
+
+  useEffect(() => {
+    const isEveryMemberChecked = memberList.length > 0 && memberList.every(member => member.isChecked);
+    setHeadCheckBox(isEveryMemberChecked);
+    handleShowControlButton()
+  }, [memberList])
+
+  const handelCheckButton = (idx: number) => {
+    setMemberList(memberList.map((v: any) =>
+      v.userId === idx ? {...v, isChecked: !v.isChecked} : v
+    ))
+  }
+
+  const inviteUserHandler = () => {
+    const payload = {
+      teamId: teamId,
+      email: emailList[0].email
+    }
+
+    toast.promise(
+      axiosInstance.post('/team/invite', payload), {
+        loading: 'Sending email..',
+        success: 'Email sent !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => setEmailList([]))
+  }
+
+  const removeUserHandler = () => {
+    const payload = memberList
+      .filter((v: any) => v.isChecked)
+      .map((v: any) => ({teamId: teamId, memberId: v._id}))
+
+    toast.promise(
+      axiosInstance.post('/team/expulsion', payload), {
+        loading: 'Removing users..',
+        success: 'Removed !',
+        error: 'Error occurred.'
+      }, {
+        duration: 2500,
+        position: 'top-center',
+        style: {
+          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
+          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          width: '14rem',
+          fontSize: '1.2rem',
+          height: '2.2rem'
+        }
+      }
+    )
+      .then(() => fetchMemberList())
+  }
+
+  const removeUserModal = () => {
+    return (
+      confirmAlert({
+        customUI: ({onClose}) => {
+          return (
+            <div className='custom-alert-ui'>
+              <div className={'logo-container'}>
+                {cookies.theme === 'dark' ? <AuroraLogo/> :
+                  <AuroraLogoDark/>}
+              </div>
+
+              <div className={'delete-team-text'}>Are you sure you want to remove this users?</div>
+
+              <div className={'button-container'} style={{width: '10rem'}}>
+                <button onClick={onClose} className={'close-btn'} style={{width: '4.5rem'}}>No</button>
+                <button
+                  onClick={() => {
+                    onClose()
+                    removeUserHandler()
+                  }}
+                  className={'create-btn'}
+                  style={{width: '4.5rem'}}
+                >
+                  Yes
+                </button>
+              </div>
+            </div>
+          )
+        }
+      })
+    )
+  }
 
   return (
     <DashboardMain>
@@ -424,7 +558,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                   <img
                     alt={"user-profile"}
                     className={"user-profile-image"}
-                    style={{ display: imageLoading ? 'none' : '' }}
+                    style={{display: imageLoading ? 'none' : ''}}
                     src={profileImageUrl}
                     onLoad={() => setImageLoading(false)}
                   />
@@ -452,7 +586,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                 <NavigationButton $active={preferencesState === 1}
                                   onClick={() => handlePreferencesState(1)}>
                   <AiTwotoneSetting/>
-                  {<span>User management</span>}
+                  {<span>Member management</span>}
                 </NavigationButton>
 
                 <NavigationButton $active={preferencesState === 2}
@@ -546,88 +680,126 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                       </div>
                     </div>
                   </ProfileContainer>) :
-                  preferencesState === 1 ?
-                    (<ProfileContainer>
-                    </ProfileContainer>) :
-                    (<ProfileContainer>
-                      <div className={'container-name'}>Invite member to your team</div>
-                      <div className={'container-information'}>Invite by code or email address
-                      </div>
-                      <div className={'container-subtitle'}>Your team invitation code
-                        <div>
-                          {teamInfo.registrationCode}
-                          <CopyToClipboard text={teamInfo.registrationCode}>
-                            <button onClick={CopiedAlert}><TbCopy/> Copy</button>
-                          </CopyToClipboard>
-                        </div>
-                      </div>
+                  memberListLoading ?
+                    (
+                      <SpinLoaderContainer>
+                        <SpinLoaders/>
+                      </SpinLoaderContainer>
+                    ) :
+                    preferencesState === 1 ?
+                      (<ProfileContainer>
+                        <div className={'container-name'}>Member management</div>
+                        <div className={'container-information'}>Delete user or transfer owner</div>
+                        <UserTableContainer>
+                          <div className={'header'}>
+                            <div>
+                              <input type={'checkbox'} className={'ui-checkbox'} checked={headCheckBox}
+                                     onChange={(e) => checkAllButton(e.currentTarget.checked)}/>
+                            </div>
+                            <div>Members
+                              <button className={showDeleteButton ? 'show-delete-button' : 'hidden-delete-button'}
+                                      onClick={removeUserModal}><MdDelete/> Remove</button>
+                            </div>
+                          </div>
 
-                      <div className={'add-form-container'}>
-                        <form onSubmit={addEmailToList}>
-                          <label>
-                            <input placeholder={'Add user by email'} required={true}
-                                   value={email}
-                                   onChange={(e) => setEmail(e.target.value)}/>
-                            <button type="submit">Add</button>
-                          </label>
-
-                          {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
-                        </form>
-                      </div>
-
-                      <div className={'email-list-container'}>
-                        <div>
-                          {Object.values(emailList).map((value: EmailListProps, index: number) => (
-                            <div key={index}
-                                 className={`email-box ${value.removing ? 'removing' : ''}`}>
-                              <form
-                                onSubmit={e => handleEmailChange(e, value.email, true)}>
-                                <label>
-                                  <input
-                                    value={value.editing ? editNewEmail : value.email}
-                                    className={`email-name ${value.editing ? 'editing' : ''}`}
-                                    readOnly={!value.editing}
-                                    id={value.email}
-                                    onChange={e => setEditNewEmail(e.target.value)}
-                                    ref={inputRef => {
-                                      if (value.editing) {
-                                        inputRef && inputRef.focus();
-                                      }
-                                    }}
-                                  />
-                                  {
-                                    value.editing &&
-                                    (
-                                      <div className={'button-container'}>
-                                        <button type={'button'}
-                                                onClick={e => handleEmailChange(e, value.email, false)}>
-                                          <IoClose/></button>
-                                        <button type={'submit'}>
-                                          <IoCheckmarkSharp/>
-                                        </button>
-                                      </div>
-                                    )
-                                  }
-                                </label>
-                              </form>
-                              <div className={'button-container'}>
-                                <button onClick={() => editEmail(value.email)}><FiEdit/>
-                                </button>
-                                <button onClick={() => deleteEmail(value.email)}>
-                                  <AiFillDelete/></button>
+                          {Object.values(memberList).map((value: any, index: number) => (
+                            <div className={'row-data'} key={index}>
+                              <div>
+                                <input type={'checkbox'} className={'ui-checkbox'} checked={value.isChecked}
+                                       onChange={() => handelCheckButton(value.userId)}/>
+                              </div>
+                              <div>
+                                <img src={import.meta.env.VITE_API_URL + value.profileImage} alt={'image'}/>
+                                <div className={'user-name'}>
+                                  <div>{value.name} {value.permission === 'owner' && <span>[Owner]</span>}</div>
+                                  <div>{value.email}</div>
+                                </div>
+                                {value.permission !== 'owner' && <button>Transfer ownership</button>}
                               </div>
                             </div>
                           ))}
-                        </div>
-                      </div>
+                        </UserTableContainer>
+                      </ProfileContainer>) :
+                      (
+                        <ProfileContainer>
+                          <div className={'container-name'}>Invite member to your team</div>
+                          <div className={'container-information'}>Invite by code or email address
+                          </div>
+                          <div className={'container-subtitle'}>Your team invitation code
+                            <div>
+                              {teamInfo.registrationCode}
+                              <CopyToClipboard text={teamInfo.registrationCode}>
+                                <button onClick={CopiedAlert}><TbCopy/> Copy</button>
+                              </CopyToClipboard>
+                            </div>
+                          </div>
 
-                      <div className={'button-container'}>
-                        <button className={'save-button'}>Invite User</button>
-                        <button className={'cancel-button'}
-                                onClick={() => setEmailList([])}>Cancel
-                        </button>
-                      </div>
-                    </ProfileContainer>)
+                          <div className={'add-form-container'}>
+                            <form onSubmit={addEmailToList}>
+                              <label>
+                                <input placeholder={'Add user by email'} required={true}
+                                       value={email}
+                                       onChange={(e) => setEmail(e.target.value)}/>
+                                <button type="submit">Add</button>
+                              </label>
+
+                              {!isEmailFormValid.status && <p>{isEmailFormValid.message}</p>}
+                            </form>
+                          </div>
+
+                          <div className={'email-list-container'}>
+                            <div>
+                              {Object.values(emailList).map((value: EmailListProps, index: number) => (
+                                <div key={index}
+                                     className={`email-box ${value.removing ? 'removing' : ''}`}>
+                                  <form
+                                    onSubmit={e => handleEmailChange(e, value.email, true)}>
+                                    <label>
+                                      <input
+                                        value={value.editing ? editNewEmail : value.email}
+                                        className={`email-name ${value.editing ? 'editing' : ''}`}
+                                        readOnly={!value.editing}
+                                        id={value.email}
+                                        onChange={e => setEditNewEmail(e.target.value)}
+                                        ref={inputRef => {
+                                          if (value.editing) {
+                                            inputRef && inputRef.focus();
+                                          }
+                                        }}
+                                      />
+                                      {
+                                        value.editing &&
+                                        (
+                                          <div className={'button-container'}>
+                                            <button type={'button'}
+                                                    onClick={e => handleEmailChange(e, value.email, false)}>
+                                              <IoClose/></button>
+                                            <button type={'submit'}>
+                                              <IoCheckmarkSharp/>
+                                            </button>
+                                          </div>
+                                        )
+                                      }
+                                    </label>
+                                  </form>
+                                  <div className={'button-container'}>
+                                    <button onClick={() => editEmail(value.email)}><FiEdit/>
+                                    </button>
+                                    <button onClick={() => deleteEmail(value.email)}>
+                                      <AiFillDelete/></button>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
+                          <div className={'button-container'}>
+                            <button className={'save-button'} onClick={inviteUserHandler}>Invite User</button>
+                            <button className={'cancel-button'}
+                                    onClick={() => setEmailList([])}>Cancel
+                            </button>
+                          </div>
+                        </ProfileContainer>)
             }
           </RealTimeBox>
         </BoardRowSection>
@@ -715,6 +887,239 @@ const UserImageContainer = styled.div`
       left: 0;
       background: linear-gradient(110deg, rgba(227, 227, 227, 0) 0%, rgba(227, 227, 227, 0) 40%, rgba(171, 170, 170, 0.5) 50%, rgba(227, 227, 227, 0) 60%, rgba(227, 227, 227, 0) 100%);
       animation: ${loadingGradientAnimation} 1.2s linear infinite;
+    }
+  }
+`
+
+const UserTableContainer = styled.div`
+  width: 90%;
+  height: calc(100% - 8.5rem);
+  margin-top: 1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+
+  .ui-checkbox {
+    --primary-color: #1677ff;
+    --secondary-color: #fff;
+    --primary-hover-color: #4096ff;
+    --checkbox-diameter: 14px;
+    --checkbox-border-radius: 3px;
+    --checkbox-border-color: #d9d9d9;
+    --checkbox-border-width: 1px;
+    --checkbox-border-style: solid;
+    --checkmark-size: 1.2;
+  }
+
+  .ui-checkbox,
+  .ui-checkbox *,
+  .ui-checkbox *::before,
+  .ui-checkbox *::after {
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+
+  .ui-checkbox {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    width: var(--checkbox-diameter);
+    height: var(--checkbox-diameter);
+    border-radius: var(--checkbox-border-radius);
+    background: var(--secondary-color);
+    border: var(--checkbox-border-width) var(--checkbox-border-style) var(--checkbox-border-color);
+    -webkit-transition: all 0.3s;
+    -o-transition: all 0.3s;
+    transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .ui-checkbox::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    -webkit-box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    box-shadow: 0 0 0 calc(var(--checkbox-diameter) / 2.5) var(--primary-color);
+    border-radius: inherit;
+    opacity: 0;
+    -webkit-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    -o-transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+    transition: all 0.5s cubic-bezier(0.12, 0.4, 0.29, 1.46);
+  }
+
+  .ui-checkbox::before {
+    top: 40%;
+    left: 50%;
+    content: "";
+    position: absolute;
+    width: 3px;
+    height: 5px;
+    border-right: 2px solid var(--secondary-color);
+    border-bottom: 2px solid var(--secondary-color);
+    -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    -ms-transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    transform: translate(-50%, -50%) rotate(45deg) scale(0);
+    opacity: 0;
+    -webkit-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6), opacity 0.1s;
+    -o-transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6), opacity 0.1s;
+    transition: all 0.1s cubic-bezier(0.71, -0.46, 0.88, 0.6), opacity 0.1s;
+  }
+
+  .ui-checkbox:hover {
+    border-color: var(--primary-color);
+  }
+
+  .ui-checkbox:checked {
+    background: var(--primary-color);
+    border-color: transparent;
+  }
+
+  .ui-checkbox:checked::before {
+    opacity: 1;
+    -webkit-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+    -ms-transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+    transform: translate(-50%, -50%) rotate(45deg) scale(var(--checkmark-size));
+    -webkit-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+    -o-transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+    transition: all 0.2s cubic-bezier(0.12, 0.4, 0.29, 1.46) 0.1s;
+  }
+
+  .ui-checkbox:active:not(:checked)::after {
+    -webkit-transition: none;
+    -o-transition: none;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    transition: none;
+    opacity: 1;
+  }
+
+  .header {
+    width: 100%;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    background-color: ${({theme}) => theme.NavigationFocusButtonColor};
+    border: 1px solid ${({theme}) => theme.NavigationFocusButtonColor};
+    height: 3rem;
+    display: flex;
+
+    & div {
+      &:first-child {
+        width: 8%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &:last-child {
+        width: 92%;
+        display: flex;
+        align-items: center;
+        padding-left: 1rem;
+
+        & > button {
+          margin-left: auto;
+          margin-right: 1rem;
+          width: 6rem;
+          height: 2rem;
+          border-radius: 4px;
+          transition: all .2s;
+          border: none;
+          background-color: #e13333;
+          cursor: pointer;
+          color: #fff;
+
+          & svg {
+            margin-bottom: -0.1rem;
+          }
+        }
+
+        & .show-delete-button {
+          visibility: visible;
+          opacity: 1;
+
+          &:hover {
+            transform: translateY(-1px);
+            background-color: #b92626;
+          }
+        }
+
+        & .hidden-delete-button {
+          visibility: hidden;
+          opacity: 0;
+        }
+      }
+    }
+  }
+
+  & .row-data {
+    width: 100%;
+    height: 4.5rem;
+    display: flex;
+    border-left: 1px solid ${({theme}) => theme.NavigationFocusButtonColor};
+    border-right: 1px solid ${({theme}) => theme.NavigationFocusButtonColor};
+    border-bottom: 1px solid ${({theme}) => theme.NavigationFocusButtonColor};
+
+    & > div {
+      &:first-child {
+        width: 8%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      &:last-child {
+        width: 92%;
+        display: flex;
+        align-items: center;
+        padding-left: 1rem;
+
+        & img {
+          width: 2.5rem;
+          height: 2.5rem;
+          object-fit: cover;
+          object-position: center;
+          border-radius: 50%;
+        }
+
+        & .user-name {
+          padding-left: 1rem;
+          width: 70%;
+          display: block;
+
+          & > div {
+            &:first-child {
+              font-weight: 400;
+              color: #3b83f7;
+              font-size: 1rem;
+
+              & > span {
+                font-size: 0.8rem;
+                color: ${({theme}) => theme.fontSecondColor};
+              }
+            }
+
+            &:last-child {
+              font-weight: 300;
+              font-size: 0.8rem;
+            }
+          }
+        }
+
+        & > button {
+          margin-left: auto;
+          margin-right: 1rem;
+          width: 5rem;
+          height: 2.2rem;
+          font-size: 0.6rem;
+          background-color: ${({theme}) => theme.BottomNavigationFocusButtonColor};
+          color: ${({theme}) => theme.fontColor};
+          border: none;
+          border-radius: 4px;
+        }
+      }
     }
   }
 `

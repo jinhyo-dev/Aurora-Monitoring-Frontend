@@ -127,8 +127,8 @@ const SignUp = () => {
   };
 
   const titles: { [key: number]: string } = {
-    0: 'Choose a plan',
-    1: 'Sign up to Aurora',
+    0: 'Sign up to Aurora',
+    1: 'Welcome to Aurora !',
   }
 
   useEffect(() => {
@@ -232,10 +232,21 @@ const SignUp = () => {
             <CenterBox>
               <LeftBox>
                 <AuroraLogo style={{width: '12rem'}}/> <br/>
-                Features Supported by Aurora:<br/>
-                asdflkasdjflsajfsldfjlsdkjf asdfjlasf;asdhfkre<br/>
-                asdasd askflsad faiej iasdslfkajsde<br/>
-                sldisfjdlkfwefj wlkfhoaisdfowh fws <br/>
+                Features Supported by Aurora<br/><br/>
+
+                <ul>
+                  <li>CPU monitoring</li>
+                  <li>Disk monitoring</li>
+                  <li>Memory monitoring</li>
+                  <li>System log monitoring</li>
+                  <li>Create your team for free</li>
+                  <li>Invite/Register member on your team</li>
+                  <li>See your data as real-time</li>
+                  <li>Notify when its down</li>
+                  <li>Webhook & Integration</li>
+                  <li>Advanced Log Filtering</li>
+                  <li>Save history</li>
+                </ul>
               </LeftBox>
               <RightBox>
 
@@ -418,6 +429,13 @@ const LeftBox = styled.div`
   float: left;
   width: 45%;
   height: 100%;
+  
+  & ul {
+    & li {
+      font-size: 1.1rem;
+      margin-bottom: 10px;
+    }
+  }
 `
 
 const RightBox = styled.div`
