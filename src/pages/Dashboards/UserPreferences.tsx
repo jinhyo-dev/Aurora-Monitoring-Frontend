@@ -247,8 +247,8 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
       {
         style: {
           borderRadius: '5px',
-          background: cookies.theme === 'dark' ? '#484848' : '#e1e1e1',
-          color: cookies.theme === 'dark' ? '#fff' : '#000',
+          background: '#1aad54',
+          color: '#fff'
         },
         duration: 1000
       }
@@ -782,7 +782,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
                           <div>
                             {teamInfo.registrationCode}
                             <CopyToClipboard text={teamInfo.registrationCode}>
-                              <button onClick={CopiedAlert}><TbCopy/> Copy</button>
+                              <button onClick={CopiedAlert}><TbCopy/></button>
                             </CopyToClipboard>
                           </div>
                         </div>
@@ -1308,7 +1308,7 @@ const ProfileContainer = styled.div`
         color: ${({theme}) => theme.backgroundColor};
         border-radius: 5px;
         height: 1.5rem;
-        width: 3.5rem;
+        width: 2rem;
         cursor: pointer;
         transition: all .25s;
 
