@@ -202,7 +202,7 @@ const TeamSetting = () => {
 
   return (
     <DashboardMain>
-      <TitleTag title={'Team setting'}/>
+      <TitleTag title={'Teams'}/>
       <NavigationBar active={5}/>
       <BoardSection>
         <PageName name={'Team Setting'}/>

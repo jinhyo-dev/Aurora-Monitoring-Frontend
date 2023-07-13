@@ -36,6 +36,7 @@ import {MdDelete} from 'react-icons/md'
 import {confirmAlert} from "react-confirm-alert";
 import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
 import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
+import TitleTag from "../components/TitleTag.tsx";
 
 interface ButtonStatusProps {
   $active: boolean;
@@ -596,6 +597,7 @@ const UserPreferences: React.FC<UserPreferencesProps> = ({userInfo, teamInfo}) =
   return (
     <DashboardMain>
       <NavigationBar active={7}/>
+      <TitleTag title={'User preferences'}/>
       <BoardSection>
         <PageName name={'User Preferences'}/>
         <BoardRowSection style={{height: '91%'}}>
