@@ -36,7 +36,7 @@ import {
   DataItem,
   DiskReadSizeChartConfig,
   DiskWriteSizeChartConfig
-} from "./ChartConfiguraion";
+} from "./ChartConfiguration.ts";
 
 ChartJS.register(
   CategoryScale,

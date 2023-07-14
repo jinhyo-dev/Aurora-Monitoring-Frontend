@@ -31,7 +31,7 @@ import useWebSocket, {ReadyState} from 'react-use-websocket';
 import axiosInstance from "../../utils/AxiosInstance";
 import {
   DataItem,
-} from "./ChartConfiguraion";
+} from "./ChartConfiguration.ts";
 
 ChartJS.register(
   CategoryScale,

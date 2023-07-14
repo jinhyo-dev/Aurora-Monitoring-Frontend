@@ -38,7 +38,7 @@ import {
   SwapUsedChartConfig,
   TempValues,
   DataItem
-} from "./ChartConfiguraion";
+} from "./ChartConfiguration.ts";
 
 ChartJS.register(
   CategoryScale,

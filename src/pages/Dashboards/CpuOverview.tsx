@@ -37,7 +37,7 @@ import {
   TempValues,
   DataItem,
   UserChartConfig
-} from "./ChartConfiguraion";
+} from "./ChartConfiguration.ts";
 
 ChartJS.register(
   CategoryScale,

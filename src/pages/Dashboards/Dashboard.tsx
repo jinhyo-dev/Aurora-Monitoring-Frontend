@@ -30,7 +30,7 @@ import {
   ExtendedChartData, MemoryFreeChartConfig, MemoryUsedChartConfig, SwapFreeChartConfig, SwapUsedChartConfig,
   SystemChartConfig, TempValues, DataItem,
   UserChartConfig
-} from "./ChartConfiguraion";
+} from "./ChartConfiguration.ts";
 
 ChartJS.register(
   CategoryScale,
