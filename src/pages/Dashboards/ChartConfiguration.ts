@@ -1,4 +1,4 @@
-import { ChartData, ChartType } from "chart.js";
+import {ChartData, ChartType} from "chart.js";
 
 export interface ExtendedChartData extends ChartData<ChartType, number[], string> {
   datasets: {
@@ -19,19 +19,23 @@ export interface TempValues {
 
 export interface DataItem {
   _field: string;
+
   [key: string]: any;
 }
 
-const labelValue = ['100s', '90s', '80s', '70s', '60s', '50s', '40s', '30s', '20s', '10s']
+// const labelValue = ['100s', '90s', '80s', '70s', '60s', '50s', '40s', '30s', '20s', '10s']
 
-const createChartConfig = (data: any, label: string, color: string, unit: string) => {
+const createChartConfig = (label: string, color: string, unit: string) => {
   const maxLength = 10;
-  const processedData = data.slice(-maxLength).map((value: any) => value._value);
 
-  if (processedData.length < maxLength) {
-    const padding = Array(maxLength - processedData.length).fill(null);
-    processedData.unshift(...padding);
-  }
+  // 임시 데이터 생성
+  const tempData = Array.from({length: maxLength}, () => ({_value: Math.floor(Math.random() * 100)}));
+
+  // 임시 데이터 처리
+  const processedData = tempData.map((value: any) => value._value);
+
+  // 라벨 생성
+  const labelValue = Array.from({length: maxLength}, (_, i) => `${(i + 1) * 10}s`);
 
   const value: ExtendedChartData = {
     labels: labelValue,
@@ -51,23 +55,31 @@ const createChartConfig = (data: any, label: string, color: string, unit: string
   return value;
 };
 
-const createDoubleChartConfig = (data1: any, data2: any, label1: string, label2: string, color1: string, color2: string) => {
+
+const createDoubleChartConfig = (label1: string, label2: string, color1: string, color2: string) => {
   const maxLength = 10;
-  const processData = (data: any) => {
-    const processedData = data.slice(-maxLength).map((value: any) => value._value);
-    if (processedData.length < maxLength) {
-      const padding = Array(maxLength - processedData.length).fill(null);
-      processedData.unshift(...padding);
+
+  const processData = (data: any[]) => {
+    if (data.length < maxLength) {
+      const padding = Array(maxLength - data.length).fill(null);
+      data.unshift(...padding);
     }
-    return processedData;
+    return data;
   };
 
-  const chartData: ExtendedChartData = {
+  // 임시 데이터 생성
+  const tempData1 = Array.from({ length: maxLength }, () => Math.floor(Math.random() * 100));
+  const tempData2 = Array.from({ length: maxLength }, () => Math.floor(Math.random() * 100));
+
+  // 라벨 생성
+  const labelValue = Array.from({length: maxLength}, (_, i) => `${(i + 1) * 10}s`);
+
+  const chartData = {
     labels: labelValue,
     datasets: [
       {
         label: label1,
-        data: processData(data1),
+        data: processData(tempData1),
         borderColor: color1,
         backgroundColor: color1,
         pointStyle: false,
@@ -77,7 +89,7 @@ const createDoubleChartConfig = (data1: any, data2: any, label1: string, label2:
       },
       {
         label: label2,
-        data: processData(data2),
+        data: processData(tempData2),
         borderColor: color2,
         backgroundColor: color2,
         pointStyle: false,
@@ -92,38 +104,38 @@ const createDoubleChartConfig = (data1: any, data2: any, label1: string, label2:
 };
 
 
-export const CpuChartConfig = (data: any) => {
-  return createChartConfig(data, 'Cpu', '#ff5b5b', 'percent');
+export const CpuChartConfig = () => {
+  return createChartConfig('Cpu', '#ff5b5b', 'percent');
 };
 
-export const SystemChartConfig = (data: any) => {
-  return createChartConfig(data, 'System', '#FF00FF', 'percent');
+export const SystemChartConfig = () => {
+  return createChartConfig('System', '#FF00FF', 'percent');
 }
 
-export const UserChartConfig = (data: any) => {
-  return createChartConfig(data, 'User', '#3c6fcb', 'percent');
+export const UserChartConfig = () => {
+  return createChartConfig('User', '#3c6fcb', 'percent');
 }
 
-export const DiskReadSizeChartConfig = (data: any) => {
-  return createChartConfig(data, 'Disk', '#3399FF', 'read size');
+export const DiskReadSizeChartConfig = () => {
+  return createChartConfig('Disk', '#3399FF', 'read size');
 }
 
-export const DiskWriteSizeChartConfig = (data: any) => {
-  return createChartConfig(data, 'Disk', '#3399FF', 'write size');
+export const DiskWriteSizeChartConfig = () => {
+  return createChartConfig('Disk', '#3399FF', 'write size');
 }
 
-export const MemoryFreeChartConfig = (data1: any, data2: any) => {
-  return createDoubleChartConfig(data1, data2, 'Memory free', 'Memory total', '#4CB6E4', '#F5A623');
+export const MemoryFreeChartConfig = () => {
+  return createDoubleChartConfig('Memory free', 'Memory total', '#4CB6E4', '#F5A623');
 }
 
-export const MemoryUsedChartConfig = (data1: any, data2: any) => {
-  return createDoubleChartConfig(data1, data2, 'Memory used', 'Memory total', '#e73168', '#F5A623');
+export const MemoryUsedChartConfig = () => {
+  return createDoubleChartConfig('Memory used', 'Memory total', '#e73168', '#F5A623');
 }
 
-export const SwapFreeChartConfig = (data1: any, data2: any) => {
-  return createDoubleChartConfig(data1, data2, 'Swap free', 'Swap total', '#4CB6E4', '#F5A623');
+export const SwapFreeChartConfig = () => {
+  return createDoubleChartConfig('Swap free', 'Swap total', '#4CB6E4', '#F5A623');
 }
 
-export const SwapUsedChartConfig = (data1: any, data2: any) => {
-  return createDoubleChartConfig(data1, data2, 'Swap used', 'Swap total', '#e73168', '#F5A623');
+export const SwapUsedChartConfig = () => {
+  return createDoubleChartConfig('Swap used', 'Swap total', '#e73168', '#F5A623');
 }

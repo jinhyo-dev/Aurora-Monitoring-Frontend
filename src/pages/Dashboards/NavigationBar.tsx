@@ -31,29 +31,14 @@ const NavigationBar: React.FC<NavigationProps> = ({active}) => {
   const [showBackIcon, setShowBackIcon] = useState<boolean>(false);
   const [name, setName] = useState<string>('')
   const [teamName, setTeamName] = useState<string>('')
-  const [nameLoading, setNameLoading] = useState<boolean>(true)
-  const [teamLoading, setTeamLoading] = useState<boolean>(true)
+  const [nameLoading, setNameLoading] = useState<boolean>(false)
+  const [teamLoading, setTeamLoading] = useState<boolean>(false)
   const [cookies, setCookie, removeCookie] = useCookies()
   const navigate = useNavigate()
 
   useEffect(() => {
-    fetchUserInfo()
-      .then(res => {
-        if (res.data.email) {
-          setName(res.data.name.firstName + ' ' + res.data.name.lastName)
-        } else {
-          SignOut()
-        }
-      })
-      .catch(err => console.error(err))
-      .finally(() => setNameLoading(false))
-
-    fetchTeamInfo(teamId)
-      .then(res => {
-        setTeamName(res.data.team.name)
-      })
-      .catch(err => console.error(err))
-      .finally(() => setTeamLoading(false))
+    setName('jinhyo-dev')
+    setTeamName("Jinhyo's Company")
   }, [])
 
   const toggleDarkMode = () => {
@@ -319,10 +304,10 @@ const Nav = styled.nav<{ $status: boolean }>`
       display: ${({$status}) => ($status ? "" : "none")};
       animation: ${fadeIn} 0.35s ease-in-out;
       width: 70%;
-      overflow:hidden;
+      overflow: hidden;
       text-align: left;
-      text-overflow:ellipsis;
-      white-space:nowrap;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     & svg {

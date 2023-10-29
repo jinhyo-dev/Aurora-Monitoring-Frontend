@@ -1,4 +1,10 @@
-import { BoardRowSection, BoardSection, DashboardMain, RealTimeBox, SidebarMovingHandler } from "../../styles/GlobalStyle";
+import {
+  BoardRowSection,
+  BoardSection,
+  DashboardMain,
+  RealTimeBox,
+  SidebarMovingHandler
+} from "../../styles/GlobalStyle";
 import NavigationBar from "./NavigationBar";
 import PageName from "../components/PageName";
 import {
@@ -12,23 +18,17 @@ import {
   Legend,
 } from 'chart.js';
 
-import { Line } from 'react-chartjs-2';
-import { useCookies } from "react-cookie";
-import { useCallback, useEffect, useState } from "react";
-import {fetchAgentList, fetchTeamInfo} from "../../utils/Cookie";
-import Loaders from "../components/Loaders/Loaders";
-import Unauthorized from "../components/Error/Unauthorized";
-import { useParams } from "react-router-dom";
+import {Line} from 'react-chartjs-2';
+import {useCookies} from "react-cookie";
+import {useEffect, useState} from "react";
 import * as React from "react";
-import { ReactComponent as AuroraLogo } from '../../assets/svg/Aurora.svg'
-import { ReactComponent as AuroraLogoDark } from '../../assets/svg/AuroraDark.svg'
-import useWebSocket, { ReadyState } from 'react-use-websocket';
-import axiosInstance from "../../utils/AxiosInstance";
+import {ReactComponent as AuroraLogo} from '../../assets/svg/Aurora.svg'
+import {ReactComponent as AuroraLogoDark} from '../../assets/svg/AuroraDark.svg'
 import {
   CpuChartConfig,
   DiskReadSizeChartConfig, DiskWriteSizeChartConfig,
   ExtendedChartData, MemoryFreeChartConfig, MemoryUsedChartConfig, SwapFreeChartConfig, SwapUsedChartConfig,
-  SystemChartConfig, TempValues, DataItem,
+  SystemChartConfig,
   UserChartConfig
 } from "./ChartConfiguration.ts";
 
@@ -45,20 +45,11 @@ import TitleTag from '../components/TitleTag'
 
 const withTokenValidation = (WrappedComponent: React.ComponentType) => {
   const TokenValidationComponent = () => {
-    const [loading, setLoading] = useState<boolean>(true)
-    const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
-    const {teamId} = useParams()
+    // const [loading, setLoading] = useState<boolean>(true)
+    // const [isAuthorized, setIsAuthorized] = useState<boolean>(false)
+    // const {teamId} = useParams()
 
-    useEffect(() => {
-      const checkValidity = async () => {
-        const isValid = await fetchTeamInfo(teamId)
-        setIsAuthorized(isValid?.success)
-      };
-
-      checkValidity().then(() => setLoading(false))
-    }, []);
-
-    return loading ? <Loaders/> : isAuthorized ? <WrappedComponent/> : <Unauthorized/>;
+    return <WrappedComponent/>
   };
 
   return TokenValidationComponent;
@@ -67,8 +58,6 @@ const withTokenValidation = (WrappedComponent: React.ComponentType) => {
 const Dashboard = () => {
   const [cookies] = useCookies()
   const [sidebarMove, setSidebarMove] = useState<boolean>(true)
-  const [agentKey, setAgentKey] = useState<string>('')
-  const {teamId} = useParams()
 
   const [cpuData, setCpuData] = useState<ExtendedChartData | null>(null);
   const [systemData, setSystemData] = useState<ExtendedChartData | null>(null);
@@ -81,126 +70,17 @@ const Dashboard = () => {
   const [swapUsedData, setSwapUsedData] = useState<ExtendedChartData | null>(null);
 
   useEffect(() => {
-    fetchAgentList(teamId)
-      .then(res => {
-        setAgentKey(res[0].key)
-        const payload = {
-          start: '-2m',
-          stop: 'now()',
-          key: res[0].key,
-          windowPeriod: '10s',
-        }
 
-        const tempValues: TempValues = {
-          CpuPercent: [],
-          SystemPercent: [],
-          UserPercent: [],
-          ReadSize: [],
-          WriteSize: [],
-          MemoryFree: [],
-          MemoryUsed: [],
-          MemoryTotal: [],
-          SwapFree: [],
-          SwapUsed: [],
-          SwapTotal: [],
-        };
-
-        axiosInstance.post("/influx/overview", payload).then((res) => {
-          if (Array.isArray(res.data)) {
-            res.data.forEach((v: DataItem) => {
-              if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
-                tempValues[v._field].push(v);
-              }
-            })
-          } else {
-            console.error("res.data is not an array")
-          }
-        })
-          .then(() => {
-            setCpuData(CpuChartConfig(tempValues.CpuPercent))
-            setSystemData(SystemChartConfig(tempValues.SystemPercent))
-            setUserData(UserChartConfig(tempValues.UserPercent))
-            setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
-            setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
-            setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
-            setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
-            setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
-            setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
-          })
-    })
-
+    setCpuData(CpuChartConfig())
+    setSystemData(SystemChartConfig())
+    setUserData(UserChartConfig())
+    setDiskReadData(DiskReadSizeChartConfig())
+    setDiskWriteData(DiskWriteSizeChartConfig())
+    setMemoryFreeData(MemoryFreeChartConfig())
+    setMemoryUsedData(MemoryUsedChartConfig())
+    setSwapFreeData(SwapFreeChartConfig())
+    setSwapUsedData(SwapUsedChartConfig())
   }, [])
-
-  const SOCKET_URL = import.meta.env.VITE_WS_URL;
-
-  const messageHandler = useCallback((event: MessageEvent<any>) => {
-    const tempValues: TempValues = {
-      CpuPercent: [],
-      SystemPercent: [],
-      UserPercent: [],
-      ReadSize: [],
-      WriteSize: [],
-      MemoryFree: [],
-      MemoryUsed: [],
-      MemoryTotal: [],
-      SwapFree: [],
-      SwapUsed: [],
-      SwapTotal: [],
-    };
-
-    const data = JSON.parse(event.data);
-
-    if (Array.isArray(data)) {
-      data.forEach((v: DataItem) => {
-        if (Object.prototype.hasOwnProperty.call(tempValues, v._field)) {
-          tempValues[v._field].push(v);
-        }
-      });
-    } else {
-      console.error("Event data is not an array");
-    }
-
-    setCpuData(CpuChartConfig(tempValues.CpuPercent))
-    setSystemData(SystemChartConfig(tempValues.SystemPercent))
-    setUserData(UserChartConfig(tempValues.UserPercent))
-    setDiskReadData(DiskReadSizeChartConfig(tempValues.ReadSize))
-    setDiskWriteData(DiskWriteSizeChartConfig(tempValues.WriteSize))
-    setMemoryFreeData(MemoryFreeChartConfig(tempValues.MemoryFree, tempValues.MemoryTotal))
-    setMemoryUsedData(MemoryUsedChartConfig(tempValues.MemoryUsed, tempValues.MemoryTotal))
-    setSwapFreeData(SwapFreeChartConfig(tempValues.SwapFree, tempValues.SwapTotal))
-    setSwapUsedData(SwapUsedChartConfig(tempValues.SwapUsed, tempValues.SwapTotal))
-  }, []);
-
-  const {sendMessage, readyState} = useWebSocket(SOCKET_URL, {
-    onMessage: messageHandler,
-    reconnectAttempts: 10,
-    reconnectInterval: 3000,
-    shouldReconnect: () => true,
-  });
-
-  useEffect(() => {
-    if (agentKey !== undefined) {
-      const timerId = setInterval(() => {
-        if (readyState === ReadyState.OPEN) {
-          sendMessage(
-            JSON.stringify({
-              event: 'overview',
-              data: {
-                start: '-2m',
-                stop: 'now()',
-                key: agentKey,
-                windowPeriod: '10s',
-              },
-            }),
-          );
-        } else {
-          console.log('WebSocket is not connected');
-        }
-      }, 10000);
-
-      return () => clearInterval(timerId);
-    }
-  }, [agentKey, readyState, sendMessage]);
 
   useEffect(() => {
     setSidebarMove(true)
