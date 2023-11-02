@@ -119,9 +119,9 @@ const AgentRegister = () => {
                     <div>1. Install agent by running this script on your ubuntu 22.04 host</div>
                     <div>
                       <span className={'dollar'}>$</span>
-                      <span className={'command'}>curl https://raw.githubusercontent.com/proj-aurora/Releases/main/install.sh | sudo bash</span>
+                      <span className={'command'}>sudo curl https://raw.githubusercontent.com/proj-aurora/Releases/main/install.sh | sudo bash</span>
                       <CopyToClipboard
-                        text={'curl https://raw.githubusercontent.com/proj-aurora/Releases/main/install.sh | sudo bash'}>
+                        text={'sudo curl https://raw.githubusercontent.com/proj-aurora/Releases/main/install.sh | sudo bash'}>
                         <TbCopy onClick={CopiedAlert}/>
                       </CopyToClipboard>
                     </div>
